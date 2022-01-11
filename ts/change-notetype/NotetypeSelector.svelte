@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { ChangeNotetypeState } from "./lib";
+    import type { SelectOption } from "../components/types";
     import StickyContainer from "../components/StickyContainer.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import Item from "../components/Item.svelte";
@@ -13,16 +14,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "../components/Badge.svelte";
     import { arrowRightIcon, arrowLeftIcon } from "./icons";
     import SelectButton from "../components/SelectButton.svelte";
-    import SelectOption from "../components/SelectOption.svelte";
     import SaveButton from "./SaveButton.svelte";
 
     export let state: ChangeNotetypeState;
     let notetypes = state.notetypes;
     let info = state.info;
 
-    async function blur(event: Event): Promise<void> {
+    async function blur(event: CustomEvent<SelectOption>): Promise<void> {
         await state.setTargetNotetypeIndex(
-            parseInt((event.target! as HTMLSelectElement).value),
+            event.detail.idx,
         );
     }
 </script>
@@ -31,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     --gutter-block="0.1rem"
     --gutter-inline="0.25rem"
     --sticky-borders="0 0 1px"
+    --sticky-z-index="3"
 >
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
         <Item>
@@ -52,16 +53,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Item>
             <ButtonGroup class="flex-grow-1">
                 <ButtonGroupItem>
-                    <SelectButton class="flex-grow-1" on:change={blur}>
-                        {#each $notetypes as entry}
-                            <SelectOption
-                                value={String(entry.idx)}
-                                selected={entry.current}
-                            >
-                                {entry.name}
-                            </SelectOption>
-                        {/each}
-                    </SelectButton>
+                    <SelectButton
+                        options={Array.from($notetypes, (entry) => entry.name)}
+                        class="flex-grow-1"
+                        searchable={true}
+                        on:change={blur}
+                    />
                 </ButtonGroupItem>
             </ButtonGroup>
         </Item>

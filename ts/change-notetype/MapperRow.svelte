@@ -3,9 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "../lib/ftl";
     import Row from "../components/Row.svelte";
     import Col from "../components/Col.svelte";
+    import Select from "../components/Select.svelte";
     import type { ChangeNotetypeState, MapContext } from "./lib";
+    import type { SelectOption } from "../components/types";
+
 
     export let state: ChangeNotetypeState;
     export let ctx: MapContext;
@@ -13,8 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let info = state.info;
 
-    function onChange(evt: Event) {
-        const oldIdx = parseInt((evt.target as HTMLSelectElement).value, 10);
+    function onChange(evt: CustomEvent<SelectOption>) {
+        const oldIdx = evt.detail.idx;
         state.setOldIndex(ctx, newIndex, oldIdx);
     }
 </script>
@@ -22,15 +26,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Row --cols={2}>
     <Col --col-size={1}>
         <!-- svelte-ignore a11y-no-onchange -->
-        <select
+        <Select
+            class="flex-grow-1"
+            options={$info.getOldNames(ctx)}
             value={$info.getOldIndex(ctx, newIndex)}
-            class="form-select"
+            placeholder={tr.changeNotetypeNothing()}
             on:change={onChange}
-        >
-            {#each $info.getOldNamesIncludingNothing(ctx) as name, idx}
-                <option value={idx}>{name}</option>
-            {/each}
-        </select>
+        />
     </Col>
     <Col --col-size={1}>
         {$info.getNewName(ctx, newIndex)}

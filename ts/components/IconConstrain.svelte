@@ -3,12 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    export let id = "";
     export let iconSize: number = 100;
     export let widthMultiplier: number = 1;
     export let flipX: boolean = false;
 </script>
 
 <span
+    {id}
     class:flip-x={flipX}
     style="--width-multiplier: {widthMultiplier}; --icon-size: {iconSize}%;"
 >

@@ -30,6 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     --sticky-top={ctx === MapContext.Template ? "-1px" : "0"}
     --sticky-border="var(--border)"
     --sticky-borders="0px 0 1px"
+    --sticky-z-index="2"
 >
     <h1>
         {heading}

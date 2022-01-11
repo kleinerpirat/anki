@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
 
     import SelectButton from "../components/SelectButton.svelte";
-    import SelectOption from "../components/SelectOption.svelte";
+    import type { SelectOption } from "../components/types";
     import SaveButton from "./SaveButton.svelte";
 
     export let state: DeckOptionsState;
@@ -28,8 +28,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return `${entry.name} (${count})`;
     }
 
-    function blur(event: Event): void {
-        state.setCurrentIndex(parseInt((event.target! as HTMLSelectElement).value));
+    function blur(event: CustomEvent<SelectOption>): void {
+        state.setCurrentIndex(event.detail.idx);
     }
 
     function onAddConfig(text: string): void {
@@ -92,16 +92,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Item>
             <ButtonGroup class="flex-grow-1">
                 <ButtonGroupItem>
-                    <SelectButton class="flex-grow-1" on:change={blur}>
-                        {#each $configList as entry}
-                            <SelectOption
-                                value={String(entry.idx)}
-                                selected={entry.current}
-                            >
-                                {configLabel(entry)}
-                            </SelectOption>
-                        {/each}
-                    </SelectButton>
+                    <SelectButton
+                        options={Array.from($configList, (entry) => configLabel(entry))}
+                        class="flex-grow-1"
+                        on:change={blur}
+                    />
                 </ButtonGroupItem>
             </ButtonGroup>
         </Item>

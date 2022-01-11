@@ -48,5 +48,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 0;
         overflow: hidden auto;
         height: calc(100% - var(--offset));
+        z-index: -1;
     }
 </style>
