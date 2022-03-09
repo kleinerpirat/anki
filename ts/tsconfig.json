@@ -4,6 +4,7 @@
     "references": [
         { "path": "components" },
         { "path": "congrats" },
+        { "path": "main-view" },
         { "path": "deck-options" },
         { "path": "editable" },
         { "path": "editor" },

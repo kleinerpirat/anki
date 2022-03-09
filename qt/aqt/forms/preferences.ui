@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>480</height>
+    <height>629</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -86,6 +86,13 @@
         <widget class="QCheckBox" name="paste_strips_formatting">
          <property name="text">
           <string>preferences_paste_without_shift_key_strips_formatting</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="unified_mw">
+         <property name="text">
+          <string>preferences_unified_main_window</string>
          </property>
         </widget>
        </item>
@@ -604,6 +611,7 @@
   <tabstop>interrupt_audio</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
+  <tabstop>unified_mw</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
@@ -622,8 +630,8 @@
   <tabstop>fullSync</tabstop>
   <tabstop>syncDeauth</tabstop>
   <tabstop>media_log</tabstop>
-  <tabstop>tabWidget</tabstop>
   <tabstop>numBackups</tabstop>
+  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

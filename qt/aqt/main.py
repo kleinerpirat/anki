@@ -54,7 +54,7 @@ from aqt.operations.deck import set_current_deck
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
-from aqt.sync import sync_collection, sync_login
+from aqt.sync import sync_collection, sync_login, get_sync_status
 from aqt.taskman import TaskManager
 from aqt.theme import Theme, theme_manager
 from aqt.undo import UndoActionsInfo
@@ -128,6 +128,31 @@ class MainWebView(AnkiWebView):
             # importing continues after the above call returns, so it is not
             # currently safe for us to import more than one file at once
             return
+
+    # Toolbar functions for experimental unified main window
+    ##########################################################################
+
+    def set_sync_active(self, active: bool) -> None:
+        self.eval(f"anki.mainWindow.setSyncStatus({active}); ")
+
+    def set_sync_status(self, status: SyncStatus) -> None:
+        self.eval(f"anki.mainWindow.updateSyncColor({status.required})")
+
+    def update_sync_status(self) -> None:
+        get_sync_status(self.mw, self.set_sync_status)
+
+    def draw(
+        self,
+        buf: str = "",
+        web_context: Any | None = None,
+        link_handler: Callable[[str], Any] | None = None,
+    ) -> None:
+        return
+
+    def redraw(self) -> None:
+        self.set_sync_active(self.mw.media_syncer.is_syncing())
+        self.update_sync_status()
+        gui_hooks.top_toolbar_did_redraw(self)
 
 
 class AnkiQt(QMainWindow):
@@ -208,9 +233,12 @@ class AnkiQt(QMainWindow):
         self.setup_focus()
         self.setup_shortcuts()
         # screens
-        self.setupDeckBrowser()
-        self.setupOverview()
-        self.setupReviewer()
+        if os.getenv("UNIFIED_MV"):
+            self.setupMainView()
+        else:
+            self.setupDeckBrowser()
+            self.setupOverview()
+            self.setupReviewer()
 
     def finish_ui_setup(self) -> None:
         "Actions that are deferred until after add-on loading."
@@ -455,7 +483,8 @@ class AnkiQt(QMainWindow):
             restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
         # titlebar
-        self.setWindowTitle(f"{self.pm.name} - Anki")
+        if not os.getenv("UNIFIED_MV"):
+            self.setWindowTitle(f"{self.pm.name} - Anki")
         # show and raise window for osx
         self.show()
         self.activateWindow()
@@ -874,30 +903,41 @@ title="{}" {}>{}</button>""".format(
         # main window
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
-        # toolbar
-        tweb = self.toolbarWeb = AnkiWebView(title="top toolbar")
-        tweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        tweb.disable_zoom()
-        self.toolbar = aqt.toolbar.Toolbar(self, tweb)
-        # main area
-        self.web = MainWebView(self)
-        # bottom area
-        sweb = self.bottomWeb = AnkiWebView(title="bottom toolbar")
-        sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        sweb.disable_zoom()
-        # add in a layout
-        self.mainLayout = QVBoxLayout()
-        self.mainLayout.setContentsMargins(0, 0, 0, 0)
-        self.mainLayout.setSpacing(0)
-        self.mainLayout.addWidget(tweb)
-        self.mainLayout.addWidget(self.web)
-        self.mainLayout.addWidget(sweb)
-        self.form.centralwidget.setLayout(self.mainLayout)
 
-        # force webengine processes to load before cwd is changed
-        if is_win:
-            for webview in self.web, self.bottomWeb:
-                webview.force_load_hack()
+        if os.getenv("UNIFIED_MV"):
+            # experimental unified main window
+            self.web = self.bottomWeb = MainWebView(self)
+            self.toolbar = self.web
+            self.mainLayout = QVBoxLayout()
+            self.mainLayout.addWidget(self.web)
+            self.form.centralwidget.setLayout(self.mainLayout)
+            if is_win:
+                self.web.force_load_hack()
+        else:
+            # toolbar
+            tweb = self.toolbarWeb = AnkiWebView(title="top toolbar")
+            tweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+            tweb.disable_zoom()
+            self.toolbar = aqt.toolbar.Toolbar(self, tweb)
+            # main area
+            self.web = MainWebView(self)
+            # bottom area
+            sweb = self.bottomWeb = AnkiWebView(title="bottom toolbar")
+            sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+            sweb.disable_zoom()
+            # add in a layout
+            self.mainLayout = QVBoxLayout()
+            self.mainLayout.setContentsMargins(0, 0, 0, 0)
+            self.mainLayout.setSpacing(0)
+            self.mainLayout.addWidget(tweb)
+            self.mainLayout.addWidget(self.web)
+            self.mainLayout.addWidget(sweb)
+            self.form.centralwidget.setLayout(self.mainLayout)
+
+            # force webengine processes to load before cwd is changed
+            if is_win:
+                for webview in self.web, self.bottomWeb:
+                    webview.force_load_hack()
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
@@ -965,6 +1005,11 @@ title="{}" {}>{}</button>""".format(
 
     def inMainThread(self) -> bool:
         return self._mainThread == QThread.currentThread()
+
+    def setupMainView(self) -> None:
+        from aqt.mainview import MainView
+
+        self.deckBrowser = self.overview = self.reviewer = MainView(self)
 
     def setupDeckBrowser(self) -> None:
         from aqt.deckbrowser import DeckBrowser
