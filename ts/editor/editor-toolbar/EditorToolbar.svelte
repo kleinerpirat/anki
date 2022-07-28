@@ -54,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
-    import StickyContainer from "../../components/StickyContainer.svelte";
+    import Container from "../../components/Container.svelte";
     import BlockButtons from "./BlockButtons.svelte";
     import InlineButtons from "./InlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
@@ -86,7 +86,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContextProperty(api);
 </script>
 
-<StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
+<Container --gutter-block="0.1rem">
     <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
@@ -112,4 +112,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Item>
         </DynamicallySlottable>
     </ButtonToolbar>
-</StickyContainer>
+</Container>

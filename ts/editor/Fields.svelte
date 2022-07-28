@@ -1,23 +1,22 @@
+<script lang="ts">
+    import ScrollArea from "../components/ScrollArea.svelte";
+</script>
+
 <!--
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<div class="fields">
+<ScrollArea class="fields">
     <slot />
-</div>
+</ScrollArea>
 
 <style lang="scss">
-    .fields {
+    :global(.fields) {
         display: grid;
         grid-auto-rows: min-content;
         grid-gap: 4px;
 
         padding: 5px 3px 0;
-        /* set height to 100% for rich text widgets */
-        height: 100%;
-
-        /* moves the scrollbar inside the editor */
-        overflow-x: hidden;
 
         > :global(:last-child) {
             /* bottom padding is eaten by overflow-x */

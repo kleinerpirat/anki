@@ -32,15 +32,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .container {
         display: flex;
+        flex-grow: 1;
         flex-direction: var(--container-direction, column);
 
         padding: var(--gutter-block, 0) var(--gutter-inline, 0);
         margin: 0 auto;
 
         &.container-fluid {
-            width: 100%;
-            height: 100%;
-
             margin: 0;
         }
     }

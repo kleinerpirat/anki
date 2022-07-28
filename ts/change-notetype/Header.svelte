@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
-    import StickyContainer from "../components/StickyContainer.svelte";
     import * as tr from "../lib/ftl";
     import Alert from "./Alert.svelte";
     import { exclamationIcon } from "./icons";
@@ -26,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: unused = $info.unusedItems(ctx);
 </script>
 
-<StickyContainer
+<Container
     --sticky-top={ctx === MapContext.Template ? "-1px" : "0"}
     --sticky-border="var(--border)"
     --sticky-borders="0px 0 1px"
@@ -52,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Row>
         </Container>
     {/if}
-</StickyContainer>
+</Container>
 
 <style lang="scss">
     h1 {

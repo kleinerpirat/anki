@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { modalsKey } from "../components/context-keys";
     import SelectButton from "../components/SelectButton.svelte";
     import SelectOption from "../components/SelectOption.svelte";
-    import StickyContainer from "../components/StickyContainer.svelte";
+    import Container from "../components/Container.svelte";
     import * as tr from "../lib/ftl";
     import { noop } from "../lib/functional";
     import type { ConfigListEntry, DeckOptionsState } from "./lib";
@@ -90,7 +90,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:modalKey
 />
 
-<StickyContainer --gutter-block="0.5rem" --sticky-borders="0 0 1px" breakpoint="sm">
+<Container --gutter-block="var(--gutter-medium)" breakpoint="sm">
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
         <ButtonGroup class="flex-grow-1">
             <SelectButton
@@ -115,4 +115,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:remove={dispatchPresetChange}
         />
     </ButtonToolbar>
-</StickyContainer>
+</Container>

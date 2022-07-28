@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
 
     import Container from "../components/Container.svelte";
+    import ScrollArea from "../components/ScrollArea.svelte";
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
     import Row from "../components/Row.svelte";
@@ -58,80 +59,86 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let onPresetChange: () => void;
 </script>
 
-<ConfigSelector {state} on:presetchange={onPresetChange} />
-
 <div class="deck-options-page">
-    <Container
-        breakpoint="sm"
-        --gutter-inline="0.25rem"
-        --gutter-block="0.5rem"
-        class="container-columns"
-    >
-        <DynamicallySlottable slotHost={Item} api={options}>
-            <Item>
-                <Row class="row-columns">
-                    <DailyLimits {state} api={dailyLimits} bind:onPresetChange />
-                </Row>
-            </Item>
+    <ConfigSelector {state} on:presetchange={onPresetChange} />
 
-            <Item>
-                <Row class="row-columns">
-                    <NewOptions {state} api={newOptions} />
-                </Row>
-            </Item>
-
-            <Item>
-                <Row class="row-columns">
-                    <LapseOptions {state} api={lapseOptions} />
-                </Row>
-            </Item>
-
-            {#if state.v3Scheduler}
+    <ScrollArea>
+        <Container
+            breakpoint="sm"
+            --gutter-inline="var(--gutter-small)"
+            --gutter-block="var(--gutter-medium)"
+            class="container-columns"
+        >
+            <DynamicallySlottable slotHost={Item} api={options}>
                 <Item>
                     <Row class="row-columns">
-                        <DisplayOrder {state} api={displayOrder} />
+                        <DailyLimits {state} api={dailyLimits} bind:onPresetChange />
                     </Row>
                 </Item>
-            {/if}
 
-            <Item>
-                <Row class="row-columns">
-                    <TimerOptions {state} api={timerOptions} />
-                </Row>
-            </Item>
+                <Item>
+                    <Row class="row-columns">
+                        <NewOptions {state} api={newOptions} />
+                    </Row>
+                </Item>
 
-            <Item>
-                <Row class="row-columns">
-                    <BuryOptions {state} api={buryOptions} />
-                </Row>
-            </Item>
+                <Item>
+                    <Row class="row-columns">
+                        <LapseOptions {state} api={lapseOptions} />
+                    </Row>
+                </Item>
 
-            <Item>
-                <Row class="row-columns">
-                    <AudioOptions {state} api={audioOptions} />
-                </Row>
-            </Item>
+                {#if state.v3Scheduler}
+                    <Item>
+                        <Row class="row-columns">
+                            <DisplayOrder {state} api={displayOrder} />
+                        </Row>
+                    </Item>
+                {/if}
 
-            <Item>
-                <Row class="row-columns">
-                    <Addons {state} />
-                </Row>
-            </Item>
+                <Item>
+                    <Row class="row-columns">
+                        <TimerOptions {state} api={timerOptions} />
+                    </Row>
+                </Item>
 
-            <Item>
-                <Row class="row-columns">
-                    <AdvancedOptions {state} api={advancedOptions} />
-                </Row>
-            </Item>
-        </DynamicallySlottable>
-    </Container>
+                <Item>
+                    <Row class="row-columns">
+                        <BuryOptions {state} api={buryOptions} />
+                    </Row>
+                </Item>
+
+                <Item>
+                    <Row class="row-columns">
+                        <AudioOptions {state} api={audioOptions} />
+                    </Row>
+                </Item>
+
+                <Item>
+                    <Row class="row-columns">
+                        <Addons {state} />
+                    </Row>
+                </Item>
+
+                <Item>
+                    <Row class="row-columns">
+                        <AdvancedOptions {state} api={advancedOptions} />
+                    </Row>
+                </Item>
+            </DynamicallySlottable>
+        </Container>
+    </ScrollArea>
 </div>
 
 <style lang="scss">
     @use "sass/breakpoints" as bp;
 
     .deck-options-page {
-        overflow-x: hidden;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
 
         @include bp.with-breakpoint("lg") {
             :global(.container) {

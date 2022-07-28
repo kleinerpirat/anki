@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelButton from "../components/LabelButton.svelte";
     import SelectButton from "../components/SelectButton.svelte";
     import SelectOption from "../components/SelectOption.svelte";
-    import StickyContainer from "../components/StickyContainer.svelte";
+    import Container from "../components/Container.svelte";
     import { arrowLeftIcon, arrowRightIcon } from "./icons";
     import type { ChangeNotetypeState } from "./lib";
     import SaveButton from "./SaveButton.svelte";
@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<StickyContainer
+<Container
     --gutter-block="0.1rem"
     --gutter-inline="0.25rem"
     --sticky-borders="0 0 1px"
@@ -53,4 +53,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <SaveButton {state} />
     </ButtonToolbar>
-</StickyContainer>
+</Container>
