@@ -8,6 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { bridgeCommand } from "../lib/bridgecommand";
     import { pageTheme } from "../sveltelib/theme";
+    import ScrollArea from "../components/ScrollArea.svelte";
+    import Page from "../components/Page.svelte";
     import WithGraphData from "./WithGraphData.svelte";
 
     export let initialSearch: string;
@@ -24,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div>
+<Page class="graphs-page">
     <WithGraphData
         {search}
         {days}
@@ -37,25 +39,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <svelte:component this={controller} {search} {days} {loading} />
         {/if}
 
-        {#if sourceData && preferences && revlogRange}
-            {#each graphs as graph}
-                <svelte:component
-                    this={graph}
-                    {sourceData}
-                    {preferences}
-                    {revlogRange}
-                    nightMode={$pageTheme.isDark}
-                    on:search={browserSearch}
-                />
-            {/each}
-        {/if}
+        <ScrollArea>
+            {#if sourceData && preferences && revlogRange}
+                {#each graphs as graph}
+                    <svelte:component
+                        this={graph}
+                        {sourceData}
+                        {preferences}
+                        {revlogRange}
+                        nightMode={$pageTheme.isDark}
+                        on:search={browserSearch}
+                    />
+                {/each}
+            {/if}
+        </ScrollArea>
     </WithGraphData>
-</div>
-
-<style lang="scss">
-    div {
-        @media only screen and (max-width: 600px) {
-            font-size: 12px;
-        }
-    }
-</style>
+</Page>

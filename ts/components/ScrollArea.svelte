@@ -31,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: scrolledToRight = !overflowX ? true : scrollLeft == scrollWidth - clientWidth;
     $: scrolledToBottom = !overflowY ? true : scrollTop == scrollHeight - clientHeight;
     $: scrolledToLeft = !overflowX ? true : scrollLeft == 0;
+    $: console.log(scrollLeft);
 
     $: shadows = {
         top: scrolledToBottom ? "0 0" : "0px -5px",
@@ -48,9 +49,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     {id}
     class="scroll-area {className}"
-    style={`--box-shadow: ${shadow}`}
+    style={`--box-shadow: ${shadow}; --client-height: ${clientHeight}px`}
     bind:this={element}
     bind:clientHeight
+    bind:clientWidth
     class:vertical
     class:horizontal
     on:scroll={() => {
@@ -68,10 +70,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .scroll-area {
         background: var(--scroll-bg, var(--window-bg));
+        margin: var(--margin, var(--margin-y, 0)) var(--margin, var(--margin-x, 0));
         overflow: hidden;
-        position: relative;
-        box-shadow: var(--box-shadow);
-        transition: box-shadow 0.1s ease-in-out;
+
+        flex-grow: 1;
         &.vertical {
             overflow-y: scroll;
         }

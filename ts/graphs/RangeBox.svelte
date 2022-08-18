@@ -113,17 +113,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .range-box {
-        position: fixed;
-        z-index: 1;
-        top: 0;
         width: 100%;
         color: var(--text-fg);
         background: var(--window-bg);
         padding: 0.5em;
-
-        @media print {
-            position: absolute;
-        }
     }
 
     @keyframes spin {

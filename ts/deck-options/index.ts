@@ -48,7 +48,7 @@ import EnumSelectorRow from "./EnumSelectorRow.svelte";
 import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
 import SpinBoxRow from "./SpinBoxRow.svelte";
 import SwitchRow from "./SwitchRow.svelte";
-import TitledContainer from "./TitledContainer.svelte";
+import TitledContainer from "../components/TitledContainer.svelte";
 
 export const components = {
     TitledContainer,

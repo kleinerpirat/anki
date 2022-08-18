@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
     import type { DeckOptionsState } from "./lib";
     import { reviewMixChoices } from "./strings";
-    import TitledContainer from "./TitledContainer.svelte";
+    import TitledContainer from "../components/TitledContainer.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;

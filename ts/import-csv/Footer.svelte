@@ -21,38 +21,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div style:flex-grow="1" />
-<div class="sticky-footer">
-    <Row --cols={5}
-        ><Col --col-size={4}>{basename(path)}</Col><Col --col-justify="end">
+<div class="footer">
+    <Row --cols={5}>
+        <Col --col-size={4}>{basename(path)}</Col>
+        <Col --col-justify="end">
             <ButtonGroup size={2}>
                 <LabelButton
                     theme="primary"
                     tooltip={getPlatformString(keyCombination)}
                     on:click={onImport}
                     --border-left-radius="5px"
-                    --border-right-radius="5px">{tr.actionsImport()}</LabelButton
+                    --border-right-radius="5px"
                 >
+                    {tr.actionsImport()}
+                </LabelButton>
                 <Shortcut {keyCombination} on:action={onImport} />
-            </ButtonGroup></Col
-        ></Row
-    >
+            </ButtonGroup>
+        </Col>
+    </Row>
 </div>
 
 <style lang="scss">
-    .sticky-footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 10;
-
-        margin: 0;
-        padding: 0.25rem;
-
-        background: var(--window-bg);
-        border-style: solid none none;
-        border-color: var(--border);
-        border-width: thin;
+    .footer {
+        margin: 1em;
+        & :global(.row) {
+            min-height: initial;
+        }
     }
 </style>

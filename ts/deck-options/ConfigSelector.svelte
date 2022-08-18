@@ -116,3 +116,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         />
     </ButtonToolbar>
 </Container>
+
+<style lang="scss">
+    :global(.container) {
+        width: 100%;
+    }
+</style>

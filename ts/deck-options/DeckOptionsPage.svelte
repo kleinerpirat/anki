@@ -134,8 +134,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/breakpoints" as bp;
 
     .deck-options-page {
-        height: 100vh;
-        width: 100vw;
+        height: 100%;
+        width: 100%;
         display: flex;
         justify-content: center;
         flex-direction: column;

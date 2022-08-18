@@ -25,11 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<Container
-    --gutter-block="0.1rem"
-    --gutter-inline="0.25rem"
-    --sticky-borders="0 0 1px"
->
+<Container --gutter-block="0.1rem" --gutter-inline="0.25rem">
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
         <LabelButton disabled={true}>
             {$info.oldNotetypeName}

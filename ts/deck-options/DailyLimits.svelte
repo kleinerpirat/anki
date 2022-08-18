@@ -10,7 +10,7 @@
     import { ValueTab } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import TabbedValue from "./TabbedValue.svelte";
-    import TitledContainer from "./TitledContainer.svelte";
+    import TitledContainer from "../components/TitledContainer.svelte";
     import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;

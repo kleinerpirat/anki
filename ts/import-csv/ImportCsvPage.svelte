@@ -3,10 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import Page from "../components/Page.svelte";
+    import ScrollArea from "../components/ScrollArea.svelte";
     import Col from "../components/Col.svelte";
-    import Container from "../components/Container.svelte";
+    import TitledContainer from "../components/TitledContainer.svelte";
     import Row from "../components/Row.svelte";
-    import Spacer from "../components/Spacer.svelte";
     import * as tr from "../lib/ftl";
     import {
         Decks,
@@ -19,12 +20,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DelimiterSelector from "./DelimiterSelector.svelte";
     import DupeResolutionSelector from "./DupeResolutionSelector.svelte";
     import FieldMapper from "./FieldMapper.svelte";
-    import Header from "./Header.svelte";
     import HtmlSwitch from "./HtmlSwitch.svelte";
     import { getColumnOptions, getCsvMetadata } from "./lib";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import Preview from "./Preview.svelte";
-    import StickyFooter from "./StickyFooter.svelte";
+    import Footer from "./Footer.svelte";
     import Tags from "./Tags.svelte";
 
     export let path: string;
@@ -96,55 +96,59 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<Container class="csv-page">
-    <Row --cols={2}>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
-                <Header heading={tr.importingFile()} />
-                <Spacer --height="1.5rem" />
-                <DelimiterSelector bind:delimiter disabled={forceDelimiter} />
-                <HtmlSwitch bind:isHtml disabled={forceIsHtml} />
-                <Preview {columnOptions} {preview} />
-            </Container>
-        </Col>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
-                <Header heading={tr.importingImportOptions()} />
-                <Spacer --height="1.5rem" />
-                {#if globalNotetype}
-                    <NotetypeSelector
-                        {notetypeNameIds}
-                        bind:notetypeId={globalNotetype.id}
-                    />
-                {/if}
-                {#if deckId}
-                    <DeckSelector {deckNameIds} bind:deckId />
-                {/if}
-                <DupeResolutionSelector bind:dupeResolution />
-                <Tags bind:globalTags bind:updatedTags />
-            </Container>
-        </Col>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
-                <Header heading={tr.importingFieldMapping()} />
-                <Spacer --height="1.5rem" />
-                <FieldMapper {columnOptions} bind:globalNotetype bind:tagsColumn />
-            </Container>
-        </Col>
-    </Row>
-    <StickyFooter {path} {onImport} />
-</Container>
+<Page class="csv-page" --gutter-inline="0.25rem" --gutter-block="0.5rem">
+    <ScrollArea>
+        <div class="margin">
+            <Row --cols={3}>
+                <Col --col-size={1} breakpoint="md">
+                    <TitledContainer title={tr.importingFile()}>
+                        <DelimiterSelector bind:delimiter disabled={forceDelimiter} />
+                        <HtmlSwitch bind:isHtml disabled={forceIsHtml} />
+                        <Preview {columnOptions} {preview} />
+                    </TitledContainer>
+                </Col>
+                <Col --col-size={1} breakpoint="md">
+                    <TitledContainer title={tr.importingImportOptions()}>
+                        {#if globalNotetype}
+                            <NotetypeSelector
+                                {notetypeNameIds}
+                                bind:notetypeId={globalNotetype.id}
+                            />
+                        {/if}
+                        {#if deckId}
+                            <DeckSelector {deckNameIds} bind:deckId />
+                        {/if}
+                        <DupeResolutionSelector bind:dupeResolution />
+                        <Tags bind:globalTags bind:updatedTags />
+                    </TitledContainer>
+                </Col>
+                <Col --col-size={1} breakpoint="md">
+                    <TitledContainer title={tr.importingFieldMapping()}>
+                        <FieldMapper
+                            {columnOptions}
+                            bind:globalNotetype
+                            bind:tagsColumn
+                        />
+                    </TitledContainer>
+                </Col>
+            </Row>
+        </div>
+    </ScrollArea>
+    <Footer {path} {onImport} --min-height="none" />
+</Page>
 
 <style lang="scss">
-    :global(.csv-page) {
-        --gutter-inline: 0.25rem;
-
-        :global(.row) {
-            // rows have negative margins by default
-            --bs-gutter-x: 0;
-            // ensure equal spacing between tall rows like
-            // dropdowns, and short rows like checkboxes
-            min-height: 3em;
-        }
+    .margin {
+        margin-inline: 1em;
+    }
+    :global(.row) {
+        // rows have negative margins by default
+        --bs-gutter-x: 0;
+        // ensure equal spacing between tall rows like
+        // dropdowns, and short rows like checkboxes
+        min-height: 3em;
+    }
+    :global(h1) {
+        margin-top: 0.5em;
     }
 </style>

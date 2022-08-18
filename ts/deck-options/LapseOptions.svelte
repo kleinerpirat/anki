@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import StepsInputRow from "./StepsInputRow.svelte";
-    import TitledContainer from "./TitledContainer.svelte";
+    import TitledContainer from "../components/TitledContainer.svelte";
     import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;

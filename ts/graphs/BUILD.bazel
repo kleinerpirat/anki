@@ -19,6 +19,7 @@ compile_sass(
 )
 
 _ts_deps = [
+    "//ts/components",
     "//ts/lib",
     "//ts/sveltelib",
     "@npm//@fluent",
@@ -70,5 +71,6 @@ svelte_check(
     ]) + [
         "//ts/lib",
         "//ts/sveltelib",
+        "//ts/components",
     ],
 )

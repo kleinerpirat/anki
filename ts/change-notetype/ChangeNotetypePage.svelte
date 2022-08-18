@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { marked } from "marked";
 
+    import Page from "../components/Page.svelte";
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
     import ScrollArea from "../components/ScrollArea.svelte";
@@ -17,41 +18,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: ChangeNotetypeState;
     $: info = state.info;
-    let offset: number;
 </script>
 
-<div bind:offsetHeight={offset}>
+<Page class="change-notetype-page" --gutter-inline="0.25rem">
     <NotetypeSelector {state} />
-</div>
 
-<div class="change-notetype-page" style="--gutter-inline: var(--gutter-small);">
     <ScrollArea>
         <Row class="gx-0" --cols={2}>
             <Col --col-size={1} breakpoint="md">
-                <Container>
-                    <Header {state} ctx={MapContext.Field} />
-                    <Mapper {state} ctx={MapContext.Field} />
-                </Container>
+                <ScrollArea>
+                    <Container>
+                        <Header {state} ctx={MapContext.Field} />
+                        <Mapper {state} ctx={MapContext.Field} />
+                    </Container>
+                </ScrollArea>
             </Col>
             <Col --col-size={1} breakpoint="md">
-                <Container>
-                    <Header {state} ctx={MapContext.Template} />
-                    {#if $info.templates}
-                        <Mapper {state} ctx={MapContext.Template} />
-                    {:else}
-                        <div>{@html marked(tr.changeNotetypeToFromCloze())}</div>
-                    {/if}
-                </Container>
+                <ScrollArea>
+                    <Container>
+                        <Header {state} ctx={MapContext.Template} />
+                        {#if $info.templates}
+                            <Mapper {state} ctx={MapContext.Template} />
+                        {:else}
+                            <div>{@html marked(tr.changeNotetypeToFromCloze())}</div>
+                        {/if}
+                    </Container>
+                </ScrollArea>
             </Col>
         </Row>
     </ScrollArea>
-</div>
-
-<style>
-    .change-notetype-page {
-        padding: 0;
-        overflow: hidden auto;
-        display: flex;
-        flex-direction: column;
-    }
-</style>
+</Page>

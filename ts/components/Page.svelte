@@ -7,18 +7,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 </script>
 
-<div class="row {className}">
+<div class={className}>
     <slot />
 </div>
 
 <style lang="scss">
-    .row {
+    div {
+        height: 100%;
+        width: 100%;
         display: flex;
-        flex-flow: row wrap;
-        align-content: stretch;
-        padding: var(--gutter-block, 0) 0;
-        & :global(.container) {
-            flex-grow: 1;
-        }
+        justify-content: center;
+        flex-direction: column;
     }
 </style>

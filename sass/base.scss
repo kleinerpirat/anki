@@ -36,6 +36,15 @@ body {
     overscroll-behavior: none;
 }
 
+html {
+    overflow-x: hidden;
+}
+
+body {
+    height: 100vh;
+    width: 100vw;
+}
+
 .night-mode {
     @include scrollbar.night-mode;
 }
