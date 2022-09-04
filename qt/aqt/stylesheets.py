@@ -14,14 +14,14 @@ QLineEdit,
 QListWidget,
 QTreeWidget,
 QListView {{
-    border: 1px solid {tm.color(colors.BORDER)};
+    border: 1px solid {tm.color(colors.BORDER_DEFAULT)};
     border-radius: 5px;
 }}
 QLineEdit {{
     padding: 2px;
 }}
 QLineEdit:focus {{
-    border-color: {tm.color(colors.FOCUS_BORDER)};
+    border-color: {tm.color(colors.BORDER_FOCUS)};
 }}
 QPushButton {{
     margin-top: 1px;
@@ -32,7 +32,7 @@ QSpinBox {{
     padding: 2px 6px;
 }}
 QToolTip {{
-    background: {tm.color(colors.TOOLTIP_BG)};
+    background: {tm.color(colors.CANVAS_OVERLAY)};
 }}
     """
     return buf
@@ -81,7 +81,7 @@ QComboBox:editable:on,
 QComboBox:editable:focus,
 QComboBox::drop-down:focus:editable,
 QComboBox::drop-down:pressed {{
-    border-color: {tm.color(colors.FOCUS_BORDER)};
+    border-color: {tm.color(colors.BORDER_FOCUS)};
 }}
 QComboBox:on {{
     border-bottom: none;
@@ -89,8 +89,8 @@ QComboBox:on {{
     border-bottom-left-radius: 0;
 }}
 QComboBox::item {{
-    color: {tm.color(colors.TEXT_FG)};
-    background: {tm.color(colors.FRAME_BG)};
+    color: {tm.color(colors.FG_DEFAULT)};
+    background: {tm.color(colors.CANVAS_ELEVATED)};
 }}
 
 QComboBox::item:selected {{
@@ -139,9 +139,9 @@ QTabWidget {{
   background: none;
 }}
 QTabWidget::pane {{
-  border: 1px solid {tm.color(colors.FRAME_BG)};
+  border: 1px solid {tm.color(colors.CANVAS_ELEVATED)};
   border-radius: 5px;
-  background: {tm.color(colors.FRAME_BG)};
+  background: {tm.color(colors.CANVAS_ELEVATED)};
 }}
 QTabWidget::tab-bar {{
     alignment: center;
@@ -155,14 +155,14 @@ QTabBar::tab {{
 }}
 QTabBar::tab:!selected:hover,
 QTabBar::tab:selected {{
-    background: {tm.color(colors.FRAME_BG)};
+    background: {tm.color(colors.CANVAS_ELEVATED)};
 }}
 QTabBar::tab:selected {{
   margin-bottom: -1px;
 }}
 QTabBar::tab:!selected {{
     margin-top: 5px;
-    background: {tm.color(colors.WINDOW_BG)};
+    background: {tm.color(colors.CANVAS_DEFAULT)};
 }}
 QTabBar::tab {{
     min-width: 8ex;
@@ -189,11 +189,11 @@ def table_styles(tm: ThemeManager, buf: str) -> str:
 QTableView {{
     margin: -1px -1px 1px -1px;
     background: none;
-    border: 2px solid {tm.color(colors.WINDOW_BG)};
+    border: 2px solid {tm.color(colors.CANVAS_DEFAULT)};
     border-radius: 5px;
 }}
 QHeaderView::section {{
-    border: 2px solid {tm.color(colors.WINDOW_BG)};
+    border: 2px solid {tm.color(colors.CANVAS_DEFAULT)};
     margin: -1px;
     background: qlineargradient(
         spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
@@ -219,16 +219,16 @@ QHeaderView::section:hover {{
     );
 }}
 QHeaderView::section:first {{
-    border-top: 2px solid {tm.color(colors.WINDOW_BG)};
-    border-left: 2px solid {tm.color(colors.WINDOW_BG)};
+    border-top: 2px solid {tm.color(colors.CANVAS_DEFAULT)};
+    border-left: 2px solid {tm.color(colors.CANVAS_DEFAULT)};
     border-top-left-radius: 5px;
 }}
 QHeaderView::section:!first {{
     border-left: none;
 }}
 QHeaderView::section:last {{
-    border-top: 2px solid {tm.color(colors.WINDOW_BG)};
-    border-right: 2px solid {tm.color(colors.WINDOW_BG)};
+    border-top: 2px solid {tm.color(colors.CANVAS_DEFAULT)};
+    border-right: 2px solid {tm.color(colors.CANVAS_DEFAULT)};
     border-top-right-radius: 5px;
 }}
 QHeaderView::section:next-selected {{
@@ -238,9 +238,9 @@ QHeaderView::section:previous-selected {{
     border-left: none;
 }}
 QHeaderView::section:only-one {{
-    border-left: 2px solid {tm.color(colors.WINDOW_BG)};
-    border-top: 2px solid {tm.color(colors.WINDOW_BG)};
-    border-right: 2px solid {tm.color(colors.WINDOW_BG)};
+    border-left: 2px solid {tm.color(colors.CANVAS_DEFAULT)};
+    border-top: 2px solid {tm.color(colors.CANVAS_DEFAULT)};
+    border-right: 2px solid {tm.color(colors.CANVAS_DEFAULT)};
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 }}
@@ -336,17 +336,17 @@ QAbstractScrollArea::corner {{
     border: none;
 }}
 QScrollBar {{
-    background-color: {tm.color(colors.WINDOW_BG)};
+    background-color: {tm.color(colors.CANVAS_DEFAULT)};
 }}
 QScrollBar::handle {{
     border-radius: 5px;
-    background-color: {tm.color(colors.SCROLLBAR_BG)};
+    background-color: {tm.color(colors.SCROLLBAR_BG_IDLE)};
 }}
 QScrollBar::handle:hover {{
-    background-color: {tm.color(colors.SCROLLBAR_HOVER_BG)};
+    background-color: {tm.color(colors.SCROLLBAR_BG_HOVER)};
 }}
 QScrollBar::handle:pressed {{
-    background-color: {tm.color(colors.SCROLLBAR_ACTIVE_BG)};
+    background-color: {tm.color(colors.SCROLLBAR_BG_ACTIVE)};
 }} 
 QScrollBar:horizontal {{
     height: 12px;
@@ -378,8 +378,8 @@ def win10_styles(tm: ThemeManager, buf: str) -> str:
     # also set for border to apply
     buf += f"""
 QMenuBar {{
-  border-bottom: 1px solid {tm.color(colors.BORDER)};
-  background: {tm.color(colors.WINDOW_BG) if tm.night_mode else "white"};
+  border-bottom: 1px solid {tm.color(colors.BORDER_DEFAULT)};
+  background: {tm.color(colors.CANVAS_DEFAULT) if tm.night_mode else "white"};
 }}
     """
 
@@ -387,7 +387,7 @@ QMenuBar {{
     # to white as well, so set it back
     buf += f"""
 QTreeWidget {{
-  background: {tm.color(colors.WINDOW_BG)};
+  background: {tm.color(colors.CANVAS_DEFAULT)};
 }}
     """
 

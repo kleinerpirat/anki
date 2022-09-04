@@ -20,6 +20,7 @@ p {
 
 :host(body) {
     @include scrollbar.custom;
+}
 /* Nudge users towards using brighter colors,
    so they are more readable in dark themes */
 span[style*="color"] {

@@ -18,7 +18,7 @@
     }
 
     ::-webkit-scrollbar-thumb {
-        background: var(--scrollbar-bg);
+        background: var(--scrollbar-bg-idle);
         border-radius: 5px;
 
         &:horizontal {
@@ -30,11 +30,11 @@
         }
 
         &:hover {
-            background: var(--scrollbar-hover-bg);
+            background: var(--scrollbar-bg-hover);
         }
 
         &:active {
-            background: var(--scrollbar-active-bg);
+            background: var(--scrollbar-bg-active);
         }
     }
 
