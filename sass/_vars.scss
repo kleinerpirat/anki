@@ -72,22 +72,22 @@ $vars: (
             gradient: (
                 start: (
                     light: white,
-                    dark: palette(gray, 6),
+                    dark: palette(gray, 5),
                 ),
                 end: (
                     light: palette(gray, 0),
-                    dark: palette(gray, 7),
+                    dark: palette(gray, 6),
                 ),
             ),
             hover: (
                 gradient: (
                     start: (
                         light: white,
-                        dark: palette(gray, 5),
+                        dark: palette(gray, 4),
                     ),
                     end: (
                         light: #f1f1f1,
-                        dark: palette(gray, 6),
+                        dark: palette(gray, 5),
                     ),
                 ),
             ),
@@ -124,11 +124,11 @@ $vars: (
             bg: (
                 idle: (
                     light: palette(gray, 3),
-                    dark: palette(gray, 6),
+                    dark: palette(gray, 5),
                 ),
                 hover: (
                     light: palette(gray, 4),
-                    dark: palette(gray, 5),
+                    dark: palette(gray, 4),
                 ),
                 active: (
                     light: palette(gray, 6),
