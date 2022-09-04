@@ -18,6 +18,8 @@ p {
     display: none;
 }
 
+:host(body) {
+    @include scrollbar.custom;
 /* Nudge users towards using brighter colors,
    so they are more readable in dark themes */
 span[style*="color"] {
@@ -25,7 +27,6 @@ span[style*="color"] {
 }
 
 :host(.night-mode) {
-    @include scrollbar.night-mode;
     span[style*="color"] {
         filter: brightness(1.2);
     }

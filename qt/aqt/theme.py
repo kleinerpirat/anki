@@ -188,60 +188,35 @@ class ThemeManager:
         gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
+        from aqt.stylesheets import (
+            button_styles,
+            combobox_styles,
+            general_styles,
+            scrollbar_styles,
+            spinbox_styles,
+            table_styles,
+            tabwidget_styles,
+            win10_styles,
+        )
+
         buf = ""
+        buf += "".join(
+            [
+                general_styles(self, buf),
+                button_styles(self, buf),
+                combobox_styles(self, buf),
+                tabwidget_styles(self, buf),
+                table_styles(self, buf),
+                spinbox_styles(self, buf),
+                scrollbar_styles(self, buf),
+            ]
+        )
 
         if is_win and platform.release() == "10":
-            # day mode is missing a bottom border; background must be
-            # also set for border to apply
-            buf += f"""
-QMenuBar {{
-  border-bottom: 1px solid {self.color(colors.BORDER_DEFAULT)};
-  background: {self.color(colors.CANVAS_DEFAULT) if self.night_mode else "white"};
-}}
-"""
-            # qt bug? setting the above changes the browser sidebar
-            # to white as well, so set it back
-            buf += f"""
-QTreeWidget {{
-  background: {self.color(colors.CANVAS_DEFAULT)};
-}}
-            """
-
-        if self.night_mode:
-            buf += """
-QToolTip {
-  border: 0;
-}
-            """
+            buf += win10_styles(self, buf)
 
             if not self.macos_dark_mode():
-                buf += """
-QScrollBar {{ background-color: {}; }}
-QScrollBar::handle {{ background-color: {}; border-radius: 5px; }} 
-
-QScrollBar:horizontal {{ height: 12px; }}
-QScrollBar::handle:horizontal {{ min-width: 50px; }} 
-
-QScrollBar:vertical {{ width: 12px; }}
-QScrollBar::handle:vertical {{ min-height: 50px; }} 
-    
-QScrollBar::add-line {{
-      border: none;
-      background: none;
-}}
-
-QScrollBar::sub-line {{
-      border: none;
-      background: none;
-}}
-
-QTabWidget {{ background-color: {}; }}
-""".format(
-                    self.color(colors.CANVAS_DEFAULT),
-                    # fushion-button-hover-bg
-                    "#656565",
-                    self.color(colors.CANVAS_DEFAULT),
-                )
+                buf += scrollbar_styles(self, buf)
 
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
