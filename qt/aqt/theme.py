@@ -147,13 +147,13 @@ class ThemeManager:
         "Returns body classes used when showing a card."
         return f"card card{card_ord+1} {self.body_class(night_mode)}"
 
-    def color(self, colors: tuple[str, str]) -> str:
-        """Given day/night colors, return the correct one for the current theme."""
+    def var(self, v: tuple[str, str]) -> str:
+        """Given day/night colors/props, return the correct one for the current theme."""
         idx = 1 if self.night_mode else 0
-        return colors[idx]
+        return v[idx]
 
     def qcolor(self, colors: tuple[str, str]) -> QColor:
-        return QColor(self.color(colors))
+        return QColor(self.var(colors))
 
     def _determine_night_mode(self) -> bool:
         theme = aqt.mw.pm.theme()
@@ -288,11 +288,11 @@ class ThemeManager:
     def _update_stat_colors(self) -> None:
         import anki.stats as s
 
-        s.colLearn = self.color(colors.STATE_NEW)
-        s.colRelearn = self.color(colors.STATE_LEARN)
-        s.colCram = self.color(colors.STATE_SUSPENDED)
-        s.colSusp = self.color(colors.STATE_SUSPENDED)
-        s.colMature = self.color(colors.STATE_REVIEW)
+        s.colLearn = self.var(colors.STATE_NEW)
+        s.colRelearn = self.var(colors.STATE_LEARN)
+        s.colCram = self.var(colors.STATE_SUSPENDED)
+        s.colSusp = self.var(colors.STATE_SUSPENDED)
+        s.colMature = self.var(colors.STATE_REVIEW)
         s._legacy_nightmode = self._night_mode_preference
 
 

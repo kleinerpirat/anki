@@ -234,7 +234,7 @@ class AnkiWebView(QWebEngineView):
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
         self._page.setBackgroundColor(
-            QColor(theme_manager.color(colors.CANVAS_DEFAULT))
+            QColor(theme_manager.var(colors.CANVAS_DEFAULT))
         )
 
         # in new code, use .set_bridge_command() instead of setting this directly
