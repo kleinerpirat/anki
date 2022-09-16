@@ -24,16 +24,16 @@ $vars: (
                 dark: palette(lightgray, 0),
             ),
             subtle: (
-                light: palette(darkgray, 6),
-                dark: palette(lightgray, 3),
+                light: palette(darkgray, 5),
+                dark: palette(lightgray, 8),
             ),
             disabled: (
-                light: palette(darkgray, 3),
-                dark: palette(lightgray, 6),
+                light: palette(lightgray, 8),
+                dark: palette(darkgray, 1),
             ),
             faint: (
-                light: palette(lightgray, 7),
-                dark: palette(darkgray, 2),
+                light: palette(lightgray, 5),
+                dark: palette(darkgray, 3),
             ),
         ),
         canvas: (
