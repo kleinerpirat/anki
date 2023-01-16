@@ -27,6 +27,7 @@ preferences-synchronizationnot-currently-enabled-click-the-sync = <b>Synchroniza
 preferences-synchronize-audio-and-images-too = Synchronize audio and images too
 preferences-timebox-time-limit = Timebox time limit
 preferences-user-interface-size = User interface size
+preferences-size = Size
 preferences-when-adding-default-to-current-deck = When adding, default to current deck
 preferences-you-can-restore-backups-via-fileswitch = You can restore backups via File > Switch Profile.
 preferences-legacy-timezone-handling = Legacy timezone handling (buggy, but required for AnkiDroid <= 2.14)
@@ -68,6 +69,10 @@ preferences-scheduler = Scheduler
 preferences-user-interface = User Interface
 preferences-import-export = Import/Export
 preferences-network-timeout = Network timeout
+preferences-toolbar = Toolbar
+preferences-background = Background
+preferences-choose-light-background = Choose background for light theme
+preferences-choose-dark-background = Choose background for dark theme
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

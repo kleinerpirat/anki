@@ -5,6 +5,11 @@
 @use "sass/vars" as *;
 @use "sass/card-counts";
 @use "sass/button-mixins" as button;
+@use "sass/background-mixins";
+
+body {
+    @include background-mixins.background;
+}
 
 .smallLink {
     font-size: 10px;

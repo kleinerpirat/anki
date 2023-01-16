@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import os, re
 from typing import Any, cast
 
 import anki.lang
@@ -9,7 +10,7 @@ import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
 from anki.consts import new_card_scheduling_labels
-from aqt import AnkiQt
+from aqt import AnkiQt, colors, gui_hooks
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
@@ -17,12 +18,14 @@ from aqt.theme import Theme
 from aqt.utils import (
     HelpPage,
     disable_help_button,
+    getFile,
     is_win,
     openHelp,
     showInfo,
     showWarning,
     tr,
 )
+from aqt.webview import AnkiWebView
 
 
 class Preferences(QDialog):
@@ -61,6 +64,7 @@ class Preferences(QDialog):
             aqt.dialogs.markClosed("Preferences")
 
         self.update_collection(after_collection_update)
+        gui_hooks.background_did_change.remove(self._setup_wp)
 
     def reject(self) -> None:
         self.accept()
@@ -163,6 +167,7 @@ class Preferences(QDialog):
     def setup_profile(self) -> None:
         "Setup options stored in the user profile."
         self.setup_network()
+        self.setup_background()
 
     def update_profile(self) -> None:
         self.update_network()
@@ -213,6 +218,72 @@ class Preferences(QDialog):
             self.mw.col.mod_schema(check=False)
         self.mw.pm.set_custom_sync_url(self.form.custom_sync_url.text())
         self.mw.pm.set_network_timeout(self.form.network_timeout.value())
+
+    # Profile: background
+    ######################################################################
+
+    def setup_background(self) -> None:
+        self.wp = AnkiWebView(self, "background preview")
+        #self.form.uiGroup.layout().addWidget(self.wp, 0, 3, 3, 1)
+        media = os.path.join(self.mw.pm.profileFolder(), "collection.media")
+        preview = QGraphicsScene(self)
+        light = QImage()
+        light.load(os.path.join(media, self.mw.pm.get_background("light")))
+        light_scaled = light.scaled(QSize(200, 108), Qt.AspectRatioMode.KeepAspectRatioByExpanding)
+        preview.addPixmap(QPixmap.fromImage(light_scaled))
+        preview.setSceneRect(light_scaled.rect())
+        self.form.bgView.setScene(preview)
+        gui_hooks.background_did_change.append(self._setup_wp)
+        self._setup_wp()
+
+    def _setup_wp(self) -> None:
+        self.wp.stdHtml(
+            f"""
+            <html>
+                <body>
+                    <div class="preview">
+                        <div class="light" onclick="pycmd('open:light')"
+                            style="background-image:url({self.mw.pm.get_background("light")})">
+                            <h3>{tr.preferences_background()}</h3>
+                        </div>
+                        <div class="dark" onclick="pycmd('open:dark')"
+                            style="background-image:url({self.mw.pm.get_background("dark")})">
+                            <h3>{tr.preferences_background()}</h3>
+                        </div>
+                    </div>
+                </body>
+            </html>
+            """,
+            css=["css/background-preview.css"],
+            context=self,
+        )
+        self.wp.allow_drops = True
+        self.wp.adjustHeightToFit()
+        self.wp.set_bridge_command(self._on_bridge_cmd, self)
+
+    def _on_bridge_cmd(self, cmd: str) -> Any:
+        def accept(path: str, theme: str) -> None:
+            self.mw.pm.set_background(re.search(r"([^/]+)$", path).group(0), theme)
+
+        if cmd.startswith("open:"):
+            (type, theme) = cmd.split(":", 1)
+            extension_filter = " ".join(
+                f"*.{extension}"
+                for extension in sorted(
+                    ["jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico"]
+                )
+            )
+            filter = f"{tr.editing_media()} ({extension_filter})"
+
+            file = getFile(
+                parent=self,
+                title=tr.preferences_choose_light_background()
+                if theme == "light"
+                else tr.preferences_choose_dark_background(),
+                cb=cast(Callable[[Any], None], lambda path: accept(path, theme)),
+                filter=filter,
+                dir=self.mw.col.media.dir(),
+            )
 
     # Global preferences
     ######################################################################

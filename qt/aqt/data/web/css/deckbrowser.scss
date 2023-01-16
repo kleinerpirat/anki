@@ -4,6 +4,7 @@
 @use "sass/vars" as *;
 @use "sass/card-counts";
 @use "sass/elevation" as *;
+@use "sass/background-mixins";
 
 table {
     padding: 1rem;
@@ -63,6 +64,7 @@ tr.drag-hover td {
 body {
     margin: 2em 1em 1em 1em;
     -webkit-user-select: none;
+    @include background-mixins.background;
 }
 
 .current,

@@ -110,6 +110,8 @@ class MainWebView(AnkiWebView):
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setMinimumWidth(400)
         self.setAcceptDrops(True)
+        gui_hooks.background_did_change.append(self.apply_background)
+        gui_hooks.theme_did_change.append(self.apply_background)
 
     # Importing files via drag & drop
     ##########################################################################
@@ -163,6 +165,16 @@ class MainWebView(AnkiWebView):
             return True
 
         return False
+
+    def apply_background(self) -> None:
+        self.eval(
+            f"""
+                document.body.style.setProperty("background-image", "url('{
+                    self.mw.pm.get_background("dark") if theme_manager.night_mode else self.mw.pm.get_background("light")
+                }')");
+            """
+        )
+        self.mw.toolbarWeb.update_background_image()
 
 
 class AnkiQt(QMainWindow):
@@ -495,6 +507,7 @@ class AnkiQt(QMainWindow):
                 self.handleImport(self.pendingImport)
             self.pendingImport = None
         gui_hooks.profile_did_open()
+        self.web.apply_background()
 
         def _onsuccess() -> None:
             self._refresh_after_sync()
@@ -539,6 +552,9 @@ class AnkiQt(QMainWindow):
         self.unloadProfile(self.showProfileManager)
 
     def cleanupAndExit(self) -> None:
+        gui_hooks.background_did_change.remove(self.web.apply_background)
+        gui_hooks.theme_did_change.remove(self.web.apply_background)
+
         self.errorHandler.unload()
         self.mediaServer.shutdown()
         # Rust background jobs are not awaited implicitly
@@ -713,6 +729,7 @@ class AnkiQt(QMainWindow):
         if state != "resetRequired":
             self.bottomWeb.adjustHeightToFit()
         gui_hooks.state_did_change(state, oldState)
+        self.web.apply_background()
 
     def _deckBrowserState(self, oldState: MainWindowState) -> None:
         self.deckBrowser.show()

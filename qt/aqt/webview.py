@@ -781,10 +781,10 @@ html {{ {font} }}
         from aqt import mw
 
         self.eval(
-            f"""document.body.classList.toggle("fancy", {json.dumps(not mw.pm.minimalist_mode())}); """
-        )
-        self.eval(
-            f"""document.body.classList.toggle("reduce-motion", {json.dumps(mw.pm.minimalist_mode())}); """
+            f"""
+                document.body.classList.toggle("fancy", {json.dumps(not mw.pm.minimalist_mode())});
+                document.body.classList.toggle("reduce-motion", {json.dumps(mw.pm.minimalist_mode())});
+            """
         )
 
     @deprecated(info="use theme_manager.qcolor() instead")

@@ -654,6 +654,10 @@ hooks = [
         name="body_classes_need_update",
         doc="Called when a setting involving a webview body class is toggled.",
     ),
+    Hook(
+        name="background_did_change",
+        doc="Called when a profile-wide background is set.",
+    ),
     # Webview
     ###################
     Hook(

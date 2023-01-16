@@ -690,3 +690,10 @@ create table if not exists profiles
 
     def network_timeout(self) -> int:
         return self.profile.get("networkTimeout") or 30
+
+    def get_background(self, theme: "light" | "dark") -> str:
+        return self.profile.get(f"background_{theme}", "")
+
+    def set_background(self, fname: str, theme: "light" | "dark") -> None:
+        self.profile[f"background_{theme}"] = fname
+        gui_hooks.background_did_change()

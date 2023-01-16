@@ -2,6 +2,7 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
 @use "sass/vars";
+@use "sass/background-mixins";
 
 hr {
     background-color: vars.palette(darkgray, 0);
@@ -10,11 +11,7 @@ hr {
 body {
     margin: 20px;
     overflow-wrap: break-word;
-    // default background setting to fit with toolbar
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top;
-    background-attachment: fixed;
+    @include background-mixins.background;
 }
 
 // explicit nightMode definition required
