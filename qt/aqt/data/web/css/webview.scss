@@ -4,6 +4,7 @@
 @use "sass/root-vars";
 @use "sass/scrollbar";
 @use "sass/buttons";
+@use "sass/background-mixins" as *;
 
 * {
     // border-box would be better, but we need to
@@ -34,6 +35,10 @@ body {
     &:not(.fancy) * {
         box-shadow: none !important;
         backdrop-filter: none !important;
+    }
+
+    &::after {
+        @include pseudo;
     }
 }
 

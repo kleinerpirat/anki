@@ -10,7 +10,7 @@ table {
     padding: 1rem;
 
     .fancy & {
-        border: 1px solid var(--border-subtle);
+        border: 1px solid var(--shadow);
         border-radius: var(--border-radius-medium);
 
         @include elevation(1, $opacity-boost: -0.08);
@@ -18,7 +18,7 @@ table {
             @include elevation(2);
         }
         transition: box-shadow var(--transition) ease-in-out;
-        background: var(--canvas-glass);
+        background: var(--glass);
         backdrop-filter: blur(var(--blur));
     }
 }

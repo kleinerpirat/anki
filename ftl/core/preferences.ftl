@@ -73,6 +73,9 @@ preferences-toolbar = Toolbar
 preferences-background = Background
 preferences-choose-light-background = Choose background for light theme
 preferences-choose-dark-background = Choose background for dark theme
+preferences-opacity = Opacity
+preferences-blur = Blur
+preferences-css = CSS
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

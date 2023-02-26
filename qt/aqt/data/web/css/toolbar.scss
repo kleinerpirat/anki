@@ -5,15 +5,34 @@
 @use "sass/vars" as *;
 @use "sass/elevation" as *;
 @use "sass/button-mixins" as button;
+@use "sass/background-mixins" as *;
+
+body::after {
+    @include pseudo;
+    @include background;
+    position: fixed !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+}
 
 .header {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     align-items: start;
     align-content: space-between;
+    .fancy & {
+        padding-bottom: 5px;
+    }
     body:not(.fancy) & {
         border-bottom: 1px solid var(--border-subtle);
     }
+    :not(.fancy).hidden & {
+        opacity: 0;
+    }
+    .hidden & {
+        transform: translateY(-100vh);
+    }
+    transition: all var(--transition) ease-in-out;
 }
 
 .left-tray {
@@ -54,19 +73,7 @@ body {
     -webkit-user-select: none;
     overflow: hidden;
 
-    &:not(.fancy).hidden {
-        opacity: 0;
-    }
-    transition: opacity var(--transition) ease-in-out;
-
     &.fancy {
-        margin-bottom: 5px;
-
-        &.hidden {
-            transform: translateY(-100vh);
-        }
-        transition: transform var(--transition) ease-in-out;
-
         .toolbar {
             overflow: hidden;
             border-bottom-left-radius: prop(border-radius-medium);
@@ -74,7 +81,7 @@ body {
             @include elevation(1, $opacity-boost: -0.1);
 
             // glass effect
-            background: var(--canvas-glass);
+            background: var(--glass);
             backdrop-filter: blur(var(--blur));
         }
 
@@ -89,7 +96,7 @@ body {
 
         &:not(.flat) .hitem {
             @include button.base($border: false, $with-hover: false);
-            background: var(--canvas-glass);
+            background: var(--glass);
             border: 1px solid transparent;
         }
         .hitem {
@@ -104,9 +111,11 @@ body {
             }
             &:first-child {
                 padding-left: 18px;
+                border-bottom-left-radius: var(--border-radius-medium);
             }
             &:last-child {
                 padding-right: 18px;
+                border-bottom-right-radius: var(--border-radius-medium);
             }
         }
     }

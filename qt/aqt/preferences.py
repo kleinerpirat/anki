@@ -1,7 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, re
+import os
+import re
 from typing import Any, cast
 
 import anki.lang
@@ -14,7 +15,7 @@ from aqt import AnkiQt, colors, gui_hooks
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
-from aqt.theme import Theme
+from aqt.theme import Theme, theme_manager
 from aqt.utils import (
     HelpPage,
     disable_help_button,
@@ -64,7 +65,7 @@ class Preferences(QDialog):
             aqt.dialogs.markClosed("Preferences")
 
         self.update_collection(after_collection_update)
-        gui_hooks.background_did_change.remove(self._setup_wp)
+        gui_hooks.background_did_change.remove(self._setup_web)
 
     def reject(self) -> None:
         self.accept()
@@ -223,50 +224,41 @@ class Preferences(QDialog):
     ######################################################################
 
     def setup_background(self) -> None:
-        self.wp = AnkiWebView(self, "background preview")
-        #self.form.uiGroup.layout().addWidget(self.wp, 0, 3, 3, 1)
-        media = os.path.join(self.mw.pm.profileFolder(), "collection.media")
+        self.web = AnkiWebView(self, "background editor")
+        web_layout = QVBoxLayout()
+        web_layout.addWidget(self.web)
+        self.form.backgroundBox.setLayout(web_layout)
+        """ media = os.path.join(self.mw.pm.profileFolder(), "collection.media")
         preview = QGraphicsScene(self)
         light = QImage()
         light.load(os.path.join(media, self.mw.pm.get_background("light")))
         light_scaled = light.scaled(QSize(200, 108), Qt.AspectRatioMode.KeepAspectRatioByExpanding)
         preview.addPixmap(QPixmap.fromImage(light_scaled))
         preview.setSceneRect(light_scaled.rect())
-        self.form.bgView.setScene(preview)
-        gui_hooks.background_did_change.append(self._setup_wp)
-        self._setup_wp()
+        self.form.bgView.setScene(preview) """
+        self._setup_web()
 
-    def _setup_wp(self) -> None:
-        self.wp.stdHtml(
-            f"""
-            <html>
-                <body>
-                    <div class="preview">
-                        <div class="light" onclick="pycmd('open:light')"
-                            style="background-image:url({self.mw.pm.get_background("light")})">
-                            <h3>{tr.preferences_background()}</h3>
-                        </div>
-                        <div class="dark" onclick="pycmd('open:dark')"
-                            style="background-image:url({self.mw.pm.get_background("dark")})">
-                            <h3>{tr.preferences_background()}</h3>
-                        </div>
-                    </div>
-                </body>
-            </html>
-            """,
-            css=["css/background-preview.css"],
-            context=self,
+    def _setup_web(self) -> None:
+        self.web.load_ts_page("background-editor")
+        self.web.set_bridge_command(self._on_bridge_cmd, self)
+        self.web.eval(
+            f"""anki.setupBackgroundEditor(`{self.mw.pm.get_background()}`); """
         )
-        self.wp.allow_drops = True
-        self.wp.adjustHeightToFit()
-        self.wp.set_bridge_command(self._on_bridge_cmd, self)
+        self.web._onHeight(200)
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
-        def accept(path: str, theme: str) -> None:
-            self.mw.pm.set_background(re.search(r"([^/]+)$", path).group(0), theme)
+        def accept(path: str) -> None:
+            name = re.search(r"([^/]+)$", path).group(0)
+            self.web.evalWithCallback(
+                f"""setBackgroundImage("{name}")""",
+                lambda css: self.mw.pm.set_background(css),
+            )
 
-        if cmd.startswith("open:"):
-            (type, theme) = cmd.split(":", 1)
+        if cmd.startswith("apply:"):
+            self.mw.pm.set_background(cmd.replace("apply:", ""))
+            return
+
+        if cmd == "file":
             extension_filter = " ".join(
                 f"*.{extension}"
                 for extension in sorted(
@@ -277,10 +269,10 @@ class Preferences(QDialog):
 
             file = getFile(
                 parent=self,
-                title=tr.preferences_choose_light_background()
-                if theme == "light"
-                else tr.preferences_choose_dark_background(),
-                cb=cast(Callable[[Any], None], lambda path: accept(path, theme)),
+                title=tr.preferences_choose_dark_background()
+                if theme_manager.night_mode
+                else tr.preferences_choose_light_background(),
+                cb=cast(Callable[[Any], None], lambda path: accept(path)),
                 filter=filter,
                 dir=self.mw.col.media.dir(),
             )

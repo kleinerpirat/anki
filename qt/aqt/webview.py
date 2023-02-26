@@ -259,6 +259,7 @@ class AnkiWebView(QWebEngineView):
         parent: QWidget | None = None,
         title: str = "default",
         kind: AnkiWebViewKind | None = None,
+        background_allowed = False,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
         if kind:
@@ -266,6 +267,7 @@ class AnkiWebView(QWebEngineView):
         else:
             self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
+        self.background_allowed = background_allowed
         # reduce flicker
         self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
@@ -790,3 +792,36 @@ html {{ {font} }}
     @deprecated(info="use theme_manager.qcolor() instead")
     def get_window_bg_color(self, night_mode: Optional[bool] = None) -> QColor:
         return theme_manager.qcolor(colors.CANVAS)
+
+    def set_background(self, css: str) -> None:
+        if not self.background_allowed:
+            return
+
+        self.eval(
+            f"""
+                var bgStyle = document.getElementById("bgStyle");
+                if (!bgStyle) {{
+                    bgStyle = document.createElement("style");
+                    bgStyle.id = "bgStyle";
+                    document.head.appendChild(bgStyle);
+                }}
+                bgStyle.innerHTML = `
+                    body::after {{
+                        {css}
+                    }}
+                `;
+            """
+        )
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+
+        if self.background_allowed:
+            self.eval(
+                f"""
+                    document.documentElement.style.setProperty("--bg-height", "{self.window().height()}px");
+                    document.documentElement.style.setProperty("--bg-offset", "-{self.geometry().y()}px");
+                    document.documentElement.style.setProperty("--bg-crop", "-4px");
+                """
+            )
+

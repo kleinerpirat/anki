@@ -36,7 +36,7 @@ class BottomToolbar:
 class ToolbarWebView(AnkiWebView):
     hide_condition: Callable[..., bool]
 
-    def __init__(self, mw: aqt.AnkiQt, kind: AnkiWebViewKind | None = None) -> None:
+    def __init__(self, mw: aqt.AnkiQt, kind: AnkiWebViewKind | None = None, background_allowed=True) -> None:
         AnkiWebView.__init__(self, mw, kind=kind)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
@@ -52,9 +52,42 @@ class ToolbarWebView(AnkiWebView):
 
     def hide(self) -> None:
         self.hidden = True
+        self.eval(
+            """document.body.classList.add("hidden"); """,
+        )
 
     def show(self) -> None:
         self.hidden = False
+        self.eval("""document.body.classList.remove("hidden"); """)
+
+    def adjust_to_card(self) -> None:
+        if self.mw.pm.minimalist_mode():
+            return
+
+        def set_background(computed: str) -> None:
+            # remove offset from copy
+            background = re.sub(r"-\d+px ", "0%", computed)
+            # ensure alignment with main webview
+            background = re.sub(r"\sfixed", "", background)
+            # change computedStyle px value back to 100vw
+            background = re.sub(r"\d+px", "100vw", background)
+
+            self.eval(
+                f"""
+                    document.body.style.setProperty("background", '{background}');
+                """
+            )
+            self.set_body_height(self.mw.web.height())
+
+            # offset reviewer background by toolbar height
+            self.mw.web.eval(
+                f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
+            )
+
+        self.mw.web.evalWithCallback(
+            """window.getComputedStyle(document.body).background; """,
+            set_background,
+        )
 
 
 class TopWebView(ToolbarWebView):
@@ -104,22 +137,6 @@ class TopWebView(ToolbarWebView):
 
             self.hide()
 
-    def hide(self) -> None:
-        super().hide()
-
-        self.hidden = True
-        self.eval(
-            """document.body.classList.add("hidden"); """,
-        )
-        if self.mw.fullscreen:
-            self.mw.hide_menubar()
-
-    def show(self) -> None:
-        super().show()
-
-        self.eval("""document.body.classList.remove("hidden"); """)
-        self.mw.show_menubar()
-
     def flatten(self) -> None:
         self.eval("""document.body.classList.add("flat"); """)
 
@@ -129,52 +146,6 @@ class TopWebView(ToolbarWebView):
             document.body.classList.remove("flat");
             document.body.style.removeProperty("background");
             """
-        )
-
-    def update_background_image(self) -> None:
-        if self.mw.pm.minimalist_mode():
-            return
-
-        def set_background(computed: str) -> None:
-            # remove offset from copy
-            background = re.sub(r"-\d+px ", "0%", computed)
-            # ensure alignment with main webview
-            background = re.sub(r"\sfixed", "", background)
-            # change computedStyle px value back to 100vw
-            background = re.sub(r"\d+px", "100vw", background)
-
-            self.eval(
-                f"""
-                    document.body.style.setProperty("background", '{background}');
-                """
-            )
-            self.set_body_height(self.mw.web.height())
-
-            # offset reviewer background by toolbar height
-            self.mw.web.eval(
-                f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
-            )
-
-        self.mw.web.evalWithCallback(
-            """window.getComputedStyle(document.body).background; """,
-            set_background,
-        )
-
-    def set_body_height(self, height: int) -> None:
-        self.eval(
-            f"""document.body.style.setProperty("min-height", "{self.mw.web.height()}px"); """
-        )
-
-    def adjustHeightToFit(self) -> None:
-        self.eval("""document.body.style.setProperty("min-height", "0px"); """)
-        self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
-
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        super().resizeEvent(event)
-
-        self.mw.web.evalWithCallback(
-            """window.innerHeight; """,
-            self.set_body_height,
         )
 
 
@@ -199,23 +170,6 @@ class BottomWebView(ToolbarWebView):
         if self.mw.state == "review":
             self.show()
 
-    def animate_height(self, height: int) -> None:
-        self.web_height = height
-
-        if self.mw.pm.reduce_motion():
-            self.setFixedHeight(height)
-        else:
-            # Collapse/Expand animation
-            self.setMinimumHeight(0)
-            self.animation = QPropertyAnimation(
-                self, cast(QByteArray, b"maximumHeight")
-            )
-            self.animation.setDuration(int(theme_manager.var(props.TRANSITION)))
-            self.animation.setStartValue(self.height())
-            self.animation.setEndValue(height)
-            qconnect(self.animation.finished, lambda: self.setFixedHeight(height))
-            self.animation.start()
-
     def hide_if_allowed(self) -> None:
         if self.mw.state != "review":
             return
@@ -230,22 +184,16 @@ class BottomWebView(ToolbarWebView):
 
             self.hide()
 
-    def hide(self) -> None:
-        super().hide()
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
 
-        self.hidden = True
-        self.animate_height(1)
-
-    def show(self) -> None:
-        super().show()
-
-        self.hidden = False
-        if self.mw.state == "review":
-            self.evalWithCallback(
-                "document.documentElement.offsetHeight", self.animate_height
-            )
-        else:
-            self.adjustHeightToFit()
+        self.eval(
+            f"""
+                document.documentElement.style.setProperty(
+                    "--bg-offset", "-{self.mw.toolbarWeb.height() + self.mw.web.height()}px"
+                );
+            """
+        )
 
 
 class Toolbar:

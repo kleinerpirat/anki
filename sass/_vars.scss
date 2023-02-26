@@ -141,11 +141,20 @@ $vars: (
                     dark: palette(darkgray, 6),
                 ),
             ),
-            glass: (
-                "Transparent background for surfaces containing text",
+        ),
+        glass: (
+            default: (
+                "Semi-transparent background used in conjunction with backdrop-filter: blur()",
                 (
                     light: color.scale(white, $alpha: -60%),
                     dark: color.scale(palette(darkgray, 4), $alpha: -60%),
+                ),
+            ),
+            thick: (
+                "Milky background used in conjunction with backdrop-filter: blur()",
+                (
+                    light: color.scale(white, $alpha: -40%),
+                    dark: color.scale(palette(darkgray, 4), $alpha: -40%),
                 ),
             ),
         ),

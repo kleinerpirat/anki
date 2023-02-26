@@ -105,13 +105,13 @@ T = TypeVar("T")
 
 class MainWebView(AnkiWebView):
     def __init__(self, mw: AnkiQt) -> None:
-        AnkiWebView.__init__(self, kind=AnkiWebViewKind.MAIN)
+        AnkiWebView.__init__(self, kind=AnkiWebViewKind.MAIN, background_allowed=True)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setMinimumWidth(400)
         self.setAcceptDrops(True)
-        gui_hooks.background_did_change.append(self.apply_background)
-        gui_hooks.theme_did_change.append(self.apply_background)
+        gui_hooks.background_did_change.append(self.refresh_background)
+        gui_hooks.theme_did_change.append(self.refresh_background)
 
     # Importing files via drag & drop
     ##########################################################################
@@ -166,15 +166,8 @@ class MainWebView(AnkiWebView):
 
         return False
 
-    def apply_background(self) -> None:
-        self.eval(
-            f"""
-                document.body.style.setProperty("background-image", "url('{
-                    self.mw.pm.get_background("dark") if theme_manager.night_mode else self.mw.pm.get_background("light")
-                }')");
-            """
-        )
-        self.mw.toolbarWeb.update_background_image()
+    def refresh_background(self) -> None:
+        self.set_background(self.mw.pm.get_background())
 
 
 class AnkiQt(QMainWindow):
@@ -507,7 +500,6 @@ class AnkiQt(QMainWindow):
                 self.handleImport(self.pendingImport)
             self.pendingImport = None
         gui_hooks.profile_did_open()
-        self.web.apply_background()
 
         def _onsuccess() -> None:
             self._refresh_after_sync()
@@ -552,8 +544,8 @@ class AnkiQt(QMainWindow):
         self.unloadProfile(self.showProfileManager)
 
     def cleanupAndExit(self) -> None:
-        gui_hooks.background_did_change.remove(self.web.apply_background)
-        gui_hooks.theme_did_change.remove(self.web.apply_background)
+        gui_hooks.background_did_change.remove(self.web.refresh_background)
+        gui_hooks.theme_did_change.remove(self.web.refresh_background)
 
         self.errorHandler.unload()
         self.mediaServer.shutdown()
@@ -728,8 +720,10 @@ class AnkiQt(QMainWindow):
         getattr(self, f"_{state}State", lambda *_: None)(oldState, *args)
         if state != "resetRequired":
             self.bottomWeb.adjustHeightToFit()
+        self.web.refresh_background()
+        self.toolbarWeb.set_background(self.pm.get_background())
+        self.bottomWeb.set_background(self.pm.get_background())
         gui_hooks.state_did_change(state, oldState)
-        self.web.apply_background()
 
     def _deckBrowserState(self, oldState: MainWindowState) -> None:
         self.deckBrowser.show()
@@ -897,11 +891,11 @@ title="{}" {}>{}</button>""".format(
         # main window
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
+        # main area
+        self.web = MainWebView(self)
         # toolbar
         tweb = self.toolbarWeb = TopWebView(self)
         self.toolbar = Toolbar(self, tweb)
-        # main area
-        self.web = MainWebView(self)
         # bottom area
         sweb = self.bottomWeb = BottomWebView(self)
         sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)

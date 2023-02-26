@@ -544,8 +544,9 @@ class Reviewer:
             self.showContextMenu()
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
-        elif url.startswith("updateToolbar"):
-            self.mw.toolbarWeb.update_background_image()
+        elif url == "chameleon":
+            self.mw.toolbarWeb.adjust_to_card()
+            self.mw.bottomWeb.adjust_to_card()
         else:
             print("unrecognized anki link:", url)
 

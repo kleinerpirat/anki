@@ -334,7 +334,16 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":sass"
         ],
     )?;
-
+    build_page(
+        "background-editor",
+        true,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":sass",
+        ],
+    )?;
     Ok(())
 }
 

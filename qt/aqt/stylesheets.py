@@ -107,6 +107,9 @@ class CustomStyles:
     QLabel:disabled {{
         color: {tm.var(colors.FG_DISABLED)};
     }}
+    QGroupBox#backgroundBox {{
+        padding: 0;
+    }}
         """
 
     def menu(self, tm: ThemeManager) -> str:

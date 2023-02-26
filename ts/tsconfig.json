@@ -14,7 +14,8 @@
         { "path": "mathjax" },
         { "path": "domlib" },
         { "path": "sveltelib" },
-        { "path": "icons" }
+        { "path": "icons" },
+        { "path": "background-editor" }
     ],
     "compilerOptions": {
         "declaration": true,

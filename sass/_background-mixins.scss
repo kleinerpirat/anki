@@ -1,9 +1,22 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
  
-@mixin background {
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top;
-    background-attachment: fixed;
+@mixin background($pos: top) {
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+    background-position: $pos !important;
+    background-attachment: fixed !important;
+}
+
+@mixin pseudo($pos: top) {
+    content: "";
+    position: fixed !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+    height: var(--bg-height, 100%);
+    top: calc(var(--bg-offset, 0) + var(--bg-crop, 0));
+    left: var(--bg-crop, 0);
+    right: var(--bg-crop, 0);
+    bottom: var(--bg-crop, 0);
+    @include background($pos);
 }
