@@ -1,8 +1,0 @@
-{
-    "extends": "../tsconfig.json",
-    "include": ["../bottom/*"],
-    "references": [{ "path": "../../lib" }, { "path": "../../components" }],
-    "compilerOptions": {
-        "types": ["node"]
-    }
-}

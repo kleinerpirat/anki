@@ -21,7 +21,6 @@ import Notetypes = anki.notetypes;
 import Scheduler = anki.scheduler;
 import Stats = anki.stats;
 import Tags = anki.tags;
-import Themes = anki.themes;
 
 export { Cards, Collection, Decks, Generic, Notes };
 
@@ -82,6 +81,3 @@ export const stats = Stats.StatsService.create(serviceCallback as RPCImpl);
 
 export { Tags };
 export const tags = Tags.TagsService.create(serviceCallback as RPCImpl);
-
-export { Themes };
-export const themes = Themes.ThemesService.create(serviceCallback as RPCImpl);

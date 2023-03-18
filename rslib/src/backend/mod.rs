@@ -28,7 +28,6 @@ mod search;
 mod stats;
 mod sync;
 mod tags;
-mod themes;
 
 use std::result;
 use std::sync::Arc;
@@ -61,7 +60,6 @@ use self::stats::StatsService;
 use self::sync::SyncService;
 use self::sync::SyncState;
 use self::tags::TagsService;
-use self::themes::ThemesService;
 use crate::backend::dbproxy::db_command_bytes;
 use crate::pb;
 use crate::pb::backend::ServiceIndex;
