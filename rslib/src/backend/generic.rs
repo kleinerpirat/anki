@@ -94,6 +94,12 @@ impl From<pb::deckconfig::DeckConfigId> for DeckConfigId {
     }
 }
 
+impl From<pb::themes::ThemeId> for ThemeId {
+    fn from(tid: pb::themes::ThemeId) -> Self {
+        ThemeId(tid.tid)
+    }
+}
+
 impl From<Vec<String>> for pb::generic::StringList {
     fn from(vals: Vec<String>) -> Self {
         pb::generic::StringList { vals }
