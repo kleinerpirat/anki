@@ -1,10 +1,11 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "sass/root-vars";
+@use "sass/colors";
+@use "sass/props";
 @use "sass/scrollbar";
 @use "sass/buttons";
-@use "sass/background-mixins" as *;
+@use "sass/background-mixins" as background;
 
 * {
     // border-box would be better, but we need to
@@ -14,36 +15,40 @@
 }
 
 body {
-    color: var(--fg);
-    background: var(--canvas);
-    transition: opacity var(--transition-medium) ease-out;
+    color: colors.$fg;
+    background: colors.$canvas;
+    transition: opacity props.$transition-medium ease-out;
     margin: 2em;
     overscroll-behavior: none;
+
     &:not(.isMac),
     &:not(.isMac) * {
         @include scrollbar.custom;
     }
+
     &.reduce-motion,
     &.reduce-motion * {
         transition: none !important;
         animation: none !important;
     }
+
     &.no-blur * {
         backdrop-filter: none !important;
     }
+
     &:not(.fancy),
     &:not(.fancy) * {
         box-shadow: none !important;
         backdrop-filter: none !important;
     }
 
-    &::after {
-        @include pseudo;
+    &.force-bg::after {
+        @include background.pseudo;
     }
 }
 
 a {
-    color: var(--fg-link);
+    color: colors.$link;
     text-decoration: none;
 }
 

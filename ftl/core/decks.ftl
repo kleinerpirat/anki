@@ -10,6 +10,7 @@ decks-enable-second-filter = Enable second filter
 decks-filter = Filter:
 decks-filter-2 = Filter 2
 decks-get-shared = Get Shared
+decks-search-ankiweb = Search AnkiWeb
 decks-import-file = Import File
 decks-increasing-intervals = Increasing intervals
 decks-latest-added-first = Latest added first

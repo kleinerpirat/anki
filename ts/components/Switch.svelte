@@ -24,6 +24,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .form-switch {
         /* bootstrap adds a default 2.5em left pad, which causes */
         /* text to wrap prematurely */
@@ -44,8 +46,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .nightMode:not(:checked) {
-        background-color: var(--canvas-elevated);
-        border-color: var(--border);
+        background-color: colors.$canvas-secondary;
+        border-color: colors.$border;
     }
 
     .form-switch.rtl {

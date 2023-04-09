@@ -7,10 +7,12 @@
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .setting-title {
         cursor: help;
         &:hover {
-            text-decoration: underline dotted var(--fg-subtle);
+            text-decoration: underline dotted colors.$fg-subtle;
         }
     }
 </style>

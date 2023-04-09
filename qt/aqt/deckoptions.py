@@ -28,11 +28,17 @@ class DeckOptionsDialog(QDialog):
     TITLE = "deckOptions"
     silentlyClose = True
 
-    def __init__(self, mw: aqt.main.AnkiQt, deck: DeckDict) -> None:
+    def __init__(self, mw: aqt.main.AnkiQt, deck: DeckDict, windowed: bool) -> None:
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self._deck = deck
-        self._setup_ui()
+
+        if windowed:
+            self._setup_ui()
+        else:
+            aqt.mw.web.eval(f"""anki.setupDeckOptions("{deck["id"]}"); """)
+
+        gui_hooks.deck_options_did_load(self)
 
     def _setup_ui(self) -> None:
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
@@ -57,7 +63,6 @@ class DeckOptionsDialog(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))
         )
-        gui_hooks.deck_options_did_load(self)
 
     def reject(self) -> None:
         self.web.cleanup()
@@ -109,6 +114,6 @@ def display_options_for_deck(deck: DeckDict) -> None:
             deck_legacy = aqt.mw.col.decks.get(DeckId(deck["id"]))
             aqt.deckconf.DeckConf(aqt.mw, deck_legacy)
         else:
-            DeckOptionsDialog(aqt.mw, deck)
+            DeckOptionsDialog(aqt.mw, deck, KeyboardModifiersPressed().control)
     else:
         aqt.dialogs.open("FilteredDeckConfigDialog", aqt.mw, deck_id=deck["id"])

@@ -29,6 +29,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .outer {
         // approximate size based on body max width + margins
         width: min(90vw, 65em);
@@ -43,19 +45,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         td {
             text-overflow: ellipsis;
             overflow: hidden;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid colors.$border-subtle;
             padding: 0.25rem 0.5rem;
             max-width: 15em;
         }
 
         th {
-            background: var(--border);
+            background: colors.$border;
             text-align: center;
         }
 
         tr {
             &:nth-child(even) {
-                background: var(--canvas);
+                background: colors.$canvas;
             }
         }
 

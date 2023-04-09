@@ -26,7 +26,10 @@ const i18n = setupI18n({
     ],
 });
 
-export async function setupDeckOptions(did: number): Promise<DeckOptionsPage> {
+export async function setupDeckOptions(
+    did: number,
+    target: HTMLElement = document.body,
+): Promise<DeckOptionsPage> {
     const [info] = await Promise.all([
         deckConfig.getDeckConfigsForUpdate(Decks.DeckId.create({ did })),
         i18n,
@@ -40,7 +43,7 @@ export async function setupDeckOptions(did: number): Promise<DeckOptionsPage> {
 
     const state = new DeckOptionsState(did, info);
     return new DeckOptionsPage({
-        target: document.body,
+        target,
         props: { state },
         context,
     });

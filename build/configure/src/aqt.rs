@@ -79,23 +79,6 @@ fn build_generated_sources(build: &mut Build) -> Result<()> {
             },
         },
     )?;
-    build.add(
-        "qt/aqt:sass_vars",
-        RunCommand {
-            command: ":pyenv:bin",
-            args: "$script $root_scss $out",
-            inputs: hashmap! {
-                "script" => inputs!["qt/tools/extract_sass_vars.py"],
-                "root_scss" => inputs![":css:_root-vars"],
-            },
-            outputs: hashmap! {
-                "out" => vec![
-                    "qt/_aqt/colors.py",
-                    "qt/_aqt/props.py"
-                ]
-            },
-        },
-    )?;
     // we need to add a py.typed file to the generated sources, or mypy
     // will ignore them when used with the generated wheel
     build.add(
@@ -139,7 +122,6 @@ fn build_css(build: &mut Build) -> Result<()> {
         inputs![
             ":ts:editor",
             ":ts:pages:editable",
-            ":ts:reviewer:reviewer.css"
         ],
         ".css",
     );
@@ -163,7 +145,7 @@ fn build_imgs(build: &mut Build) -> Result<()> {
 }
 
 fn build_js(build: &mut Build) -> Result<()> {
-    for ts_file in &["deckbrowser", "webview", "toolbar", "reviewer-bottom"] {
+    for ts_file in &["webview"] {
         build.add(
             "qt/aqt:data/web/js",
             EsbuildScript {
@@ -185,7 +167,7 @@ fn build_js(build: &mut Build) -> Result<()> {
         },
     )?;
     let files_from_ts = build.inputs_with_suffix(
-        inputs![":ts:editor", ":ts:reviewer:reviewer.js", ":ts:mathjax"],
+        inputs![":ts:editor", ":ts:mathjax"],
         ".js",
     );
     build.add(
@@ -324,7 +306,6 @@ impl BuildAction for BuildThemedIcon<'_> {
         build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
         build.add_inputs("script", inputs!["qt/tools/color_svg.py"]);
         build.add_inputs("in", inputs![self.src_icon.as_str()]);
-        build.add_inputs("", inputs![":qt/aqt:sass_vars"]);
         build.add_variable("colors", self.colors.join(":"));
         build.add_outputs("out", outputs);
     }

@@ -4,13 +4,14 @@
 from __future__ import annotations
 
 import io
+import json
 import pickle
 import random
 import shutil
 import traceback
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 import anki.lang
 import aqt.forms
@@ -74,6 +75,33 @@ class VideoDriver(Enum):
             all.append(VideoDriver.ANGLE)
         all.append(VideoDriver.Software)
         return all
+
+
+class AnkiBackground:
+    background: str
+    saturation: Optional[float]
+    opacity: Optional[float]
+    blur: Optional[float]
+
+    def __init__(self, background="var(--canvas)", saturation=1, opacity=1, blur=0):
+        self.background = background
+        self.saturation = saturation
+        self.opacity = opacity
+        self.blur = blur
+
+    def toCSS(self) -> str:
+        filter = (
+            "filter:"
+            + (f" saturate({self.saturation})" if self.saturation < 1 else "")
+            + (f" blur({self.blur}px)" if self.blur > 0 else "")
+            + ";"
+        )
+
+        return (
+            f"background: {self.background};"
+            + (f"{filter}" if self.saturation < 1 or self.blur > 0 else "")
+            + (f"opacity: {self.opacity};" if self.opacity < 1 else "")
+        )
 
 
 metaConf = dict(
@@ -567,6 +595,12 @@ create table if not exists profiles
     def set_last_addon_update_check(self, secs: int) -> None:
         self.meta["last_addon_update_check"] = secs
 
+    def set_default_stats_days(self, days: int) -> None:
+        self.meta["default_stats_days"] = days
+
+    def default_stats_days(self) -> int:
+        self.meta.get("default_stats_days", 365)
+
     @deprecated(info="use theme_manager.night_mode")
     def night_mode(self) -> bool:
         return theme_manager.night_mode
@@ -691,13 +725,21 @@ create table if not exists profiles
     def network_timeout(self) -> int:
         return self.profile.get("networkTimeout") or 30
 
-    def get_background(self) -> str:
-        return self.profile.get(
-            f"""background_{"dark" if theme_manager.night_mode else "light"}""", "none"
+    def get_background(self, theme: str = None) -> AnkiBackground:
+        background = self.profile.get(
+            f"""bg_{theme if theme else "dark" if theme_manager.night_mode else "light"}""",
+            AnkiBackground(),
+        )
+        return (
+            background if isinstance(background, AnkiBackground) else AnkiBackground()
         )
 
-    def set_background(self, css: str) -> None:
-        self.profile[
-            f"""background_{"dark" if theme_manager.night_mode else "light"}"""
-        ] = css
+    def set_background(self, bg: AnkiBackground) -> None:
+        self.profile[f"""bg_{"dark" if theme_manager.night_mode else "light"}"""] = bg
         gui_hooks.background_did_change()
+
+    def reviewer_background_enabled(self) -> bool:
+        return self.meta.get("reviewer_background_enabled", False)
+
+    def set_reviewer_background_enabled(self, on: bool) -> None:
+        self.meta["reviewer_background_enabled"] = on

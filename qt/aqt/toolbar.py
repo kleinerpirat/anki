@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import enum
+import json
 import re
-from typing import Any, Callable, Optional, cast
+from typing import Any, Callable, Optional, List
 
 import aqt
 from anki.sync import SyncStatus
-from aqt import gui_hooks, props
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.sync import get_sync_status
 from aqt.theme import theme_manager
@@ -21,211 +22,26 @@ class HideMode(enum.IntEnum):
     ALWAYS = 1
 
 
-# wrapper class for set_bridge_command()
-class TopToolbar:
-    def __init__(self, toolbar: Toolbar) -> None:
-        self.toolbar = toolbar
-
-
-# wrapper class for set_bridge_command()
-class BottomToolbar:
-    def __init__(self, toolbar: Toolbar) -> None:
-        self.toolbar = toolbar
-
-
-class ToolbarWebView(AnkiWebView):
-    hide_condition: Callable[..., bool]
-
-    def __init__(self, mw: aqt.AnkiQt, kind: AnkiWebViewKind | None = None, background_allowed=True) -> None:
-        AnkiWebView.__init__(self, mw, kind=kind)
-        self.mw = mw
-        self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        self.disable_zoom()
-        self.hidden = False
-        self.hide_timer = QTimer()
-        self.hide_timer.setSingleShot(True)
-        self.reset_timer()
-
-    def reset_timer(self) -> None:
-        self.hide_timer.stop()
-        self.hide_timer.setInterval(2000)
-
-    def hide(self) -> None:
-        self.hidden = True
-        self.eval(
-            """document.body.classList.add("hidden"); """,
-        )
-
-    def show(self) -> None:
-        self.hidden = False
-        self.eval("""document.body.classList.remove("hidden"); """)
-
-    def adjust_to_card(self) -> None:
-        if self.mw.pm.minimalist_mode():
-            return
-
-        def set_background(computed: str) -> None:
-            # remove offset from copy
-            background = re.sub(r"-\d+px ", "0%", computed)
-            # ensure alignment with main webview
-            background = re.sub(r"\sfixed", "", background)
-            # change computedStyle px value back to 100vw
-            background = re.sub(r"\d+px", "100vw", background)
-
-            self.eval(
-                f"""
-                    document.body.style.setProperty("background", '{background}');
-                """
-            )
-            self.set_body_height(self.mw.web.height())
-
-            # offset reviewer background by toolbar height
-            self.mw.web.eval(
-                f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
-            )
-
-        self.mw.web.evalWithCallback(
-            """window.getComputedStyle(document.body).background; """,
-            set_background,
-        )
-
-
-class TopWebView(ToolbarWebView):
-    def __init__(self, mw: aqt.AnkiQt) -> None:
-        super().__init__(mw, kind=AnkiWebViewKind.TOP_TOOLBAR)
-        self.web_height = 0
-        qconnect(self.hide_timer.timeout, self.hide_if_allowed)
-
-    def eventFilter(self, obj, evt):
-        if handled := super().eventFilter(obj, evt):
-            return handled
-
-        # prevent collapse of both toolbars if pointer is inside one of them
-        if evt.type() == QEvent.Type.Enter:
-            self.reset_timer()
-            self.mw.bottomWeb.reset_timer()
-            return True
-
-        return False
-
-    def on_body_classes_need_update(self) -> None:
-        super().on_body_classes_need_update()
-
-        if self.mw.state == "review":
-            if self.mw.pm.hide_top_bar():
-                self.eval("""document.body.classList.remove("flat"); """)
-            else:
-                self.flatten()
-
-        self.show()
-
-    def _onHeight(self, qvar: Optional[int]) -> None:
-        super()._onHeight(qvar)
-        self.web_height = int(qvar)
-
-    def hide_if_allowed(self) -> None:
-        if self.mw.state != "review":
-            return
-
-        if self.mw.pm.hide_top_bar():
-            if (
-                self.mw.pm.top_bar_hide_mode() == HideMode.FULLSCREEN
-                and not self.mw.windowState() & Qt.WindowState.WindowFullScreen
-            ):
-                self.show()
-                return
-
-            self.hide()
-
-    def flatten(self) -> None:
-        self.eval("""document.body.classList.add("flat"); """)
-
-    def elevate(self) -> None:
-        self.eval(
-            """
-            document.body.classList.remove("flat");
-            document.body.style.removeProperty("background");
-            """
-        )
-
-
-class BottomWebView(ToolbarWebView):
-    def __init__(self, mw: aqt.AnkiQt) -> None:
-        super().__init__(mw, kind=AnkiWebViewKind.BOTTOM_TOOLBAR)
-        qconnect(self.hide_timer.timeout, self.hide_if_allowed)
-
-    def eventFilter(self, obj, evt):
-        if handled := super().eventFilter(obj, evt):
-            return handled
-
-        if evt.type() == QEvent.Type.Enter:
-            self.reset_timer()
-            self.mw.toolbarWeb.reset_timer()
-            return True
-
-        return False
-
-    def on_body_classes_need_update(self) -> None:
-        super().on_body_classes_need_update()
-        if self.mw.state == "review":
-            self.show()
-
-    def hide_if_allowed(self) -> None:
-        if self.mw.state != "review":
-            return
-
-        if self.mw.pm.hide_bottom_bar():
-            if (
-                self.mw.pm.bottom_bar_hide_mode() == HideMode.FULLSCREEN
-                and not self.mw.windowState() & Qt.WindowState.WindowFullScreen
-            ):
-                self.show()
-                return
-
-            self.hide()
-
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        super().resizeEvent(event)
-
-        self.eval(
-            f"""
-                document.documentElement.style.setProperty(
-                    "--bg-offset", "-{self.mw.toolbarWeb.height() + self.mw.web.height()}px"
-                );
-            """
-        )
-
-
 class Toolbar:
-    def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
+    def __init__(self, mw: aqt.AnkiQt) -> None:
         self.mw = mw
-        self.web = web
         self.link_handlers: dict[str, Callable] = {
             "study": self._studyLinkHandler,
+            "decks": self._deckLinkHandler,
+            "add": self._addLinkHandler,
+            "browse": self._browseLinkHandler,
+            "stats": self._statsLinkHandler,
+            "sync": self._syncLinkHandler,
         }
-        self.web.requiresCol = False
 
-    def draw(
+    def args(
         self,
-        buf: str = "",
-        web_context: Any | None = None,
-        link_handler: Callable[[str], Any] | None = None,
-    ) -> None:
-        web_context = web_context or TopToolbar(self)
-        link_handler = link_handler or self._linkHandler
-        self.web.set_bridge_command(link_handler, web_context)
-        body = self._body.format(
-            toolbar_content=self._centerLinks(),
-            left_tray_content=self._left_tray_content(),
-            right_tray_content=self._right_tray_content(),
-        )
-        self.web.stdHtml(
-            body,
-            css=["css/toolbar.css"],
-            js=["js/vendor/jquery.min.js", "js/toolbar.js"],
-            context=web_context,
-        )
-        self.web.adjustHeightToFit()
+    ) -> dict:
+        return {
+            "centerTrayContent": self._center_tray_content(),
+            "leftTrayContent": self._left_tray_content(),
+            "rightTrayContent": self._right_tray_content(),
+        }
 
     def redraw(self) -> None:
         self.set_sync_active(self.mw.media_syncer.is_syncing())
@@ -235,6 +51,7 @@ class Toolbar:
     # Available links
     ######################################################################
 
+    # We create our links in TS, but some add-ons probably rely on this method
     def create_link(
         self,
         cmd: str,
@@ -271,93 +88,38 @@ class Toolbar:
             f"""{label}</a>"""
         )
 
-    def _centerLinks(self) -> str:
-        links = [
-            self.create_link(
-                "decks",
-                tr.actions_decks(),
-                self._deckLinkHandler,
-                tip=tr.actions_shortcut_key(val="D"),
-                id="decks",
-            ),
-            self.create_link(
-                "add",
-                tr.actions_add(),
-                self._addLinkHandler,
-                tip=tr.actions_shortcut_key(val="A"),
-                id="add",
-            ),
-            self.create_link(
-                "browse",
-                tr.qt_misc_browse(),
-                self._browseLinkHandler,
-                tip=tr.actions_shortcut_key(val="B"),
-                id="browse",
-            ),
-            self.create_link(
-                "stats",
-                tr.qt_misc_stats(),
-                self._statsLinkHandler,
-                tip=tr.actions_shortcut_key(val="T"),
-                id="stats",
-            ),
-        ]
-
-        links.append(self._create_sync_link())
-
-        gui_hooks.top_toolbar_did_init_links(links, self)
-
-        return "\n".join(links)
-
     # Add-ons
     ######################################################################
 
-    def _left_tray_content(self) -> str:
+    def _center_tray_content(self) -> List[str]:
+        center_tray_content: list[str] = []
+        gui_hooks.top_toolbar_did_init_links(center_tray_content, self)
+        return center_tray_content
+
+    def _left_tray_content(self) -> List[str]:
         left_tray_content: list[str] = []
         gui_hooks.top_toolbar_will_set_left_tray_content(left_tray_content, self)
-        return self._process_tray_content(left_tray_content)
+        return left_tray_content
 
-    def _right_tray_content(self) -> str:
+    def _right_tray_content(self) -> List[str]:
         right_tray_content: list[str] = []
         gui_hooks.top_toolbar_will_set_right_tray_content(right_tray_content, self)
-        return self._process_tray_content(right_tray_content)
-
-    def _process_tray_content(self, content: list[str]) -> str:
-        return "\n".join(f"""<div class="tray-item">{item}</div>""" for item in content)
+        return right_tray_content
 
     # Sync
     ######################################################################
 
-    def _create_sync_link(self) -> str:
-        name = tr.qt_misc_sync()
-        title = tr.actions_shortcut_key(val="Y")
-        label = "sync"
-        self.link_handlers[label] = self._syncLinkHandler
-
-        return f"""
-<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" id="{label}" href=# onclick="return pycmd('{label}')"
->{name}<img id=sync-spinner src='/_anki/imgs/refresh.svg'>
-</a>"""
-
     def set_sync_active(self, active: bool) -> None:
-        method = "add" if active else "remove"
-        self.web.eval(
-            f"document.getElementById('sync-spinner').classList.{method}('spin')"
-        )
+        self.mw.web.eval("")#f"anki.setSyncActive({json.dumps(active)}); ")
 
     def set_sync_status(self, status: SyncStatus) -> None:
-        self.web.eval(f"updateSyncColor({status.required})")
+        self.mw.web.eval("")#f"anki.setSyncStatus({status.required}); ")
 
     def update_sync_status(self) -> None:
         get_sync_status(self.mw, self.mw.toolbar.set_sync_status)
 
-    # Link handling
+    # JS Bridge
     ######################################################################
-
-    def _linkHandler(self, link: str) -> bool:
-        if link in self.link_handlers:
-            self.link_handlers[link]()
-        return False
 
     def _deckLinkHandler(self) -> None:
         self.mw.moveToState("deckBrowser")
@@ -381,43 +143,3 @@ class Toolbar:
 
     def _syncLinkHandler(self) -> None:
         self.mw.on_sync_button_clicked()
-
-    # HTML & CSS
-    ######################################################################
-
-    _body = """
-<div class="header">
-  <div class="left-tray">{left_tray_content}</div>
-  <div class="toolbar">{toolbar_content}</div>
-  <div class="right-tray">{right_tray_content}</div>
-</div>
-"""
-
-
-# Bottom bar
-######################################################################
-
-
-class BottomBar(Toolbar):
-
-    _centerBody = """
-<center id=outer><table width=100%% id=header><tr><td align=center>
-%s</td></tr></table></center>
-"""
-
-    def draw(
-        self,
-        buf: str = "",
-        web_context: Any | None = None,
-        link_handler: Callable[[str], Any] | None = None,
-    ) -> None:
-        # note: some screens may override this
-        web_context = web_context or BottomToolbar(self)
-        link_handler = link_handler or self._linkHandler
-        self.web.set_bridge_command(link_handler, web_context)
-        self.web.stdHtml(
-            self._centerBody % buf,
-            css=["css/toolbar.css", "css/toolbar-bottom.css"],
-            context=web_context,
-        )
-        self.web.adjustHeightToFit()

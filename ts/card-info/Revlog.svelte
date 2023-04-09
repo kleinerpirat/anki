@@ -135,6 +135,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {/if}
 
 <style lang="scss">
+    @use "sass/colors";
+
     .revlog-table {
         width: 100%;
         max-width: 50em;
@@ -177,16 +179,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .revlog-learn {
-        color: var(--state-new);
+        color: colors.$card-new;
     }
 
     .revlog-review {
-        color: var(--state-review);
+        color: colors.$card-review;
     }
 
     .revlog-relearn,
     .revlog-ease1 {
-        color: var(--state-learn);
+        color: colors.$card-learn;
     }
 
     @media only screen and (max-device-width: 480px) and (orientation: portrait) {

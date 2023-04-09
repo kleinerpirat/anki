@@ -150,11 +150,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
+
     .spin-box {
         width: 100%;
-        background: var(--canvas-inset);
-        border: 1px solid var(--border);
-        border-radius: var(--border-radius);
+        background: colors.$input-bg;
+        border: 1px solid colors.$border;
+        border-radius: props.$border-radius;
         overflow: hidden;
         position: relative;
         display: flex;
@@ -177,7 +180,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             .spinner {
                 opacity: 0.1;
                 &.active {
-                    opacity: 0.4;
+                    opacity: props.$opacity-idle;
                     cursor: pointer;
                     &:hover {
                         opacity: 1;

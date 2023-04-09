@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let subtitle: string | null = null;
 </script>
 
-<TitledContainer class="d-flex flex-column" {title}>
+<TitledContainer class="d-flex flex-column" {title} titleAlign="center">
     <div class="graph d-flex flex-grow-1 flex-column justify-content-center">
         {#if subtitle}
             <div class="subtitle">{subtitle}</div>
@@ -19,7 +19,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </TitledContainer>
 
 <style lang="scss">
+    @use "sass/props";
     @use "sass/elevation" as *;
+
     .graph {
         /* See graph-styles.ts for constants referencing global styles */
         :global(.graph-element-clickable) {
@@ -34,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
 
             :global(text) {
-                opacity: 0.5;
+                opacity: props.$opacity-idle;
                 font-size: 10px;
 
                 @media only screen and (max-width: 800px) {

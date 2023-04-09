@@ -112,15 +112,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="range-box-pad" />
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
+
     .range-box {
         position: sticky;
         z-index: 1;
         top: 0;
         width: 100vw;
-        color: var(--fg);
-        background: var(--canvas);
+        color: colors.$fg;
+        background: colors.$glass-thick;
+        backdrop-filter: blur(props.$blur);
         padding: 0.5em;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid colors.$border;
 
         @media print {
             position: absolute;
@@ -147,8 +151,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         opacity: 0;
 
         &.loading {
-            opacity: 0.5;
-            transition: opacity var(--transition-slow);
+            opacity: props.$opacity-idle;
+            transition: opacity props.$transition-slow;
         }
     }
 

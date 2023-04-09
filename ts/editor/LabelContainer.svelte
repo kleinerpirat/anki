@@ -20,12 +20,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
+
     .label-container {
         display: flex;
         justify-content: space-between;
-        background: var(--canvas);
-        border-top-right-radius: var(--border-radius);
-        border-top-left-radius: var(--border-radius);
+        background: colors.$canvas;
+        border-top-right-radius: props.$border-radius;
+        border-top-left-radius: props.$border-radius;
         padding: 0 3px 1px;
 
         position: sticky;

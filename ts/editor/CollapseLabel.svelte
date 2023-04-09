@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
-    import CollapseBadge from "./CollapseBadge.svelte";
+    import CollapseBadge from "../components/CollapseBadge.svelte";
 
     export let collapsed: boolean;
     export let tooltip: string;

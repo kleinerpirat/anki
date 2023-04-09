@@ -5,8 +5,7 @@
 <script lang="ts">
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
-    import ConfigInput from "./ConfigInput.svelte";
-    import RevertButton from "./RevertButton.svelte";
+    import WithRevertButton from "../components/WithRevertButton.svelte";
     import StepsInput from "./StepsInput.svelte";
 
     export let value: any;
@@ -18,9 +17,8 @@
         <slot />
     </Col>
     <Col --col-size={6} breakpoint="xs">
-        <ConfigInput>
+        <WithRevertButton class="flex-grow-1" slot="revert" bind:value {defaultValue}>
             <StepsInput bind:value />
-            <RevertButton slot="revert" bind:value {defaultValue} />
-        </ConfigInput>
+        </WithRevertButton>
     </Col>
 </Row>

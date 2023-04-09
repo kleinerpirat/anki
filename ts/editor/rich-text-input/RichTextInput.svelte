@@ -244,10 +244,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .rich-text-input {
         height: 100%;
 
-        background-color: var(--canvas-elevated);
+        background-color: colors.$canvas-secondary;
         padding: 6px;
     }
 
@@ -257,7 +259,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .rich-text-editable.empty::before {
         position: absolute;
-        color: var(--fg-subtle);
+        color: colors.$fg-subtle;
         content: var(--description-content);
         font-size: var(--description-font-size, 20px);
         cursor: text;

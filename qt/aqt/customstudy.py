@@ -61,21 +61,7 @@ class CustomStudy(QDialog):
         self.mw = mw
         self.deck_id = deck_id
         self.defaults = defaults
-        self.form = aqt.forms.customstudy.Ui_Dialog()
-        self.form.setupUi(self)
-        disable_help_button(self)
-        self.setupSignals()
-        self.form.radioNew.click()
-        self.open()
-
-    def setupSignals(self) -> None:
-        f = self.form
-        qconnect(f.radioNew.clicked, lambda: self.onRadioChange(RADIO_NEW))
-        qconnect(f.radioRev.clicked, lambda: self.onRadioChange(RADIO_REV))
-        qconnect(f.radioForgot.clicked, lambda: self.onRadioChange(RADIO_FORGOT))
-        qconnect(f.radioAhead.clicked, lambda: self.onRadioChange(RADIO_AHEAD))
-        qconnect(f.radioPreview.clicked, lambda: self.onRadioChange(RADIO_PREVIEW))
-        qconnect(f.radioCram.clicked, lambda: self.onRadioChange(RADIO_CRAM))
+        self.mw.web.eval("anki.setupCustomStudy(); ")
 
     def count_with_children(self, parent: int, children: int) -> str:
         if children:

@@ -33,6 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
     @use "sass/button-mixins" as button;
 
     .autocomplete-item {
@@ -44,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 0;
         border: 1px solid transparent;
         &:not(:first-child) {
-            border-top-color: var(--border-subtle);
+            border-top-color: colors.$border-subtle;
         }
 
         &:hover {

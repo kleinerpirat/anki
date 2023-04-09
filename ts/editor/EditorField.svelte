@@ -118,12 +118,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
     @use "sass/elevation" as *;
 
     /* Make sure labels are readable on custom Qt backgrounds */
     .field-container {
-        background: var(--canvas);
-        border-radius: var(--border-radius);
+        background: colors.$canvas;
+        border-radius: props.$border-radius;
         overflow: hidden;
     }
 
@@ -132,18 +134,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* make room for thicker focus border */
         margin: 1px;
 
-        border-radius: var(--border-radius);
-        border: 1px solid var(--border);
+        border-radius: props.$border-radius;
+        border: 1px solid colors.$border;
 
         @include elevation(1);
 
         outline-offset: -1px;
         &.dupe,
         &.dupe:focus-within {
-            outline: 2px solid var(--accent-danger);
+            outline: 2px solid colors.$warning;
         }
         &:focus-within {
-            outline: 2px solid var(--border-focus);
+            outline: 2px solid colors.$focus;
         }
     }
 </style>

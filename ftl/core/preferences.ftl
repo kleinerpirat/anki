@@ -37,6 +37,7 @@ preferences-theme = Theme
 preferences-theme-follow-system = Follow System
 preferences-theme-light = Light
 preferences-theme-dark = Dark
+preferences-toggle-theme = Toggle theme
 preferences-v3-scheduler = V3 scheduler
 preferences-ignore-accents-in-search = Ignore accents in search (slower)
 preferences-backup-explanation =
@@ -71,11 +72,12 @@ preferences-import-export = Import/Export
 preferences-network-timeout = Network timeout
 preferences-toolbar = Toolbar
 preferences-background = Background
-preferences-choose-light-background = Choose background for light theme
-preferences-choose-dark-background = Choose background for dark theme
+preferences-color-palette = Color Palette
+preferences-colors = Colors
 preferences-opacity = Opacity
 preferences-blur = Blur
 preferences-css = CSS
+preferences-use-in-reviewer = Use in reviewer
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

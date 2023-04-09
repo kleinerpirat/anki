@@ -1,11 +1,25 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
- 
+
 @mixin background($pos: top) {
     background-size: cover !important;
+    background-position-x: center;
+    background-position-y: calc(
+        (var(--bg-crop)) * -2
+    ) !important;
     background-repeat: no-repeat !important;
-    background-position: $pos !important;
-    background-attachment: fixed !important;
+    transition: background-image background-color var(--transition-slow) linear;
+}
+
+/**
+* Returns approximate offset required to cut off edge blur
+* ("approximate" because the standard deviation used by the browser may differ)
+*/
+@function blur-offset($blur-radius) {
+    // The amount of pixels affected by the CSS blur
+    // filter is larger than the given blur radius.
+    $sigma: calc($blur-radius * 1.5 / 3);
+    @return calc($sigma * -4);
 }
 
 @mixin pseudo($pos: top) {
@@ -13,10 +27,11 @@
     position: fixed !important;
     pointer-events: none !important;
     z-index: -1 !important;
-    height: var(--bg-height, 100%);
-    top: calc(var(--bg-offset, 0) + var(--bg-crop, 0));
-    left: var(--bg-crop, 0);
-    right: var(--bg-crop, 0);
-    bottom: var(--bg-crop, 0);
+
+    top: blur-offset(var(--bg-crop));
+    bottom: blur-offset(var(--bg-crop));
+    left: blur-offset(var(--bg-crop));
+    right: blur-offset(var(--bg-crop));
+
     @include background($pos);
 }

@@ -21,6 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .sticky-container {
         position: sticky;
         top: var(--sticky-top, 0);
@@ -29,9 +31,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         right: 0;
         z-index: var(--z-index, 50);
 
-        background: var(--sticky-bg, var(--canvas));
+        background: var(--sticky-bg, colors.$canvas);
         border-style: solid;
-        border-color: var(--sticky-border, var(--border));
+        border-color: var(--sticky-border, colors.$border);
         border-width: var(--sticky-borders, 0);
     }
 </style>

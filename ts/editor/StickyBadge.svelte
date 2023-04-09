@@ -47,14 +47,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </span>
 
 <style lang="scss">
+    @use "sass/props";
+
     span {
         cursor: pointer;
         opacity: 0;
         &.visible {
             transition: none;
-            opacity: 0.4;
+            opacity: props.$opacity-idle;
             &:hover {
-                opacity: 0.8;
+                opacity: props.$opacity-hover;
             }
         }
         &.highlighted {

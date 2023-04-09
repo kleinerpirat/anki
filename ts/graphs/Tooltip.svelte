@@ -42,6 +42,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
+
     .tooltip {
         position: absolute;
         white-space: nowrap;
@@ -50,9 +53,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: 15px;
         opacity: 0;
         pointer-events: none;
-        transition: opacity var(--transition);
-        color: var(--fg);
-        background: var(--canvas-overlay);
+        transition: opacity props.$transition;
+        color: colors.$fg;
+        background: colors.$canvas-secondary;
 
         :global(table) {
             border-spacing: 1em 0;

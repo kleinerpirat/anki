@@ -44,6 +44,8 @@
 {/if}
 
 <style lang="scss">
+    @use "sass/colors";
+
     h2 {
         margin-bottom: 1em;
         width: 100%;
@@ -51,7 +53,7 @@
 
     .chapter-redirect {
         width: 100%;
-        color: var(--fg-subtle);
+        color: colors.$fg-subtle;
         font-size: small;
     }
 </style>

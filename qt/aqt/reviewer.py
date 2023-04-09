@@ -37,11 +37,9 @@ from aqt.operations.scheduling import (
     suspend_note,
 )
 from aqt.operations.tag import add_tags_to_notes, remove_tags_from_notes
-from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
-from aqt.toolbar import BottomBar
 from aqt.utils import (
     askUserDialog,
     downArrow,
@@ -56,11 +54,6 @@ class RefreshNeeded(Enum):
     NOTE_TEXT = auto()
     QUEUES = auto()
     FLAG = auto()
-
-
-class ReviewerBottomBar:
-    def __init__(self, reviewer: Reviewer) -> None:
-        self.reviewer = reviewer
 
 
 def replay_audio(card: Card, question_side: bool) -> None:
@@ -140,7 +133,6 @@ class Reviewer:
         self._refresh_needed: RefreshNeeded | None = None
         self._v3: V3CardInfo | None = None
         self._state_mutation_key = str(random.randint(0, 2**64 - 1))
-        self.bottom = BottomBar(mw, mw.bottomWeb)
         self._card_info = ReviewerCardInfo(self.mw)
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         hooks.card_did_leech.append(self.onLeech)
@@ -151,8 +143,6 @@ class Reviewer:
             show_warning(tr.scheduling_update_required())
             return
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
-        self.web.set_bridge_command(self._linkHandler, self)
-        self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
         self._state_mutation_js = self.mw.col.get_config("cardStateCustomizer")
         self._reps: int = None
         self._refresh_needed = RefreshNeeded.QUEUES
@@ -296,42 +286,25 @@ class Reviewer:
     # Initializing the webview
     ##########################################################################
 
-    def revHtml(self) -> str:
-        extra = self.mw.col.conf.get("reviewExtra", "")
-        fade = ""
-        if self.mw.pm.video_driver() == VideoDriver.Software:
-            fade = "<script>qFade=0;</script>"
-        return f"""
-<div id="_mark" hidden>&#x2605;</div>
-<div id="_flag" hidden>&#x2691;</div>
-{fade}
-<div id="qa"></div>
-{extra}
-"""
-
     def _initWeb(self) -> None:
         self._reps = 0
         # main window
-        self.web.stdHtml(
-            self.revHtml(),
-            css=["css/reviewer.css"],
-            js=[
-                "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml.js",
-                "js/reviewer.js",
-            ],
-            context=self,
-        )
-        # block default drag & drop behavior while allowing drop events to be received by JS handlers
-        self.web.allow_drops = True
-        self.web.eval("_blockDefaultDragDropBehavior();")
+        self.mw.web.eval("anki.setupReviewer(); ")
+        # self.web.stdHtml(
+        #     self.revHtml(),
+        #     css=["css/reviewer.css"],
+        #     js=[
+        #         "js/mathjax.js",
+        #         "js/vendor/mathjax/tex-chtml.js",
+        #         "js/reviewer.js",
+        #     ],
+        #     context=self,
+        # )
+        # # block default drag & drop behavior while allowing drop events to be received by JS handlers
+        # self.web.allow_drops = True
+        # self.web.eval("_blockDefaultDragDropBehavior();")
         # show answer / ease buttons
-        self.bottom.web.stdHtml(
-            self._bottomHTML(),
-            css=["css/toolbar-bottom.css", "css/reviewer-bottom.css"],
-            js=["js/vendor/jquery.min.js", "js/reviewer-bottom.js"],
-            context=ReviewerBottomBar(self),
-        )
+
 
     # Showing the question
     ##########################################################################
@@ -362,7 +335,11 @@ class Reviewer:
         q = gui_hooks.card_will_show(q, c, "reviewQuestion")
         self._run_state_mutation_hook()
 
-        bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
+        bodyclass = f"""{
+                theme_manager.body_classes_for_card_ord(c.ord)
+            }{
+                " force-bg" if self.mw.pm.reviewer_background_enabled() else ""
+            }"""
         a = self.mw.col.media.escape_media_filenames(c.answer())
 
         self.web.eval(
@@ -520,8 +497,8 @@ class Reviewer:
         if self.state == "question":
             self._getTypedAnswer()
         elif self.state == "answer":
-            self.bottom.web.evalWithCallback(
-                "selectedAnswerButton()", self._onAnswerButton
+            self.mw.web.evalWithCallback(
+                "anki.selectedAnswerButton()", self._onAnswerButton
             )
 
     def _onAnswerButton(self, val: str) -> None:
@@ -544,9 +521,6 @@ class Reviewer:
             self.showContextMenu()
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
-        elif url == "chameleon":
-            self.mw.toolbarWeb.adjust_to_card()
-            self.mw.bottomWeb.adjust_to_card()
         else:
             print("unrecognized anki link:", url)
 
@@ -690,11 +664,11 @@ time = %(time)d;
             maxTime = self.card.time_limit() / 1000
         else:
             maxTime = 0
-        self.bottom.web.eval("showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
+        self.mw.web.eval("anki.showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
 
     def _showEaseButtons(self) -> None:
         middle = self._answerButtons()
-        self.bottom.web.eval(f"showAnswer({json.dumps(middle)});")
+        self.mw.web.eval(f"anki.showAnswer({json.dumps(middle)});")
 
     def _remaining(self) -> str:
         if not self.mw.col.conf["dueCounts"]:

@@ -159,12 +159,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .plain-text-input {
         height: 100%;
 
         :global(.CodeMirror) {
             height: 100%;
-            background: var(--canvas-code);
+            background: colors.$canvas-code;
             padding-inline: 4px;
         }
 
@@ -173,7 +175,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         :global(.CodeMirror-gutters) {
-            background: var(--canvas-code);
+            background: colors.$canvas-code;
         }
     }
 </style>

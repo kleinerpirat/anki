@@ -45,6 +45,7 @@ from anki.utils import (
 )
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
+from aqt.deckoptions import display_options_for_deck
 from aqt.dbcheck import check_db
 from aqt.emptycards import show_empty_cards
 from aqt.flags import FlagManager
@@ -66,7 +67,7 @@ from aqt.qt import sip
 from aqt.sync import sync_collection, sync_login
 from aqt.taskman import TaskManager
 from aqt.theme import Theme, theme_manager
-from aqt.toolbar import BottomWebView, Toolbar, TopWebView
+from aqt.toolbar import Toolbar
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
@@ -96,7 +97,7 @@ from aqt.webview import AnkiWebView, AnkiWebViewKind
 install_pylib_legacy()
 
 MainWindowState = Literal[
-    "startup", "deckBrowser", "overview", "review", "resetRequired", "profileManager"
+    "startup", "deckBrowser", "review", "resetRequired", "profileManager"
 ]
 
 
@@ -110,8 +111,8 @@ class MainWebView(AnkiWebView):
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setMinimumWidth(400)
         self.setAcceptDrops(True)
-        gui_hooks.background_did_change.append(self.refresh_background)
-        gui_hooks.theme_did_change.append(self.refresh_background)
+        self.set_bridge_command(self.mw._linkHandler, self.mw)
+        self.load_ts_page("main")
 
     # Importing files via drag & drop
     ##########################################################################
@@ -146,35 +147,11 @@ class MainWebView(AnkiWebView):
             # currently safe for us to import more than one file at once
             return
 
-    # Main webview specific event handling
-    def eventFilter(self, obj, evt):
-        if handled := super().eventFilter(obj, evt):
-            return handled
-
-        if evt.type() == QEvent.Type.Leave:
-            # Show toolbar when mouse moves outside main webview
-            # and automatically hide it with delay after mouse has entered again
-            if self.mw.pm.hide_top_bar() or self.mw.pm.hide_bottom_bar():
-                self.mw.toolbarWeb.show()
-                self.mw.bottomWeb.show()
-                return True
-
-        if evt.type() == QEvent.Type.Enter:
-            self.mw.toolbarWeb.hide_timer.start()
-            self.mw.bottomWeb.hide_timer.start()
-            return True
-
-        return False
-
-    def refresh_background(self) -> None:
-        self.set_background(self.mw.pm.get_background())
-
 
 class AnkiQt(QMainWindow):
     col: Collection
     pm: ProfileManagerType
     web: MainWebView
-    bottomWeb: BottomWebView
 
     def __init__(
         self,
@@ -230,7 +207,6 @@ class AnkiQt(QMainWindow):
         self.col = None
         self.disable_automatic_garbage_collection()
         self.setupAppMsg()
-        self.setupKeys()
         self.setupThreads()
         self.setupMediaServer()
         self.setupSpellCheck()
@@ -247,17 +223,16 @@ class AnkiQt(QMainWindow):
         self.setup_focus()
         # screens
         self.setupDeckBrowser()
-        self.setupOverview()
         self.setupReviewer()
+        self.setupKeys()
 
     def finish_ui_setup(self) -> None:
         "Actions that are deferred until after add-on loading."
-        self.toolbar.draw()
         # add-ons are only available here after setupAddons
         gui_hooks.reviewer_did_init(self.reviewer)
 
     def setupProfileAfterWebviewsLoaded(self) -> None:
-        for w in (self.web, self.bottomWeb):
+        for w in self.web:
             if not w._domDone:
                 self.progress.single_shot(
                     10,
@@ -544,9 +519,6 @@ class AnkiQt(QMainWindow):
         self.unloadProfile(self.showProfileManager)
 
     def cleanupAndExit(self) -> None:
-        gui_hooks.background_did_change.remove(self.web.refresh_background)
-        gui_hooks.theme_did_change.remove(self.web.refresh_background)
-
         self.errorHandler.unload()
         self.mediaServer.shutdown()
         # Rust background jobs are not awaited implicitly
@@ -715,14 +687,13 @@ class AnkiQt(QMainWindow):
             # pylint: disable=not-callable
             cleanup(state)
         self.clearStateShortcuts()
+        if oldState == "review":
+            self.web.load_ts_page("main")
         self.state = state
         gui_hooks.state_will_change(state, oldState)
         getattr(self, f"_{state}State", lambda *_: None)(oldState, *args)
-        if state != "resetRequired":
-            self.bottomWeb.adjustHeightToFit()
-        self.web.refresh_background()
-        self.toolbarWeb.set_background(self.pm.get_background())
-        self.bottomWeb.set_background(self.pm.get_background())
+        self.web.set_background()
+
         gui_hooks.state_did_change(state, oldState)
 
     def _deckBrowserState(self, oldState: MainWindowState) -> None:
@@ -735,30 +706,12 @@ class AnkiQt(QMainWindow):
             return None
         return self.col.decks.get(did)
 
-    def _overviewState(self, oldState: MainWindowState) -> None:
-        if not self._selectedDeck():
-            return self.moveToState("deckBrowser")
-        self.overview.show()
-
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
-
-        if self.pm.hide_top_bar():
-            self.toolbarWeb.hide_timer.setInterval(500)
-            self.toolbarWeb.hide_timer.start()
-        else:
-            self.toolbarWeb.flatten()
-
-        if self.pm.hide_bottom_bar():
-            self.bottomWeb.hide_timer.setInterval(500)
-            self.bottomWeb.hide_timer.start()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
-            self.toolbarWeb.elevate()
-            self.toolbarWeb.show()
-            self.bottomWeb.show()
 
     # Resetting state
     ##########################################################################
@@ -791,8 +744,6 @@ class AnkiQt(QMainWindow):
         focused = current_window() == self
         if self.state == "review":
             dirty = self.reviewer.op_executed(changes, handler, focused)
-        elif self.state == "overview":
-            dirty = self.overview.op_executed(changes, handler, focused)
         elif self.state == "deckBrowser":
             dirty = self.deckBrowser.op_executed(changes, handler, focused)
         else:
@@ -811,13 +762,11 @@ class AnkiQt(QMainWindow):
         if new_focus and new_focus.window() == self:
             if self.state == "review":
                 self.reviewer.refresh_if_needed()
-            elif self.state == "overview":
-                self.overview.refresh_if_needed()
             elif self.state == "deckBrowser":
                 self.deckBrowser.refresh_if_needed()
 
     def fade_out_webview(self) -> None:
-        self.web.eval("document.body.style.opacity = 0.3")
+        self.web.eval("document.body.style.opacity = 1")
 
     def fade_in_webview(self) -> None:
         self.web.eval("document.body.style.opacity = 1")
@@ -827,8 +776,8 @@ class AnkiQt(QMainWindow):
 
         New code should use CollectionOp() instead."""
         if self.col:
-            # fire new `operation_did_execute` hook first. If the overview
-            # or review screen are currently open, they will rebuild the study
+            # fire new `operation_did_execute` hook first. If the review
+            # screen is currently open, it will rebuild the study
             # queues (via mw.col.reset())
             self._synthesize_op_did_execute_from_reset()
             # fire the old reset hook
@@ -894,25 +843,17 @@ title="{}" {}>{}</button>""".format(
         # main area
         self.web = MainWebView(self)
         # toolbar
-        tweb = self.toolbarWeb = TopWebView(self)
-        self.toolbar = Toolbar(self, tweb)
-        # bottom area
-        sweb = self.bottomWeb = BottomWebView(self)
-        sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        sweb.disable_zoom()
+        self.toolbar = Toolbar(self)
         # add in a layout
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.mainLayout.setSpacing(0)
-        self.mainLayout.addWidget(tweb)
         self.mainLayout.addWidget(self.web)
-        self.mainLayout.addWidget(sweb)
         self.form.centralwidget.setLayout(self.mainLayout)
 
         # force webengine processes to load before cwd is changed
         if is_win:
-            for webview in self.web, self.bottomWeb:
-                webview.force_load_hack()
+            self.web.force_load_hack()
 
         gui_hooks.card_review_webview_did_init(self.web, AnkiWebViewKind.MAIN)
 
@@ -995,11 +936,6 @@ title="{}" {}>{}</button>""".format(
         from aqt.deckbrowser import DeckBrowser
 
         self.deckBrowser = DeckBrowser(self)
-
-    def setupOverview(self) -> None:
-        from aqt.overview import Overview
-
-        self.overview = Overview(self)
 
     def setupReviewer(self) -> None:
         from aqt.reviewer import Reviewer
@@ -1104,8 +1040,96 @@ title="{}" {}>{}</button>""".format(
         )
 
     def set_theme(self, theme: Theme) -> None:
+        theme_manager._theme_override = False
         self.pm.set_theme(theme)
         self.setupStyle()
+
+    # Event handlers
+    ##########################################################################
+
+    def _linkHandler(self, cmd: str) -> Any:
+        if self.state == "review":
+            self.reviewer._linkHandler(cmd)
+            return
+
+        if ":" in cmd:
+            (cmd, arg) = cmd.split(":", 1)
+        else:
+            cmd = cmd
+
+        # Common commands
+        ##########################################################################
+
+        if cmd == "browserSearch":
+            browser = aqt.dialogs.open("Browser", self)
+            browser.search_for(arg)
+
+        # Toolbar commands
+        ##########################################################################
+
+        elif cmd in self.toolbar.link_handlers:
+            self.toolbar.link_handlers[cmd]()
+        elif cmd == "toggleTheme":
+            theme_manager.toggle_temp_dark_mode()
+
+        # DeckBrowser commands
+        ##########################################################################
+
+        elif cmd == "open":
+            self.deckBrowser.set_current_deck(DeckId(int(arg)))
+        elif cmd == "opts":
+            self.deckBrowser._showOptions(arg)
+        elif cmd == "shared":
+            self.deckBrowser._onShared(arg)
+        elif cmd == "import":
+            self.onImport()
+        elif cmd == "create":
+            self.deckBrowser._on_create()
+        elif cmd == "drag":
+            source, target = arg.split(",")
+            self.deckBrowser._handle_drag_and_drop(
+                DeckId(int(source)), DeckId(int(target or 0))
+            )
+        elif cmd == "collapse":
+            self.deckBrowser._set_collapsed(DeckId(int(arg)), True)
+        elif cmd == "expand":
+            self.deckBrowser._set_collapsed(DeckId(int(arg)), False)
+        elif cmd == "v2upgrade":
+            self.deckBrowser._confirm_upgrade()
+        elif cmd == "v2upgradeinfo":
+            openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
+
+        # Overview commands
+        ##########################################################################
+
+        elif cmd == "study":
+            self.col.startTimebox()
+            self.moveToState("review")
+            if self.state == "deckBrowser":
+                tooltip(tr.studying_no_cards_are_due_yet())
+        elif cmd == "anki":
+            print("anki menu")
+        elif cmd == "opts":
+            display_options_for_deck(self.col.decks.current())
+        elif cmd == "cram":
+            aqt.dialogs.open("FilteredDeckConfigDialog", self)
+        elif cmd == "refresh":
+            self.deckBrowser.rebuild_current_filtered_deck()
+        elif cmd == "empty":
+            self.deckBrowser.empty_current_filtered_deck()
+        elif cmd == "decks":
+            self.moveToState("deckBrowser")
+        elif cmd == "studymore" or cmd == "customStudy":
+            self.deckBrowser.onStudyMore()
+        elif cmd == "unbury":
+            self.deckBrowser.on_unbury()
+        elif cmd.startswith("description:"):
+            (_, md, desc) = cmd.split(":", 2)
+            markdown = md == "true"
+            self.deckBrowser._save_description(desc, markdown)
+        elif cmd.lower().startswith("http"):
+            openLink(cmd)
+        return False
 
     # Key handling
     ##########################################################################
@@ -1119,6 +1143,17 @@ title="{}" {}>{}</button>""".format(
             ("b", self.onBrowse),
             ("t", self.onStats),
             ("y", self.on_sync_button_clicked),
+            (
+                "o",
+                lambda: self.deckBrowser.display_options_for_deck(
+                    self.col.decks.current()
+                ),
+            ),
+            ("r", self.deckBrowser.rebuild_current_filtered_deck),
+            ("e", self.deckBrowser.empty_current_filtered_deck),
+            ("c", self.deckBrowser.onCustomStudyKey),
+            ("u", self.deckBrowser.on_unbury),
+            ("Ctrl+Shift+I", self.onImport)
         ]
         self.applyShortcuts(globalShortcuts)
         self.stateShortcuts: list[QShortcut] = []
@@ -1145,11 +1180,11 @@ title="{}" {}>{}</button>""".format(
         self.stateShortcuts = []
 
     def onStudyKey(self) -> None:
-        if self.state == "overview":
+        if self.state == "deckBrowser":
             self.col.startTimebox()
             self.moveToState("review")
         else:
-            self.moveToState("overview")
+            self.moveToState("deckBrowser")
 
     # App exit
     ##########################################################################
@@ -1221,7 +1256,7 @@ title="{}" {}>{}</button>""".format(
 
     def onOverview(self) -> None:
         self.col.reset()
-        self.moveToState("overview")
+        self.moveToState("deckBrowser")
 
     def onStats(self) -> None:
         deck = self._selectedDeck()
@@ -1230,8 +1265,10 @@ title="{}" {}>{}</button>""".format(
         want_old = KeyboardModifiersPressed().shift
         if want_old:
             aqt.dialogs.open("DeckStats", self)
-        else:
+        elif KeyboardModifiersPressed().control:
             aqt.dialogs.open("NewDeckStats", self)
+        else:
+            self.web.eval("anki.setupStats(); ")
 
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)
@@ -1391,10 +1428,6 @@ title="{}" {}>{}</button>""".format(
             self.fullscreen = False
             self.show_menubar()
 
-        # Update Toolbar states
-        self.toolbarWeb.hide_if_allowed()
-        self.bottomWeb.hide_if_allowed()
-
     def hide_menubar(self) -> None:
         self.form.menubar.setFixedHeight(0)
 
@@ -1456,8 +1489,6 @@ title="{}" {}>{}</button>""".format(
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":
             self.deckBrowser.refresh()
-        elif self.state == "overview":
-            self.overview.refresh()
 
     def on_autosync_timer(self) -> None:
         elap = self.media_syncer.seconds_since_last_sync()
@@ -1627,7 +1658,7 @@ title="{}" {}>{}</button>""".format(
                 return
             deck_id = self.col.decks.id(ret.name)
             set_current_deck(parent=self, deck_id=deck_id).success(
-                lambda out: self.moveToState("overview")
+                lambda out: self.moveToState("deckBrowser")
             ).run_in_background()
 
         StudyDeck(
@@ -1906,7 +1937,7 @@ title="{}" {}>{}</button>""".format(
 
     def interactiveState(self) -> bool:
         "True if not in profile manager, syncing, etc."
-        return self.state in ("overview", "review", "deckBrowser")
+        return self.state in ("review", "deckBrowser")
 
     # GC
     ##########################################################################

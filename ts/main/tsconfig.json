@@ -1,0 +1,14 @@
+{
+    "extends": "../tsconfig.json",
+    "include": ["*"],
+    "references": [
+        { "path": "../lib" },
+        { "path": "../components" },
+        { "path": "../deck-options" },
+        { "path": "../graphs" },
+        { "path": "../reviewer" },
+    ],
+    "compilerOptions": {
+        "types": ["node"]
+    }
+}

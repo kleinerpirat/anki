@@ -86,8 +86,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </Graph>
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
+
     svg {
-        transition: opacity var(--transition-slow);
+        transition: opacity props.$transition-slow;
     }
 
     .counts-outer {
@@ -124,7 +127,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .search-link:hover {
         cursor: pointer;
-        color: var(--fg-link);
+        color: colors.$link;
         text-decoration: underline;
     }
 </style>

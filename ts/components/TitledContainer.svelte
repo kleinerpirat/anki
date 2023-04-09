@@ -3,7 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { pageTheme } from "../sveltelib/theme";
+    import Container from "./Container.svelte";
+    import type { Breakpoint } from "./types";
 
     const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 
@@ -12,73 +13,54 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let title: string;
+    export let titleAlign: "start" | "center" | "end" = "start";
+
+    export let breakpoint: Breakpoint | "fluid" = "fluid";
 </script>
 
-<div
-    {id}
-    class="container {className}"
-    class:light={!$pageTheme.isDark}
-    class:dark={$pageTheme.isDark}
-    class:rtl
-    style:--gutter-block="2px"
-    style:--container-margin="0"
->
-    <div class="position-relative">
-        <h1>{title}</h1>
-        <div class="help-badge position-absolute" class:rtl>
-            <slot name="tooltip" />
+<div class="titled-container">
+    <Container
+        {id}
+        class={className}
+        --title-align={titleAlign}
+        {breakpoint}
+        withBackground
+    >
+        <div class="position-relative">
+            <h2 class="title">{title}</h2>
+            <div class="help-badge position-absolute" class:rtl>
+                <slot name="tooltip" />
+            </div>
         </div>
-    </div>
-    <slot />
+        <slot />
+    </Container>
 </div>
 
 <style lang="scss">
-    @use "sass/elevation" as *;
-    .container {
-        width: 100%;
-        background: var(--canvas-elevated);
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--border-radius-medium, 10px);
+    @use "sass/colors";
+    @use "sass/props";
 
-        &.light {
-            @include elevation(2, $opacity-boost: -0.08);
-            &:hover,
-            &:focus-within {
-                @include elevation(3);
-            }
-        }
-        &.dark {
-            @include elevation(3, $opacity-boost: -0.08);
-            &:hover,
-            &:focus-within {
-                @include elevation(4);
-            }
-        }
+    .titled-container {
+        display: contents;
+        --gutter-block-start: 1rem;
+        --gutter-block-end: 0.75rem;
+        --gutter-inline-start: 1.25rem;
+        --gutter-inline-end: 1.75rem;
+    }
 
-        padding: 1rem 1.75rem 0.75rem 1.25rem;
-        &.rtl {
-            padding: 1rem 1.25rem 0.75rem 1.75rem;
-        }
-        &:hover,
-        &:focus-within {
-            .help-badge {
-                color: var(--fg-subtle);
-            }
-        }
-        transition: box-shadow var(--transition) ease-in-out;
-        page-break-inside: avoid;
+    .title {
+        text-align: var(--title-align, start);
+        border-bottom: 1px solid colors.$border;
     }
-    h1 {
-        border-bottom: 1px solid var(--border);
-    }
+
     .help-badge {
         right: 0;
         bottom: 4px;
-        color: var(--fg-faint);
-        transition: color var(--transition) linear;
+        color: colors.$fg-subtle;
+        transition: color props.$transition linear;
         &:hover {
             transition: none;
-            color: var(--fg);
+            color: colors.$fg;
         }
         &.rtl {
             right: unset;

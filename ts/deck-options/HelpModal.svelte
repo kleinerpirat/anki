@@ -139,6 +139,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
+
     #nav {
         margin-bottom: 1.5rem;
     }
@@ -149,16 +152,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .manual-badge {
         text-decoration: none;
-        color: var(--fg-subtle);
+        color: colors.$fg-subtle;
         &:hover {
-            color: var(--fg);
+            color: colors.$fg;
         }
     }
 
     .modal-content {
-        background-color: var(--canvas);
-        color: var(--fg);
-        border-radius: var(--border-radius-medium, 10px);
+        background-color: colors.$canvas;
+        color: colors.$fg;
+        border-radius: props.$border-radius-medium;
     }
 
     .invert {
@@ -177,10 +180,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         text-decoration: none;
         cursor: pointer;
         &:hover {
-            background-color: var(--canvas-inset);
+            background-color: colors.$input-bg;
         }
         &.active {
-            border-left: 4px solid var(--border-focus);
+            border-left: 4px solid colors.$focus;
         }
     }
 </style>

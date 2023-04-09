@@ -106,6 +106,8 @@ pub struct DeckCommonSchema11 {
     desc: String,
     #[serde(default, rename = "md", skip_serializing_if = "is_false")]
     markdown_description: bool,
+    #[serde(default)]
+    css_background: String,
     #[serde(rename = "dyn")]
     dynamic: u8,
     #[serde(flatten)]
@@ -238,6 +240,7 @@ impl Default for NormalDeckSchema11 {
                 other: Default::default(),
                 dynamic: 0,
                 markdown_description: false,
+                css_background: "".to_string(),
             },
             conf: 1,
             extend_new: 0,
@@ -318,6 +321,7 @@ impl From<NormalDeckSchema11> for NormalDeck {
             extend_review: deck.extend_rev.max(0) as u32,
             markdown_description: deck.common.markdown_description,
             description: deck.common.desc,
+            css_background: deck.common.css_background,
             review_limit: deck.review_limit,
             new_limit: deck.new_limit,
             review_limit_today: deck.review_limit_today,
@@ -398,6 +402,10 @@ impl From<Deck> for DeckCommonSchema11 {
             markdown_description: match &deck.kind {
                 DeckKind::Normal(n) => n.markdown_description,
                 DeckKind::Filtered(_) => false,
+            },
+            css_background: match &deck.kind {
+                DeckKind::Normal(n) => n.css_background.clone(),
+                DeckKind::Filtered(_) => String::new(),
             },
             desc: match deck.kind {
                 DeckKind::Normal(n) => n.description,

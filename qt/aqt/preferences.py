@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import enum
+import json
 import os
 import re
 from typing import Any, cast
@@ -11,9 +13,9 @@ import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
 from anki.consts import new_card_scheduling_labels
-from aqt import AnkiQt, colors, gui_hooks
+from aqt import AnkiQt, gui_hooks
 from aqt.operations.collection import set_preferences
-from aqt.profiles import VideoDriver
+from aqt.profiles import AnkiBackground, VideoDriver
 from aqt.qt import *
 from aqt.theme import Theme, theme_manager
 from aqt.utils import (
@@ -26,7 +28,13 @@ from aqt.utils import (
     showWarning,
     tr,
 )
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewKind
+
+
+class ThemeEditorMode(enum.IntEnum):
+    THEME = 0
+    BACKGROUND = 1
+    PALETTE = 2
 
 
 class Preferences(QDialog):
@@ -220,42 +228,82 @@ class Preferences(QDialog):
         self.mw.pm.set_custom_sync_url(self.form.custom_sync_url.text())
         self.mw.pm.set_network_timeout(self.form.network_timeout.value())
 
-    # Profile: background
+    # Profile: Custom Background
     ######################################################################
 
     def setup_background(self) -> None:
-        self.web = AnkiWebView(self, "background editor")
-        web_layout = QVBoxLayout()
-        web_layout.addWidget(self.web)
-        self.form.backgroundBox.setLayout(web_layout)
-        """ media = os.path.join(self.mw.pm.profileFolder(), "collection.media")
-        preview = QGraphicsScene(self)
-        light = QImage()
-        light.load(os.path.join(media, self.mw.pm.get_background("light")))
-        light_scaled = light.scaled(QSize(200, 108), Qt.AspectRatioMode.KeepAspectRatioByExpanding)
-        preview.addPixmap(QPixmap.fromImage(light_scaled))
-        preview.setSceneRect(light_scaled.rect())
-        self.form.bgView.setScene(preview) """
+        self.web = AnkiWebView(self, kind=AnkiWebViewKind.THEME_EDITOR)
+
+        self.form.themeLayout.addWidget(self.web)
         self._setup_web()
 
     def _setup_web(self) -> None:
-        self.web.load_ts_page("background-editor")
+        self.web.load_ts_page("theme-editor")
         self.web.set_bridge_command(self._on_bridge_cmd, self)
-        self.web.eval(
-            f"""anki.setupBackgroundEditor(`{self.mw.pm.get_background()}`); """
-        )
+
+        def color_list(palette: dict[str, dict]) -> [dict]:
+            return [
+                {"name": k, "comment": v["comment"], "value": v["value"]}
+                for k, v in palette.items()
+            ]
+
+        args = {
+            "light": {
+                "bg": self.mw.pm.get_background("light").__dict__,
+            },
+            "dark": {
+                "bg": self.mw.pm.get_background("dark").__dict__,
+            },
+        }
+        self.web.eval(f"anki.setupThemeEditor({json.dumps(args)}); ")
         self.web._onHeight(200)
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
-        def accept(path: str) -> None:
-            name = re.search(r"([^/]+)$", path).group(0)
-            self.web.evalWithCallback(
-                f"""setBackgroundImage("{name}")""",
-                lambda css: self.mw.pm.set_background(css),
-            )
+        if cmd.startswith("theme:"):
+            (_, theme_idx) = cmd.split(":", 1)
+            self.on_theme_changed(int(theme_idx))
+            return
+        if cmd.startswith("mode:"):
+            (_, mode_str) = cmd.split(":", 1)
+            mode = ThemeEditorMode(int(mode_str))
+
+            if mode == ThemeEditorMode.PALETTE:
+                self.form.themeBox.setTitle(tr.preferences_color_palette())
+                self.form.generalGroup.setVisible(False)
+                self.form.uiGroup.setVisible(False)
+                self.form.distractionsGroup.setVisible(False)
+                self.web._onHeight(660)
+            elif mode == ThemeEditorMode.BACKGROUND:
+                self.form.themeBox.setTitle(tr.preferences_background())
+                self.form.generalGroup.setVisible(False)
+                self.form.uiGroup.setVisible(True)
+                self.form.distractionsGroup.setVisible(True)
+                self.web._onHeight(400)
+            else:
+                self.form.themeBox.setTitle(tr.preferences_theme())
+                self.form.generalGroup.setVisible(True)
+                self.form.uiGroup.setVisible(True)
+                self.form.distractionsGroup.setVisible(True)
+                self.web._onHeight(200)
+            return
 
         if cmd.startswith("apply:"):
-            self.mw.pm.set_background(cmd.replace("apply:", ""))
+            (background, saturation, opacity, blur) = cmd.split(":", 4)[1:]
+            self.mw.pm.set_background(
+                AnkiBackground(
+                    background, float(saturation), float(opacity), float(blur)
+                )
+            )
+            return
+
+        if cmd.startswith("applyPalette:"):
+            (_, name, palette_string) = cmd.split(":", 2)
+            palette = [string.split("=") for string in palette_string.split(":")]
+            # self.mw.pm.add_palette(palette, name)
+            # self.mw.pm.set_palette(
+            #     "dark" if theme_manager.night_mode else "light", name
+            # )
+
             return
 
         if cmd == "file":
@@ -267,12 +315,19 @@ class Preferences(QDialog):
             )
             filter = f"{tr.editing_media()} ({extension_filter})"
 
+            def accept(path: str) -> None:
+                name = re.search(r"([^/]+)$", path).group(0)
+                self.web.evalWithCallback(
+                    f"""anki.setBackgroundImage("{name}"); """,
+                    lambda css: self.mw.pm.set_background(css),
+                )
+
             file = getFile(
                 parent=self,
                 title=tr.preferences_choose_dark_background()
                 if theme_manager.night_mode
                 else tr.preferences_choose_light_background(),
-                cb=cast(Callable[[Any], None], lambda path: accept(path)),
+                cb=cast(Callable[[Any], None], accept),
                 filter=filter,
                 dir=self.mw.col.media.dir(),
             )
@@ -321,14 +376,6 @@ class Preferences(QDialog):
         )
 
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
-        themes = [
-            tr.preferences_theme_follow_system(),
-            tr.preferences_theme_light(),
-            tr.preferences_theme_dark(),
-        ]
-        self.form.theme.addItems(themes)
-        self.form.theme.setCurrentIndex(self.mw.pm.theme().value)
-        qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
 
         self.form.styleComboBox.addItems(["Anki"] + (["Native"] if not is_win else []))
         self.form.styleComboBox.setCurrentIndex(self.mw.pm.get_widget_style())

@@ -45,6 +45,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
+    @use "sass/colors";
+
     button {
         display: flex;
         justify-content: start;
@@ -57,16 +59,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         box-shadow: none !important;
         border: none;
         border-radius: 0;
-        color: var(--fg);
+        color: colors.$fg;
 
         &:hover:not([disabled]) {
-            background: var(--highlight-bg);
-            color: var(--highlight-fg);
+            background: colors.$text-highlighted-bg;
+            color: colors.$text-highlighted-fg;
         }
 
         &[disabled] {
             cursor: default;
-            color: var(--fg-disabled);
+            color: colors.$fg-disabled;
         }
 
         /* selection highlight */
@@ -78,10 +80,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         &.active {
             &:not(.rtl) {
-                border-left-color: var(--border-focus);
+                border-left-color: colors.$focus;
             }
             &.rtl {
-                border-right-color: var(--border-focus);
+                border-right-color: colors.$focus;
             }
         }
     }

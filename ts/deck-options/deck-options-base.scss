@@ -1,7 +1,9 @@
+@use "sass/colors";
+@use "sass/props";
 @import "sass/base";
 
 // override Bootstrap transition duration
-$carousel-transition: var(--transition);
+$carousel-transition: props.$transition;
 
 @import "bootstrap/scss/buttons";
 @import "bootstrap/scss/button-group";
@@ -16,7 +18,7 @@ $carousel-transition: var(--transition);
 
 input[type="text"] {
     padding-inline: 0.5rem;
-    background: var(--canvas-inset);
+    background: colors.$input-bg;
 }
 
 // Setting 100% height causes the sticky element to hide as you scroll down on Safari.

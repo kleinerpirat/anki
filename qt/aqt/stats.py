@@ -52,6 +52,7 @@ class NewDeckStats(QDialog):
         addCloseShortcut(self)
         gui_hooks.stats_dialog_will_show(self)
         self.form.web.set_kind(AnkiWebViewKind.DECK_STATS)
+        self.form.web.background_allowed = True
         self.form.web.hide_while_preserving_layout()
         self.show()
         self.refresh()
@@ -113,6 +114,7 @@ class NewDeckStats(QDialog):
 
     def refresh(self) -> None:
         self.form.web.load_ts_page("graphs")
+        self.form.web.eval("anki.setupGraphsPage(); ")
 
 
 class DeckStats(QDialog):

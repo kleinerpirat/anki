@@ -93,6 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
     @use "sass/night-mode" as nightmode;
 
     .nightMode {
@@ -100,8 +101,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .default-colors {
-        background-color: var(--canvas);
-        color: var(--fg);
+        background-color: colors.$canvas;
+        color: colors.$fg;
     }
 
     .invert {

@@ -193,6 +193,7 @@ impl NormalDeck {
         if !other.description.is_empty() {
             self.markdown_description = other.markdown_description;
             self.description = other.description.clone();
+            self.css_background = other.css_background.clone();
         }
         if other.config_id != 1 {
             self.config_id = other.config_id;

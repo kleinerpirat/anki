@@ -79,6 +79,7 @@ message Deck {
     optional uint32 new_limit = 7;
     DayLimit review_limit_today = 8;
     DayLimit new_limit_today = 9;
+    string css_background = 10;
 
     reserved 12 to 15;
   }

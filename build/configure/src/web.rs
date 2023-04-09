@@ -9,7 +9,6 @@ use ninja_gen::hashmap;
 use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
 use ninja_gen::node::node_archive;
-use ninja_gen::node::CompileSass;
 use ninja_gen::node::DPrint;
 use ninja_gen::node::EsbuildScript;
 use ninja_gen::node::Eslint;
@@ -29,7 +28,6 @@ pub fn build_and_check_web(build: &mut Build) -> Result<()> {
     declare_and_check_other_libraries(build)?;
     build_and_check_pages(build)?;
     build_and_check_editor(build)?;
-    build_and_check_reviewer(build)?;
     build_and_check_mathjax(build)?;
     check_web(build)?;
 
@@ -258,12 +256,24 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
         Ok(())
     };
     build_page(
-        "congrats",
+        "main",
         true,
         inputs![
             //
             ":ts:lib",
             ":ts:components",
+            ":ts:sveltelib",
+            ":sass",
+        ],
+    )?;
+    build_page(
+        "reviewer",
+        true,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":ts:sveltelib",
             ":sass",
         ],
     )?;
@@ -335,7 +345,7 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
         ],
     )?;
     build_page(
-        "background-editor",
+        "theme-editor",
         true,
         inputs![
             //
@@ -388,48 +398,6 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
     )?;
     eslint(build, "editor", group, editor_deps)?;
     Ok(())
-}
-
-fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
-    let reviewer_deps = inputs![":ts:lib", glob!("ts/reviewer/**")];
-    build.add(
-        "ts:reviewer:reviewer.js",
-        EsbuildScript {
-            script: inputs!["ts/bundle_ts.mjs"],
-            entrypoint: "ts/reviewer/index_wrapper.ts".into(),
-            output_stem: "ts/reviewer/reviewer",
-            deps: reviewer_deps.clone(),
-            extra_exts: &[],
-        },
-    )?;
-    build.add(
-        "ts:reviewer:reviewer.css",
-        CompileSass {
-            input: inputs!["ts/reviewer/reviewer.scss"],
-            output: "ts/reviewer/reviewer.css",
-            deps: ":sass".into(),
-            load_paths: vec!["."],
-        },
-    )?;
-    build.add(
-        "ts:reviewer:reviewer_extras_bundle.js",
-        EsbuildScript {
-            script: inputs!["ts/bundle_ts.mjs"],
-            entrypoint: "ts/reviewer/reviewer_extras.ts".into(),
-            output_stem: "ts/reviewer/reviewer_extras_bundle",
-            deps: reviewer_deps.clone(),
-            extra_exts: &[],
-        },
-    )?;
-
-    build.add(
-        "check:typescript:reviewer",
-        TypescriptCheck {
-            tsconfig: inputs!["ts/reviewer/tsconfig.json"],
-            inputs: reviewer_deps.clone(),
-        },
-    )?;
-    eslint(build, "reviewer", "ts/reviewer", reviewer_deps)
 }
 
 fn check_web(build: &mut Build) -> Result<()> {
@@ -574,16 +542,5 @@ pub fn copy_mathjax() -> impl BuildAction {
 
 fn build_sass(build: &mut Build) -> Result<()> {
     build.add_inputs_to_group("sass", inputs![glob!("sass/**")]);
-
-    build.add(
-        "css:_root-vars",
-        CompileSass {
-            input: inputs!["sass/_root-vars.scss"],
-            output: "sass/_root-vars.css",
-            deps: inputs![glob!["sass/*"]],
-            load_paths: vec![],
-        },
-    )?;
-
     Ok(())
 }

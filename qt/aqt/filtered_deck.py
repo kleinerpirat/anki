@@ -11,7 +11,8 @@ from anki.decks import DeckDict, DeckId, FilteredDeckConfig
 from anki.errors import SearchError
 from anki.lang import without_unicode_isolation
 from anki.scheduler import FilteredDeckForUpdate
-from aqt import AnkiQt, colors, gui_hooks
+from aqt import AnkiQt, gui_hooks
+from aqt.colors import Colors
 from aqt.operations import QueryOp
 from aqt.operations.scheduling import add_or_update_filtered_deck
 from aqt.qt import *
@@ -84,8 +85,8 @@ class FilteredDeckConfigDialog(QDialog):
         qconnect(self.form.search_button.clicked, self.on_search_button)
         qconnect(self.form.search_button_2.clicked, self.on_search_button_2)
         qconnect(self.form.hint_button.clicked, self.on_hint_button)
-        blue = theme_manager.var(colors.FG_LINK)
-        grey = theme_manager.var(colors.FG_DISABLED)
+        blue = theme_manager.color(Colors.LINK)
+        grey = theme_manager.color(Colors.FG_DISABLED)
         self.setStyleSheet(
             f"""QPushButton[label] {{ padding: 0; border: 0 }}
             QPushButton[label]:hover {{ text-decoration: underline }}

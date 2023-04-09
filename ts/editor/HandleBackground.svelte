@@ -14,10 +14,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <style lang="scss">
+    @use "sass/colors";
+
     .handle-background {
         width: 100%;
         height: 100%;
-        background-color: var(--handle-background-color, #aaa);
+        background-color: var(--handle-background-color, colors.$canvas-code);
         border-radius: 5px;
         opacity: 0.2;
     }
