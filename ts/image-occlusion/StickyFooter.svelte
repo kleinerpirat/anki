@@ -41,6 +41,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .sticky-footer {
         position: fixed;
         bottom: 0;
@@ -49,9 +51,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         z-index: 99;
         margin: 0;
         padding: 0.25rem;
-        background: var(--window-bg);
+        background: colors.$canvas;
         border-style: solid none none;
-        border-color: var(--border);
+        border-color: colors.$border;
         border-width: thin;
         display: flex;
         justify-content: flex-end;

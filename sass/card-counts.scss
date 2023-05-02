@@ -1,21 +1,23 @@
+@use "colors";
+
 .review-count {
-    color: var(--state-review);
+    color: colors.$card-review;
 }
 
 .new-count {
-    color: var(--state-new);
+    color: colors.$card-new;
 }
 
 .learn-count {
-    color: var(--state-learn);
+    color: colors.$card-learn;
 }
 
 .zero-count {
-    color: var(--fg-faint);
+    visibility: hidden;
 }
 
 .bury-count {
-    color: var(--fg-disabled);
+    color: colors.$fg-disabled;
     font-weight: bold;
     margin-inline-start: 2px;
 

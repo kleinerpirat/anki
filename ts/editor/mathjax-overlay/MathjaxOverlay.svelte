@@ -278,10 +278,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </WithFloating>
 
             <svelte:fragment slot="overlay">
-                <HandleBackground
-                    tooltip={errorMessage}
-                    --handle-background-color="var(--code-bg)"
-                />
+                <HandleBackground tooltip={errorMessage} />
             </svelte:fragment>
         </WithOverlay>
     {/if}

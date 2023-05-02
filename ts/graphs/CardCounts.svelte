@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let sourceData: Stats.GraphsResponse;
     export let preferences: PreferenceStore<Stats.GraphPreferences>;
+    export let hideTitle = false;
 
     const { cardCountsSeparateInactive, browserLinksSupported } = preferences;
     const dispatch = createEventDispatcher<SearchEventMap>();
@@ -39,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const total = tr2.statisticsCountsTotalCards();
 </script>
 
-<Graph title={graphData.title}>
+<Graph title={graphData.title} {hideTitle}>
     <InputBox>
         <label>
             <input type="checkbox" bind:checked={$cardCountsSeparateInactive} />
@@ -86,8 +87,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </Graph>
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
+
     svg {
-        transition: opacity var(--transition-slow);
+        transition: opacity props.$transition-slow;
     }
 
     .counts-outer {
@@ -124,7 +128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .search-link:hover {
         cursor: pointer;
-        color: var(--fg-link);
+        color: colors.$link;
         text-decoration: underline;
     }
 </style>

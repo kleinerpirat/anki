@@ -33,7 +33,8 @@ from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.notes import Note, NoteFieldsCheckResult
 from anki.utils import checksum, is_lin, is_win, namedtmp
-from aqt import AnkiQt, colors, gui_hooks
+from aqt import AnkiQt, gui_hooks
+from aqt.colors import Colors
 from aqt.operations import QueryOp
 from aqt.operations.note import update_note
 from aqt.operations.notetype import update_notetype_legacy
@@ -162,7 +163,6 @@ class Editor:
                 f"js/{file}.js",
             ],
             context=self,
-            default_css=False,
         )
         self.web.show()
 
@@ -673,7 +673,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.tags = aqt.tagedit.TagEdit(self.widget)
         qconnect(self.tags.lostFocus, self.on_tag_focus_lost)
         self.tags.setToolTip(shortcut(tr.editing_jump_to_tags_with_ctrlandshiftandt()))
-        border = theme_manager.var(colors.BORDER)
+        border = theme_manager.color(Colors.BORDER)
         self.tags.setStyleSheet(f"border: 1px solid {border}")
         tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)

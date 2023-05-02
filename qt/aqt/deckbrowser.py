@@ -11,6 +11,7 @@ from typing import Any
 import aqt
 import aqt.operations
 from anki.collection import OpChanges
+from anki.utils import mw_next
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
@@ -59,7 +60,8 @@ class DeckBrowser:
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
         self.web = mw.web
-        self.bottom = BottomBar(mw, mw.bottomWeb)
+        if not mw_next:
+            self.bottom = BottomBar(mw, mw.bottomWeb)
         self.scrollPos = QPoint(0, 0)
         self._v1_message_dismissed_at = 0
         self._refresh_needed = False
@@ -73,6 +75,9 @@ class DeckBrowser:
         self.refresh()
 
     def refresh(self) -> None:
+        if mw_next:
+            return self.mw.mainPage.updateWeb()
+
         self._renderPage()
         self._refresh_needed = False
 

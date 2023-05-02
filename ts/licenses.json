@@ -263,13 +263,6 @@
         "path": "node_modules/bezier-easing",
         "licenseFile": "node_modules/bezier-easing/LICENSE"
     },
-    "bootstrap-icons@1.8.1": {
-        "licenses": "MIT",
-        "repository": "https://github.com/twbs/icons",
-        "publisher": "mdo",
-        "path": "node_modules/bootstrap-icons",
-        "licenseFile": "node_modules/bootstrap-icons/LICENSE.md"
-    },
     "bootstrap@5.0.2": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/bootstrap",

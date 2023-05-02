@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { chevronDown } from "./icons";
     import type { DeckOptionsState } from "./lib";
 
-    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
+    const rtl = window.getComputedStyle(document.body).direction == "rtl";
 
     const dispatch = createEventDispatcher();
 
@@ -78,12 +78,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </LabelButton>
 <Shortcut keyCombination={saveKeyCombination} on:action={() => save(false)} />
 
-<WithFloating
-    show={showFloating}
-    closeOnInsideClick
-    inline
-    on:close={() => (showFloating = false)}
->
+<WithFloating bind:show={showFloating} closeOnInsideClick inline>
     <IconButton
         class="chevron"
         slot="reference"

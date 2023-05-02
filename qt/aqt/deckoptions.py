@@ -9,6 +9,7 @@ import aqt.main
 from anki.cards import Card
 from anki.decks import DeckDict, DeckId
 from anki.lang import without_unicode_isolation
+from anki.utils import mw_next
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -23,16 +24,22 @@ from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
 class DeckOptionsDialog(QDialog):
-    "The new deck configuration screen."
+    "The deck configuration screen."
 
     TITLE = "deckOptions"
     silentlyClose = True
 
-    def __init__(self, mw: aqt.main.AnkiQt, deck: DeckDict) -> None:
+    def __init__(self, mw: aqt.main.AnkiQt, deck: DeckDict, windowed=True) -> None:
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self._deck = deck
-        self._setup_ui()
+
+        if not mw_next or windowed:
+            self._setup_ui()
+        else:
+            aqt.mw.web.eval(f"""anki.setupDeckOptions(); """)
+
+        gui_hooks.deck_options_did_load(self)
 
     def _setup_ui(self) -> None:
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
@@ -57,7 +64,6 @@ class DeckOptionsDialog(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))
         )
-        gui_hooks.deck_options_did_load(self)
 
     def reject(self) -> None:
         self.web.cleanup()
@@ -109,6 +115,6 @@ def display_options_for_deck(deck: DeckDict) -> None:
             deck_legacy = aqt.mw.col.decks.get(DeckId(deck["id"]))
             aqt.deckconf.DeckConf(aqt.mw, deck_legacy)
         else:
-            DeckOptionsDialog(aqt.mw, deck)
+            DeckOptionsDialog(aqt.mw, deck, KeyboardModifiersPressed().control)
     else:
         aqt.dialogs.open("FilteredDeckConfigDialog", aqt.mw, deck_id=deck["id"])

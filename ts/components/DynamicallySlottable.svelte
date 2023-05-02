@@ -45,13 +45,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="dynamically-slottable" use:resolveSlotContainer>
-    <slot />
-
-    {#each $dynamicSlotted as { component, hostProps } (component.id)}
-        <svelte:component this={slotHost} id={component.id} {hostProps}>
-            <svelte:component this={component.component} {...component.props} />
-        </svelte:component>
-    {/each}
+    <slot>
+        {#each $dynamicSlotted as { component, hostProps } (component.id)}
+            <svelte:component this={slotHost} id={component.id} {hostProps}>
+                <svelte:component this={component.component} {...component.props} />
+            </svelte:component>
+        {/each}
+    </slot>
 </div>
 
 <style lang="scss">

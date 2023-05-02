@@ -36,6 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .sticky-header {
         position: sticky;
         top: 0;
@@ -46,8 +48,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin: 0;
         padding: 0.5rem;
 
-        background: var(--canvas);
-        border-bottom: 1px solid var(--border);
+        background: colors.$canvas;
+        border-bottom: 1px solid colors.$border;
 
         .import {
             margin-inline: 0.75rem;

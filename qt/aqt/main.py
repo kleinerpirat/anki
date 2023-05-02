@@ -40,6 +40,7 @@ from anki.utils import (
     is_lin,
     is_mac,
     is_win,
+    mw_next,
     point_version,
     split_fields,
 )
@@ -94,16 +95,18 @@ from aqt.webview import AnkiWebView, AnkiWebViewKind
 install_pylib_legacy()
 
 MainWindowState = Literal[
-    "startup", "deckBrowser", "overview", "review", "resetRequired", "profileManager"
+    "startup", "home", "deckBrowser", "overview", "review", "resetRequired", "profileManager"
 ]
 
+HOME_STATE = "home" if mw_next else "deckBrowser"
+OVERVIEW_STATE = "home" if mw_next else "overview"
 
 T = TypeVar("T")
 
 
 class MainWebView(AnkiWebView):
     def __init__(self, mw: AnkiQt) -> None:
-        AnkiWebView.__init__(self, kind=AnkiWebViewKind.MAIN)
+        AnkiWebView.__init__(self, kind=AnkiWebViewKind.MAIN, background_allowed=mw_next)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setMinimumWidth(400)
@@ -113,7 +116,7 @@ class MainWebView(AnkiWebView):
     ##########################################################################
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
-        if self.mw.state != "deckBrowser":
+        if self.mw.state != HOME_STATE:
             return super().dragEnterEvent(event)
         mime = event.mimeData()
         if not mime.hasUrls():
@@ -127,7 +130,7 @@ class MainWebView(AnkiWebView):
     def dropEvent(self, event: QDropEvent) -> None:
         import aqt.importing
 
-        if self.mw.state != "deckBrowser":
+        if self.mw.state != HOME_STATE:
             return super().dropEvent(event)
         mime = event.mimeData()
         paths = [url.toLocalFile() for url in mime.urls()]
@@ -143,7 +146,10 @@ class MainWebView(AnkiWebView):
             return
 
     # Main webview specific event handling
-    def eventFilter(self, obj, evt):
+    def eventFilter(self, obj, evt) -> bool:
+        if mw_next:
+            return False
+
         if handled := super().eventFilter(obj, evt):
             return handled
 
@@ -238,10 +244,11 @@ class AnkiQt(QMainWindow):
         self.setup_timers()
         self.updateTitleBar()
         self.setup_focus()
-        # screens
-        self.setupDeckBrowser()
-        self.setupOverview()
         self.setupReviewer()
+        # legacy screens
+        if not mw_next:
+            self.setupDeckBrowser()
+            self.setupOverview()
 
     def finish_ui_setup(self) -> None:
         "Actions that are deferred until after add-on loading."
@@ -571,7 +578,9 @@ class AnkiQt(QMainWindow):
 
     def prepare_card_text_for_display(self, text: str) -> str:
         text = self.col.media.escape_media_filenames(text)
-        text = self._add_play_buttons(text)
+        if not mw_next:
+            text = self._add_play_buttons(text)
+        
         return text
 
     # Collection load/unload
@@ -606,7 +615,7 @@ class AnkiQt(QMainWindow):
             self.update_undo_actions()
             gui_hooks.collection_did_load(self.col)
             self.apply_collection_options()
-            self.moveToState("deckBrowser")
+            self.moveToState(HOME_STATE)
         except Exception as e:
             # dump error to stderr so it gets picked up by errors.py
             traceback.print_exc()
@@ -706,10 +715,12 @@ class AnkiQt(QMainWindow):
             # pylint: disable=not-callable
             cleanup(state)
         self.clearStateShortcuts()
+        if mw_next and oldState == "review":
+            self.web.load_ts_page("main")
         self.state = state
         gui_hooks.state_will_change(state, oldState)
         getattr(self, f"_{state}State", lambda *_: None)(oldState, *args)
-        if state != "resetRequired":
+        if not mw_next and state != "resetRequired":
             self.bottomWeb.adjustHeightToFit()
         gui_hooks.state_did_change(state, oldState)
 
@@ -744,9 +755,13 @@ class AnkiQt(QMainWindow):
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
-            self.toolbarWeb.elevate()
-            self.toolbarWeb.show()
-            self.bottomWeb.show()
+
+        if mw_next:
+            return
+
+        self.toolbarWeb.elevate()
+        self.toolbarWeb.show()
+        self.bottomWeb.show()
 
     # Resetting state
     ##########################################################################
@@ -779,9 +794,9 @@ class AnkiQt(QMainWindow):
         focused = current_window() == self
         if self.state == "review":
             dirty = self.reviewer.op_executed(changes, handler, focused)
-        elif self.state == "overview":
+        elif self.state == OVERVIEW_STATE:
             dirty = self.overview.op_executed(changes, handler, focused)
-        elif self.state == "deckBrowser":
+        elif self.state == HOME_STATE:
             dirty = self.deckBrowser.op_executed(changes, handler, focused)
         else:
             dirty = False
@@ -1092,6 +1107,9 @@ title="{}" {}>{}</button>""".format(
         )
 
     def set_theme(self, theme: Theme) -> None:
+        # used by theme toggle in new main page
+        theme_manager._theme_override = False
+
         self.pm.set_theme(theme)
         self.setupStyle()
 
@@ -1133,11 +1151,11 @@ title="{}" {}>{}</button>""".format(
         self.stateShortcuts = []
 
     def onStudyKey(self) -> None:
-        if self.state == "overview":
+        if self.state == OVERVIEW_STATE:
             self.col.startTimebox()
             self.moveToState("review")
         else:
-            self.moveToState("overview")
+            self.moveToState(OVERVIEW_STATE)
 
     # App exit
     ##########################################################################
@@ -1307,6 +1325,11 @@ title="{}" {}>{}</button>""".format(
     def setupMenus(self) -> None:
         m = self.form
 
+        if mw_next:
+            m.actionStudyDeck.setVisible(False)
+        else:
+            m.actionFindDeck.setVisible(False)
+
         # File
         qconnect(
             m.actionSwitchProfile.triggered, self.unloadProfileAndShowProfileManager
@@ -1379,6 +1402,9 @@ title="{}" {}>{}</button>""".format(
             self.fullscreen = False
             self.show_menubar()
 
+        if mw_next:
+            return
+
         # Update Toolbar states
         self.toolbarWeb.hide_if_allowed()
         self.bottomWeb.hide_if_allowed()
@@ -1442,9 +1468,9 @@ title="{}" {}>{}</button>""".format(
         )
 
     def onRefreshTimer(self) -> None:
-        if self.state == "deckBrowser":
+        if self.state == HOME_STATE:
             self.deckBrowser.refresh()
-        elif self.state == "overview":
+        elif self.state == OVERVIEW_STATE:
             self.overview.refresh()
 
     def on_autosync_timer(self) -> None:
@@ -1615,7 +1641,7 @@ title="{}" {}>{}</button>""".format(
                 return
             deck_id = self.col.decks.id(ret.name)
             set_current_deck(parent=self, deck_id=deck_id).success(
-                lambda out: self.moveToState("overview")
+                lambda out: self.moveToState(OVERVIEW_STATE)
             ).run_in_background()
 
         StudyDeck(
@@ -1729,7 +1755,7 @@ title="{}" {}>{}</button>""".format(
 
     def interactiveState(self) -> bool:
         "True if not in profile manager, syncing, etc."
-        return self.state in ("overview", "review", "deckBrowser")
+        return self.state in (OVERVIEW_STATE, "review", HOME_STATE)
 
     # GC
     ##########################################################################

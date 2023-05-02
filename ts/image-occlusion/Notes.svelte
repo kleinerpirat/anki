@@ -67,12 +67,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </Container>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .text-area {
         height: 120px;
         width: 100%;
         display: none;
-        background: var(--canvas-elevated);
-        border: 2px solid var(--border);
+        background: colors.$canvas-secondary;
+        border: 2px solid colors.$border;
         outline: none;
         resize: none;
         overflow: auto;
@@ -80,11 +82,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .text-editor {
         height: 80px;
-        border: 1px solid var(--border);
+        border: 1px solid colors.$border;
         padding: 5px;
         overflow: auto;
         outline: none;
-        background: var(--canvas-elevated);
+        background: colors.$canvas-secondary;
     }
 
     .note-toolbar {

@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Row from "../components/Row.svelte";
     import StickyContainer from "../components/StickyContainer.svelte";
     import Alert from "./Alert.svelte";
-    import { exclamationIcon } from "./icons";
+    import { alertIcon } from "./icons";
     import type { ChangeNotetypeState } from "./lib";
     import { MapContext } from "./lib";
 
@@ -30,14 +30,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyContainer
     --sticky-top={ctx === MapContext.Template ? "-1px" : "0"}
-    --sticky-border="var(--border)"
     --sticky-borders="0px 0 1px"
 >
     <h1>
         {heading}
         {#if unused.length > 0}
             <Badge iconSize={80}>
-                {@html exclamationIcon}
+                {@html alertIcon}
             </Badge>
         {/if}
     </h1>

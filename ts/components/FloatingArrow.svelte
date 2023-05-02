@@ -5,16 +5,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="arrow" />
 
 <style lang="scss">
+    @use "sass/colors";
     @use "sass/elevation" as elevation;
 
     .arrow {
-        background-color: var(--canvas-elevated);
+        background-color: colors.$canvas-secondary;
         width: 10px;
         height: 10px;
         z-index: 60;
 
         /* outer border */
-        border: 1px solid var(--border-subtle);
+        border: 1px solid colors.$border-subtle;
 
         /* Rotate the box to indicate the different directions */
         border-right: none;

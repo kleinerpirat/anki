@@ -40,6 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     @use "sass/button-mixins" as button;
+    @use "sass/colors";
 
     @keyframes flash {
         0% {
@@ -60,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: var(--font-size);
         padding: 0;
 
-        --border-color: var(--border);
+        --border-color: colors.$border;
 
         border: 1px solid var(--border-color) !important;
         border-radius: 5px;
@@ -76,8 +77,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         &.selected {
-            box-shadow: 0 0 0 2px var(--border-focus);
-            --border-color: var(--border-focus);
+            box-shadow: 0 0 0 2px colors.$focus;
+            --border-color: colors.$focus;
         }
     }
 </style>

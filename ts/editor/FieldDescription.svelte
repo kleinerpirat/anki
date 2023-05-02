@@ -29,7 +29,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </div>
 {/if}
 
-<style>
+<style lang="scss">
+    @use "sass/colors";
+
     .field-description {
         position: absolute;
         top: 0;
@@ -37,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         right: 0;
         bottom: 0;
 
-        color: var(--fg-subtle);
+        color: colors.$fg-subtle;
         pointer-events: none;
 
         /* Stay a on single line */

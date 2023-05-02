@@ -93,9 +93,9 @@ def aqt_data_path() -> Path:
         else:
             return prefix / "../Resources/_aqt/data"
     else:
-        import _aqt.colors
+        import _aqt.hooks
 
-        data_folder = Path(inspect.getfile(_aqt.colors)).with_name("data")
+        data_folder = Path(inspect.getfile(_aqt.hooks)).with_name("data")
         if data_folder.exists():
             return data_folder.absolute()
         else:
@@ -582,6 +582,25 @@ def setWindowIcon(widget: QWidget) -> None:
     icon = QIcon()
     icon.addPixmap(QPixmap("icons:anki.png"), QIcon.Mode.Normal, QIcon.State.Off)
     widget.setWindowIcon(icon)
+
+
+# Theming
+######################################################################
+
+
+def backend_color_to_hex(color: dict) -> str:
+    return f"""{color["red"]:02x}{color["green"]:02x}{color["blue"]:02x}"""
+
+
+def css_var_from_backend(name: str, val: dict) -> str:
+    if val["alpha"] == 255:
+        return f"""--{lowercase_var(name)}: #{backend_color_to_hex(val)};"""
+
+    return f"""--{lowercase_var(name)}: rgba({val["red"]}, {val["green"]}, {val["blue"]}, {round(val["alpha"] / 255, 2)});"""
+
+
+def lowercase_var(name: str) -> str:
+    return name.lower().replace("_", "-")
 
 
 # File handling

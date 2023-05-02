@@ -6,9 +6,8 @@
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
     import type { Breakpoint } from "../components/types";
-    import ConfigInput from "./ConfigInput.svelte";
+    import WithRevertButton from "../components/WithRevertButton.svelte";
     import EnumSelector from "./EnumSelector.svelte";
-    import RevertButton from "./RevertButton.svelte";
 
     export let value: number;
     export let defaultValue: number;
@@ -22,9 +21,8 @@
         <slot />
     </Col>
     <Col --col-size={6} {breakpoint}>
-        <ConfigInput>
+        <WithRevertButton class="flex-grow-1" bind:value {defaultValue}>
             <EnumSelector bind:value options={choices} {disabled} />
-            <RevertButton slot="revert" bind:value {defaultValue} />
-        </ConfigInput>
+        </WithRevertButton>
     </Col>
 </Row>

@@ -136,7 +136,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/each}
 </div>
 
-<style>
+<style lang="scss">
+    @use "sass/props";
+
     .top-tool-bar-container {
         display: flex;
         position: fixed;
@@ -159,11 +161,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     :global(.left-border-radius) {
-        border-radius: 5px 0 0 5px !important;
+        border-radius: props.$border-radius 0 0 props.$border-radius !important;
     }
 
     :global(.right-border-radius) {
-        border-radius: 0 5px 5px 0 !important;
+        border-radius: 0 props.$border-radius props.$border-radius 0 !important;
     }
 
     :global(.top-tool-icon-button) {

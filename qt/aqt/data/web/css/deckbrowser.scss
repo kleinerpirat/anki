@@ -1,7 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "sass/root-vars";
-@use "sass/vars" as *;
+@use "sass/colors";
+@use "sass/props";
 @use "sass/card-counts";
 @use "sass/elevation" as *;
 
@@ -9,21 +9,21 @@ table {
     padding: 1rem;
 
     .fancy & {
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--border-radius-medium);
+        border: 1px solid colors.$border-subtle;
+        border-radius: props.$border-radius-medium;
 
         @include elevation(1, $opacity-boost: -0.08);
         &:hover {
             @include elevation(2);
         }
-        transition: box-shadow var(--transition) ease-in-out;
-        background: var(--canvas-glass);
-        backdrop-filter: blur(var(--blur));
+        transition: box-shadow props.$transition ease-in-out;
+        background: colors.$glass;
+        backdrop-filter: blur(props.$blur);
     }
 }
 
 a.deck {
-    color: color(fg);
+    color: colors.$fg;
     text-decoration: none;
     min-width: 5em;
     display: inline-block;
@@ -34,13 +34,13 @@ a.deck:hover {
 }
 
 th {
-    border-bottom: 1px solid color(border-subtle);
+    border-bottom: 1px solid colors.$border-subtle;
     padding-bottom: 5px;
 }
 
 tr.deck td {
     padding: 1px 12px;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid colors.$border-subtle;
 
     .fancy & {
         border: unset;
@@ -57,7 +57,7 @@ td {
 }
 
 tr.drag-hover td {
-    border-bottom: 1px solid color(border);
+    border-bottom: 1px solid colors.$border;
 }
 
 body {
@@ -68,14 +68,14 @@ body {
 .current,
 tr:hover:not(.top-level-drag-row) {
     td {
-        background: color(border-subtle);
+        background: colors.$border-subtle;
         &:first-child {
-            border-top-left-radius: prop(border-radius-medium);
-            border-bottom-left-radius: prop(border-radius-medium);
+            border-top-left-radius: props.$border-radius-medium;
+            border-bottom-left-radius: props.$border-radius-medium;
         }
         &:last-child {
-            border-top-right-radius: prop(border-radius-medium);
-            border-bottom-right-radius: prop(border-radius-medium);
+            border-top-right-radius: props.$border-radius-medium;
+            border-bottom-right-radius: props.$border-radius-medium;
         }
         .gears {
             visibility: visible;
@@ -86,18 +86,18 @@ tr:hover:not(.top-level-drag-row) {
     .current,
     tr:hover:not(.top-level-drag-row) {
         td {
-            background: color(canvas-inset);
+            background: colors.$glass;
             &:first-child {
                 border-top-left-radius: 0;
                 border-bottom-left-radius: 0;
-                border-top-right-radius: prop(border-radius-medium);
-                border-bottom-right-radius: prop(border-radius-medium);
+                border-top-right-radius: props.$border-radius-medium;
+                border-bottom-right-radius: props.$border-radius-medium;
             }
             &:last-child {
                 border-top-right-radius: 0;
                 border-bottom-right-radius: 0;
-                border-top-left-radius: prop(border-radius-medium);
-                border-bottom-left-radius: prop(border-radius-medium);
+                border-top-left-radius: props.$border-radius-medium;
+                border-bottom-left-radius: props.$border-radius-medium;
             }
         }
     }
@@ -119,14 +119,14 @@ tr:hover:not(.top-level-drag-row) {
 }
 
 .collapse {
-    color: color(fg);
+    color: colors.$fg;
     text-decoration: none;
     display: inline-block;
     width: 1em;
 }
 
 .filtered {
-    color: color(fg-link) !important;
+    color: colors.$link !important;
 }
 
 .gears {
@@ -145,7 +145,7 @@ tr:hover:not(.top-level-drag-row) {
 }
 
 .callout {
-    background: color(border);
+    background: colors.$border;
     padding: 1em;
     margin: 1em;
 

@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { withFontColor } from "../helpers";
     import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
-    import ColorPicker from "./ColorPicker.svelte";
+    import ColorPicker from "../../components/ColorPicker.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { textColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";

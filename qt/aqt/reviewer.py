@@ -22,6 +22,7 @@ from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.scheduler.v3 import SchedulingContext, SchedulingStates
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
+from anki.utils import mw_next
 from aqt import AnkiQt, gui_hooks
 from aqt.browser.card_info import PreviousReviewerCardInfo, ReviewerCardInfo
 from aqt.deckoptions import confirm_deck_then_display_options
@@ -41,7 +42,6 @@ from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
-from aqt.toolbar import BottomBar
 from aqt.utils import (
     askUserDialog,
     downArrow,
@@ -51,6 +51,7 @@ from aqt.utils import (
     tr,
 )
 
+HOME_STATE = "home" if mw_next else "deckBrowser"
 
 class RefreshNeeded(Enum):
     NOTE_TEXT = auto()
@@ -58,6 +59,7 @@ class RefreshNeeded(Enum):
     FLAG = auto()
 
 
+# legacy
 class ReviewerBottomBar:
     def __init__(self, reviewer: Reviewer) -> None:
         self.reviewer = reviewer
@@ -140,7 +142,9 @@ class Reviewer:
         self._refresh_needed: RefreshNeeded | None = None
         self._v3: V3CardInfo | None = None
         self._state_mutation_key = str(random.randint(0, 2**64 - 1))
-        self.bottom = BottomBar(mw, mw.bottomWeb)
+        if not mw_next:
+            from aqt.toolbar import BottomBar
+            self.bottom = BottomBar(mw, mw.bottomWeb)
         self._card_info = ReviewerCardInfo(self.mw)
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         self._states_mutated = True
@@ -148,12 +152,15 @@ class Reviewer:
 
     def show(self) -> None:
         if self.mw.col.sched_ver() == 1:
-            self.mw.moveToState("deckBrowser")
+            self.mw.moveToState(HOME_STATE)
             show_warning(tr.scheduling_update_required())
             return
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
-        self.web.set_bridge_command(self._linkHandler, self)
-        self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
+
+        if not mw_next:
+            self.web.set_bridge_command(self._linkHandler, self)
+            self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
+
         self._state_mutation_js = self.mw.col.get_config("cardStateCustomizer")
         self._reps: int = None
         self._refresh_needed = RefreshNeeded.QUEUES
@@ -175,20 +182,25 @@ class Reviewer:
         self.card = None
 
     def refresh_if_needed(self) -> None:
+        def fade_in_webview() -> None:
+            if mw_next:
+                self.mw.set_refresh_needed(False)
+            else:
+                self.mw.fade_in_webview()
         if self._refresh_needed is RefreshNeeded.QUEUES:
             self.mw.col.reset()
             self.nextCard()
-            self.mw.fade_in_webview()
+            fade_in_webview()
             self._refresh_needed = None
         elif self._refresh_needed is RefreshNeeded.NOTE_TEXT:
             self._redraw_current_card()
-            self.mw.fade_in_webview()
+            fade_in_webview()
             self._refresh_needed = None
         elif self._refresh_needed is RefreshNeeded.FLAG:
             self.card.load()
             self._update_flag_icon()
             # for when modified in browser
-            self.mw.fade_in_webview()
+            fade_in_webview()
             self._refresh_needed = None
         elif self._refresh_needed:
             assert_exhaustive(self._refresh_needed)
@@ -308,6 +320,7 @@ class Reviewer:
     # Initializing the webview
     ##########################################################################
 
+    # legacy
     def revHtml(self) -> str:
         extra = self.mw.col.conf.get("reviewExtra", "")
         fade = ""
@@ -324,32 +337,80 @@ class Reviewer:
     def _initWeb(self) -> None:
         self._reps = 0
         # main window
-        self.web.stdHtml(
-            self.revHtml(),
-            css=["css/reviewer.css"],
-            js=[
-                "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml.js",
-                "js/reviewer.js",
-            ],
-            context=self,
-        )
-        # block default drag & drop behavior while allowing drop events to be received by JS handlers
-        self.web.allow_drops = True
-        self.web.eval("_blockDefaultDragDropBehavior();")
-        # show answer / ease buttons
-        self.bottom.web.stdHtml(
-            self._bottomHTML(),
-            css=["css/toolbar-bottom.css", "css/reviewer-bottom.css"],
-            js=["js/vendor/jquery.min.js", "js/reviewer-bottom.js"],
-            context=ReviewerBottomBar(self),
-        )
+        if mw_next:
+            args = {
+                "serverURL": self.mw.serverURL(),
+                "hidePlayButtons": self.mw.col.get_config_bool(
+                    Config.Bool.HIDE_AUDIO_PLAY_BUTTONS
+                ),
+                "backgroundEnabled": self.mw.pm.reviewer_background_enabled(),
+                "showCounts": self.mw.col.conf["dueCounts"],
+                "softwareDriver": self.mw.pm.video_driver() == VideoDriver.Software,
+                "extraContent": self.mw.col.conf.get("reviewExtra"),
+            }
+            self.mw.web.eval(f"anki.setupReviewer({json.dumps(args)}); ")
+            # Allow drop events to be received by JS handlers
+            self.web.allow_drops = True
+        else:
+            self.web.stdHtml(
+                self.revHtml(),
+                css=["css/reviewer.css"],
+                js=[
+                    "js/mathjax.js",
+                    "js/vendor/mathjax/tex-chtml.js",
+                    "js/reviewer.js",
+                ],
+                context=self,
+            )
+            # block default drag & drop behavior while allowing drop events to be received by JS handlers
+            self.web.allow_drops = True
+            self.web.eval("_blockDefaultDragDropBehavior();")
+            # show answer / ease buttons
+            self.bottom.web.stdHtml(
+                self._bottomHTML(),
+                css=["css/toolbar-bottom.css", "css/reviewer-bottom.css"],
+                js=["js/vendor/jquery.min.js", "js/reviewer-bottom.js"],
+                context=ReviewerBottomBar(self),
+            )
 
     # Showing the question
     ##########################################################################
 
     def _mungeQA(self, buf: str) -> str:
-        return self.typeAnsFilter(self.mw.prepare_card_text_for_display(buf))
+        return self.mw.prepare_card_text_for_display(buf)
+
+    def _splitQA(self, buf: str) -> [dict]:
+        """Splits card content into objects that are usable in Svelte"""
+        # TODO: move to backend
+
+        class ContentType(Enum):
+            TEXT = 1
+            SOUND = 2
+            TYPE_ANS = 3
+
+        sound_pattern = r"\[anki:play:(.+?)\]"
+        type_ans_pattern = r"\[\[type:(.+?)\]\]"
+
+        sound_matches = re.findall(sound_pattern, buf)
+        type_matches = re.findall(type_ans_pattern, buf)
+
+        content_list = []
+
+        input_parts = re.split(sound_pattern + "|" + type_ans_pattern, buf)
+
+        for part in input_parts:
+            if part == "":
+                continue
+            if part in sound_matches:
+                content_list.append({"type": ContentType.SOUND.value, "content": part})
+            elif part in type_matches:
+                content_list.append(
+                    {"type": ContentType.TYPE_ANS.value, "content": part}
+                )
+            else:
+                content_list.append({"type": ContentType.TEXT.value, "content": part})
+
+        return content_list
 
     def _showQuestion(self) -> None:
         self._reps += 1
@@ -374,15 +435,31 @@ class Reviewer:
         q = gui_hooks.card_will_show(q, c, "reviewQuestion")
         self._run_state_mutation_hook()
 
-        bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
-        a = self.mw.col.media.escape_media_filenames(c.answer())
+        if mw_next:
+            args = {
+                "content": self._splitQA(q),
+                "ord": c.ord,
+                "counts": self._remaining(),
+                "countIndex": self.mw.col.sched.countIdx(self.card),
+                "showTimer": c.should_show_timer(),
+                "maxTime": c.time_limit() / 1000,
+                "flag": c.user_flag(),
+                "marked": c.note().has_tag(MARKED_TAG),
+                "aText": self.mw.col.media.escape_media_filenames(c.answer()),
+            }
 
-        self.web.eval(
-            f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
-        )
-        self._update_flag_icon()
-        self._update_mark_icon()
-        self._showAnswerButton()
+            self.web.eval(f"anki.showQuestion({json.dumps(args)}); ")
+        else:
+            bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
+            a = self.mw.col.media.escape_media_filenames(c.answer())
+
+            self.web.eval(
+                f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
+            )
+            self._update_flag_icon()
+            self._update_mark_icon()
+            self._showAnswerButton()
+
         self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_question(c)
@@ -392,10 +469,20 @@ class Reviewer:
         return card.autoplay()
 
     def _update_flag_icon(self) -> None:
-        self.web.eval(f"_drawFlag({self.card.user_flag()});")
+        user_flag = self.card.user_flag()
+
+        if mw_next:
+            self.web.eval(f"anki.setFlag({user_flag}); ")
+        else:
+            self.web.eval(f"_drawFlag({user_flag});")
 
     def _update_mark_icon(self) -> None:
-        self.web.eval(f"_drawMark({json.dumps(self.card.note().has_tag(MARKED_TAG))});")
+        marked_json = json.dumps(self.card.note().has_tag(MARKED_TAG))
+ 
+        if mw_next:
+            self.web.eval(f"anki.setMarked({marked_json})")
+        else:
+            self.web.eval(f"_drawMark({marked_json});")
 
     _drawMark = _update_mark_icon
     _drawFlag = _update_flag_icon
@@ -421,9 +508,25 @@ class Reviewer:
         av_player.play_tags(sounds)
         a = self._mungeQA(a)
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
-        # render and update bottom
-        self.web.eval(f"_showAnswer({json.dumps(a)});")
-        self._showEaseButtons()
+
+        if mw_next:
+            args = {
+                "content": self._splitQA(a),
+                "ord": c.ord,
+                "counts": self._remaining(),
+                "countIndex": self.mw.col.sched.countIdx(self.card),
+                "showTimer": c.should_show_timer(),
+                "maxTime": c.time_limit() / 1000,
+                "flag": c.user_flag(),
+                "marked": c.note().has_tag(MARKED_TAG),
+                "answerButtons": self._answerButtons(),
+            }
+
+            self.web.eval(f"anki.showAnswer({json.dumps(args)}); ")
+        else:
+            # render and update bottom
+            self.web.eval(f"_showAnswer({json.dumps(a)});")
+            self._showEaseButtons()
         self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
@@ -532,9 +635,14 @@ class Reviewer:
         if self.state == "question":
             self._getTypedAnswer()
         elif self.state == "answer":
-            self.bottom.web.evalWithCallback(
-                "selectedAnswerButton()", self._onAnswerButton
-            )
+            if mw_next:
+                self.mw.web.evalWithCallback(
+                    "anki.selectedAnswerButton()", self._onAnswerButton
+                )
+            else:
+                self.bottom.web.evalWithCallback(
+                    "selectedAnswerButton()", self._onAnswerButton
+                )
 
     def _onAnswerButton(self, val: str) -> None:
         # button selected?
@@ -544,24 +652,27 @@ class Reviewer:
         else:
             self._answerCard(self._defaultEase())
 
-    def _linkHandler(self, url: str) -> None:
-        if url == "ans":
+    def _linkHandler(self, cmd: str) -> bool:
+        handled = True
+
+        if cmd == "ans":
             self._getTypedAnswer()
-        elif url.startswith("ease"):
-            val: Literal[1, 2, 3, 4] = int(url[4:])  # type: ignore
+        elif cmd.startswith("ease"):
+            val: Literal[1, 2, 3, 4] = int(cmd[4:])  # type: ignore
             self._answerCard(val)
-        elif url == "edit":
+        elif cmd == "edit":
             self.mw.onEditCurrent()
-        elif url == "more":
+        elif cmd == "more":
             self.showContextMenu()
-        elif url.startswith("play:"):
-            play_clicked_audio(url, self.card)
-        elif url.startswith("updateToolbar"):
-            self.mw.toolbarWeb.update_background_image()
-        elif url == "statesMutated":
+        elif cmd.startswith("play:"):
+            play_clicked_audio(cmd, self.card)
+        elif cmd == "statesMutated":
             self._states_mutated = True
         else:
-            print("unrecognized anki link:", url)
+            print("unrecognized anki link:", cmd)
+            handled = False
+
+        return handled
 
     # Type in the answer
     ##########################################################################
@@ -610,7 +721,7 @@ class Reviewer:
             self.typeAnsPat,
             f"""
 <center>
-<input type=text id=typeans onkeypress="_typeAnsPress();"
+<input type=text id=typeans onkeypress="anki.Reviewer.typeAnsPress();"
    style="font-family: '{self.typeFont}'; font-size: {self.typeSize}px;">
 </center>
 """,
@@ -655,7 +766,7 @@ class Reviewer:
         self.typedAnswer = val or ""
         self._showAnswer()
 
-    # Bottom bar
+    # Bottom bar (legacy)
     ##########################################################################
 
     def _bottomHTML(self) -> str:
@@ -688,12 +799,13 @@ time = %(time)d;
             time=self.card.time_taken() // 1000,
         )
 
+    # legacy
     def _showAnswerButton(self) -> None:
         middle = """
 <button title="{}" id="ansbut" onclick='pycmd("ans");'>{}<span class=stattxt>{}</span></button>""".format(
             tr.actions_shortcut_key(val=tr.studying_space()),
             tr.studying_show_answer(),
-            self._remaining(),
+            self._remainingLegacy(),
         )
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = (
@@ -706,6 +818,7 @@ time = %(time)d;
             maxTime = 0
         self.bottom.web.eval("showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
 
+    # legacy
     def _showEaseButtons(self) -> None:
         if not self._states_mutated:
             self.mw.progress.single_shot(50, self._showEaseButtons)
@@ -713,7 +826,26 @@ time = %(time)d;
         middle = self._answerButtons()
         self.bottom.web.eval(f"showAnswer({json.dumps(middle)});")
 
-    def _remaining(self) -> str:
+    def _remaining(self) -> dict:
+        counts: list[Union[int, str]]
+        if v3 := self._v3:
+            idx, counts_ = v3.counts()
+            counts = cast(list[Union[int, str]], counts_)
+        else:
+            # v1/v2 scheduler
+            if self.hadCardQueue:
+                # if it's come from the undo queue, don't count it separately
+                counts = list(self.mw.col.sched.counts())
+            else:
+                counts = list(self.mw.col.sched.counts(self.card))
+
+        return {
+            "new": counts[0],
+            "learn": counts[1],
+            "review": counts[2],
+        }
+
+    def _remainingLegacy(self) -> str:
         if not self.mw.col.conf["dueCounts"]:
             return ""
 
@@ -769,7 +901,26 @@ time = %(time)d;
         )
         return buttons_tuple
 
-    def _answerButtons(self) -> str:
+    def _answerButtons(self) -> [dict]:
+        default = self._defaultEase()
+
+        if v3 := self._v3:
+            assert isinstance(self.mw.col.sched, V3Scheduler)
+            labels = self.mw.col.sched.describe_next_states(v3.states)
+        else:
+            labels = None
+
+        def but(i: int, label: str) -> dict:
+            due = self._buttonTime(i, v3_labels=labels)
+            return {
+                "default": default,
+                "label": label,
+                "due": due,
+            }
+
+        return [but(ease, label) for ease, label in self._answerButtonList()]
+
+    def _answerButtonsLegacy(self) -> str:
         default = self._defaultEase()
 
         if v3 := self._v3:
@@ -837,7 +988,7 @@ time = %(time)d;
             diag = askUserDialog(f"{part1} {part2}", [tr.studying_continue(), fin])
             diag.setIcon(QMessageBox.Icon.Information)
             if diag.run() == fin:
-                self.mw.moveToState("deckBrowser")
+                self.mw.moveToState(HOME_STATE)
                 return True
             self.mw.col.startTimebox()
         return False

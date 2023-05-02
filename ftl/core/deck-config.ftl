@@ -277,9 +277,14 @@ deck-config-save-button = Save
 deck-config-save-to-all-subdecks = Save to All Subdecks
 deck-config-revert-button-tooltip = Restore this setting to its default value.
 
-## These strings are shown via the Description button at the bottom of the
-## overview screen.
+## These strings are shown in the overview screen.
 
+deck-config-edit-background = Edit background
+deck-config-accept-background = Accept background
+deck-config-edit-description = Edit description
+deck-config-accept-description = Accept description
+deck-config-enter-description-in-markdown = Enter description in Markdown
+deck-config-enter-description-in-html = Enter description in HTML
 deck-config-description-new-handling = Anki 2.1.41+ handling
 deck-config-description-new-handling-hint =
     Treats input as markdown, and cleans HTML input. When enabled, the

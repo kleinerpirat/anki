@@ -10,6 +10,7 @@ import aqt
 from anki.sync import SyncStatus
 from aqt import gui_hooks, props
 from aqt.qt import *
+from aqt.props import Props
 from aqt.sync import get_sync_status
 from aqt.theme import theme_manager
 from aqt.utils import tr
@@ -210,7 +211,7 @@ class BottomWebView(ToolbarWebView):
             self.animation = QPropertyAnimation(
                 self, cast(QByteArray, b"maximumHeight")
             )
-            self.animation.setDuration(int(theme_manager.var(props.TRANSITION)))
+            self.animation.setDuration(int(theme_manager.prop(Props.TRANSITION)))
             self.animation.setStartValue(self.height())
             self.animation.setEndValue(height)
             qconnect(self.animation.finished, lambda: self.setFixedHeight(height))

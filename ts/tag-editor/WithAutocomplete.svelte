@@ -129,10 +129,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     show={$show}
     preferredPlacement="top"
     portalTarget={document.body}
-    let:asReference
     on:close={() => show.set(false)}
 >
-    <span class="autocomplete-reference" use:asReference>
+    <span class="autocomplete-reference" slot="reference">
         <slot {createAutocomplete} />
     </span>
 

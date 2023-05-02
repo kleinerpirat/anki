@@ -4,24 +4,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { Writable } from "svelte/store";
-
-    import Container from "../components/Container.svelte";
-    import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
-    import Item from "../components/Item.svelte";
-    import Row from "../components/Row.svelte";
+    import { writable } from "svelte/store";
+    import DynamicallySlottable from "components/DynamicallySlottable.svelte";
+    import ConfigSection from "./ConfigSection.svelte";
+    import ScrollArea from "components/ScrollArea.svelte";
     import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
-    import Addons from "./Addons.svelte";
-    import AdvancedOptions from "./AdvancedOptions.svelte";
-    import AudioOptions from "./AudioOptions.svelte";
-    import BuryOptions from "./BuryOptions.svelte";
+    import Addons from "./sections/Addons.svelte";
+    import AdvancedOptions from "./sections/AdvancedOptions.svelte";
+    import AudioOptions from "./sections/AudioOptions.svelte";
+    import BuryOptions from "./sections/BuryOptions.svelte";
     import ConfigSelector from "./ConfigSelector.svelte";
-    import DailyLimits from "./DailyLimits.svelte";
-    import DisplayOrder from "./DisplayOrder.svelte";
+    import DailyLimits from "./sections/DailyLimits.svelte";
+    import DisplayOrder from "./sections/DisplayOrder.svelte";
     import HtmlAddon from "./HtmlAddon.svelte";
-    import LapseOptions from "./LapseOptions.svelte";
+    import LapseOptions from "./sections/LapseOptions.svelte";
     import type { DeckOptionsState } from "./lib";
-    import NewOptions from "./NewOptions.svelte";
-    import TimerOptions from "./TimerOptions.svelte";
+    import NewOptions from "./sections/NewOptions.svelte";
+    import TimerOptions from "./sections/TimerOptions.svelte";
+    import type { SlotHostProps } from "sveltelib/dynamic-slotting";
 
     export let state: DeckOptionsState;
     const addons = state.addonComponents;
@@ -56,99 +56,77 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const advancedOptions = {};
 
     let onPresetChange: () => void;
+
+    interface DynamicSlotHostProps extends SlotHostProps {
+        class: string;
+    }
+
+    export function createProps(): DynamicSlotHostProps {
+        return {
+            detach: writable(false),
+            class: "section",
+        };
+    }
 </script>
 
-<ConfigSelector {state} on:presetchange={onPresetChange} />
-
 <div class="deck-options-page">
-    <Container
-        breakpoint="sm"
-        --gutter-inline="0.25rem"
-        --gutter-block="0.75rem"
-        class="container-columns"
-    >
-        <DynamicallySlottable slotHost={Item} api={options}>
-            <Item>
-                <Row class="row-columns">
+    <ConfigSelector {state} on:presetchange={onPresetChange} />
+
+    <ScrollArea>
+        <DynamicallySlottable slotHost={ConfigSection} api={options} {createProps}>
+            <div class="deck-options-body">
+                <ConfigSection>
                     <DailyLimits {state} api={dailyLimits} bind:onPresetChange />
-                </Row>
-            </Item>
+                </ConfigSection>
 
-            <Item>
-                <Row class="row-columns">
+                <ConfigSection>
                     <NewOptions {state} api={newOptions} />
-                </Row>
-            </Item>
+                </ConfigSection>
 
-            <Item>
-                <Row class="row-columns">
+                <ConfigSection>
                     <LapseOptions {state} api={lapseOptions} />
-                </Row>
-            </Item>
+                </ConfigSection>
 
-            {#if state.v3Scheduler}
-                <Item>
-                    <Row class="row-columns">
+                {#if state.v3Scheduler}
+                    <ConfigSection>
                         <DisplayOrder {state} api={displayOrder} />
-                    </Row>
-                </Item>
-            {/if}
+                    </ConfigSection>
+                {/if}
 
-            <Item>
-                <Row class="row-columns">
+                <ConfigSection>
                     <TimerOptions {state} api={timerOptions} />
-                </Row>
-            </Item>
+                </ConfigSection>
 
-            <Item>
-                <Row class="row-columns">
+                <ConfigSection>
                     <BuryOptions {state} api={buryOptions} />
-                </Row>
-            </Item>
+                </ConfigSection>
 
-            <Item>
-                <Row class="row-columns">
+                <ConfigSection>
                     <AudioOptions {state} api={audioOptions} />
-                </Row>
-            </Item>
+                </ConfigSection>
 
-            <Item>
-                <Row class="row-columns">
+                <ConfigSection>
                     <Addons {state} />
-                </Row>
-            </Item>
+                </ConfigSection>
 
-            <Item>
-                <Row class="row-columns">
+                <ConfigSection>
                     <AdvancedOptions {state} api={advancedOptions} />
-                </Row>
-            </Item>
+                </ConfigSection>
+            </div>
         </DynamicallySlottable>
-    </Container>
+    </ScrollArea>
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
     @use "sass/breakpoints" as bp;
-
     .deck-options-page {
         overflow-x: hidden;
-
-        @include bp.with-breakpoint("lg") {
-            :global(.container) {
-                display: block;
-            }
-
-            :global(.container-columns) {
+        background-color: colors.$canvas;
+        background .deck-options-body {
+            @include bp.with-breakpoint("lg") {
                 column-count: 2;
-                column-gap: 5em;
-
-                :global(.container) {
-                    break-inside: avoid;
-                }
-            }
-
-            :global(.row-columns) {
-                display: block;
+                column-gap: 5rem;
             }
         }
     }

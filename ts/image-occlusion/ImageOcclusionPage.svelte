@@ -51,6 +51,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </Container>
 
 <style lang="scss">
+    @use "sass/colors";
+
     :global(.image-occlusion) {
         --gutter-inline: 0.5rem;
 
@@ -68,7 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-wrap: wrap;
         padding-left: 0;
         list-style: none;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid colors.$border;
         margin-top: 2px;
     }
     li {
@@ -82,17 +84,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: block;
         padding: 0.5rem 1rem;
         cursor: pointer;
-        color: var(--fg-subtle);
+        color: colors.$fg-subtle;
     }
 
     span:hover {
-        border-color: var(--border) var(--border) var(--canvas);
+        border-color: colors.$border colors.$border colors.$canvas;
     }
 
     li.active > span {
-        color: var(--fg);
-        background-color: var(--canvas);
-        border-color: var(--border) var(--border) var(--canvas);
+        color: colors.$fg;
+        background-color: colors.$canvas;
+        border-color: colors.$border colors.$border colors.$canvas;
     }
 
     :global(.notes-page) {

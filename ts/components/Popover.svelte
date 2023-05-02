@@ -60,6 +60,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
     @use "sass/elevation" as elevation;
 
     .popover-wrapper {
@@ -70,9 +72,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include elevation.elevation(8);
 
         align-self: flex-start;
-        border-radius: var(--border-radius);
-        background-color: var(--canvas-elevated);
-        border: 1px solid var(--border-subtle);
+        border-radius: props.$border-radius;
+        background-color: colors.$canvas-secondary;
+        border: 1px solid colors.$border-subtle;
 
         min-width: var(--popover-width, 1rem);
         max-width: 95vw;

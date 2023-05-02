@@ -18,6 +18,7 @@ qt-misc-debug-console = Debug Console
 qt-misc-deck-will-be-imported-when-a = Deck will be imported when a profile is opened.
 qt-misc-empty-cards = Empty Cards...
 qt-misc-error-during-startup = Error during startup: { $val }
+qt-misc-find-deck = Find Deck...
 qt-misc-ignore-this-update = Ignore this update
 qt-misc-in-order-to-ensure-your-collection = In order to ensure your collection works correctly when moved between devices, Anki requires your computer's internal clock to be set correctly. The internal clock can be wrong even if your system is showing the correct local time.<br><br>Please go to the time settings on your computer and check the following:<br><br>- AM/PM<br>- Clock drift<br>- Day, month and year<br>- Timezone<br>- Daylight savings<br><br>Difference to correct time: { $val }.
 qt-misc-invalid-property-found-on-card-please = Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site.
@@ -72,6 +73,7 @@ qt-misc-second =
 qt-misc-layout-auto-enabled = Responsive layout enabled
 qt-misc-layout-vertical-enabled = Vertical layout enabled
 qt-misc-layout-horizontal-enabled = Horizontal layout enabled
+qt-misc-home = Home
 
 ## deprecated- these strings will be removed in the future, and do not need
 ## to be translated

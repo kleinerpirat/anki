@@ -41,6 +41,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Shortcut {keyCombination} on:action={() => dispatch("tagappend")} />
 
 <style lang="scss">
+    @use "sass/colors";
+
     .tag-add-button {
         line-height: 1;
 
@@ -70,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         .tags-info {
             cursor: pointer;
-            color: var(--fg-subtle);
+            color: colors.$fg-subtle;
             margin-left: 0.75rem;
         }
     }

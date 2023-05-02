@@ -14,7 +14,11 @@ import anki.lang
 import aqt
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
-from aqt import QApplication, colors, gui_hooks
+from aqt import QApplication, gui_hooks, props
+from aqt.colors import Colors
+from aqt.colors_default import DEFAULT_DARK_PALETTE, DEFAULT_LIGHT_PALETTE
+from aqt.props import Props
+from aqt.props_default import DEFAULT_DARK_PROPS, DEFAULT_LIGHT_PROPS
 from aqt.qt import (
     QColor,
     QIcon,
@@ -31,16 +35,10 @@ from aqt.qt import (
 @dataclass
 class ColoredIcon:
     path: str
-    color: dict[str, str]
+    color: QColor
 
-    def current_color(self, night_mode: bool) -> str:
-        if night_mode:
-            return self.color.get("dark", "")
-        else:
-            return self.color.get("light", "")
-
-    def with_color(self, color: dict[str, str]) -> ColoredIcon:
-        return ColoredIcon(path=self.path, color=color)
+    def with_color(self, color: Colors) -> ColoredIcon:
+        return ColoredIcon(path=self.path, color=theme_manager.qcolor(color))
 
 
 class WidgetStyle(enum.IntEnum):
@@ -56,12 +54,15 @@ class Theme(enum.IntEnum):
 
 class ThemeManager:
     _night_mode_preference = False
+    _theme_override = False
     _icon_cache_light: dict[str, QIcon] = {}
     _icon_cache_dark: dict[str, QIcon] = {}
     _icon_size = 128
     _dark_mode_available: bool | None = None
     _default_style: str | None = None
     _current_widget_style: WidgetStyle | None = None
+    palette = DEFAULT_LIGHT_PALETTE
+    props = DEFAULT_LIGHT_PROPS
 
     def rtl(self) -> bool:
         return is_rtl(anki.lang.current_lang)
@@ -72,9 +73,14 @@ class ThemeManager:
     def right(self) -> str:
         return "left" if self.rtl() else "right"
 
-    # Qt applies a gradient to the buttons in dark mode
-    # from about #505050 to #606060.
-    DARK_MODE_BUTTON_BG_MIDPOINT = "#555555"
+    def toggle_temp_dark_mode(self) -> None:
+        if not self._theme_override:
+            self._temp_dark_mode = not self.night_mode
+        else:
+            self._temp_dark_mode = not self._temp_dark_mode
+        self._theme_override = True
+
+        self.apply_style()
 
     def macos_dark_mode(self) -> bool:
         "True if the user has night mode on."
@@ -149,7 +155,7 @@ class ThemeManager:
             painter.setCompositionMode(
                 QPainter.CompositionMode.CompositionMode_SourceIn
             )
-            painter.fillRect(pixmap.rect(), QColor(path.current_color(self.night_mode)))
+            painter.fillRect(pixmap.rect(), QColor(path.color))
             painter.end()
             icon = QIcon(pixmap)
             return icon
@@ -180,6 +186,7 @@ class ThemeManager:
             classes.append("no-blur")
         return " ".join(classes)
 
+    # legacy
     def body_classes_for_card_ord(
         self, card_ord: int, night_mode: bool | None = None
     ) -> str:
@@ -204,6 +211,20 @@ class ThemeManager:
             )
         return QColor(self.var(colors))
 
+    def color(self, key: Colors) -> str:
+        """Return color string for the current theme."""
+        color = self.palette[key.value]
+        return f"""rgba({color["red"]}, {color["green"]}, {color["blue"]}, {color["alpha"]})"""
+
+    def prop(self, key: Props) -> str:
+        """Return prop string for the current theme."""
+        return str(self.props[key.value]["value"])
+
+    def qcolor(self, key: Colors) -> QColor:
+        """Create QColor instance from backend color for the current theme."""
+        color = self.palette[key.value]
+        return QColor(color["red"], color["green"], color["blue"], color["alpha"])
+
     def _determine_night_mode(self) -> bool:
         theme = aqt.mw.pm.theme()
         if theme == Theme.LIGHT:
@@ -220,14 +241,22 @@ class ThemeManager:
 
     def apply_style(self) -> None:
         "Apply currently configured style."
-        new_theme = self._determine_night_mode()
-        theme_changed = self.night_mode != new_theme
+        new_night = (
+            self._temp_dark_mode
+            if self._theme_override
+            else self._determine_night_mode()
+        )
+        theme_changed = self.night_mode != new_night
         new_widget_style = aqt.mw.pm.get_widget_style()
         style_changed = self._current_widget_style != new_widget_style
         if not theme_changed and not style_changed:
             return
-        self.night_mode = new_theme
+        self.night_mode = new_night
         self._current_widget_style = new_widget_style
+        self.palette = (
+            DEFAULT_DARK_PALETTE if self.night_mode else DEFAULT_LIGHT_PALETTE
+        )
+        self.props = DEFAULT_DARK_PROPS if self.night_mode else DEFAULT_LIGHT_PROPS
         app = aqt.mw.app
         if not self._default_style:
             self._default_style = app.style().objectName()
@@ -271,33 +300,33 @@ class ThemeManager:
         set_macos_dark_mode(self.night_mode)
 
         palette = QPalette()
-        text = self.qcolor(colors.FG)
+        text = self.qcolor(Colors.FG)
         palette.setColor(QPalette.ColorRole.WindowText, text)
         palette.setColor(QPalette.ColorRole.ToolTipText, text)
         palette.setColor(QPalette.ColorRole.Text, text)
         palette.setColor(QPalette.ColorRole.ButtonText, text)
 
-        hlbg = self.qcolor(colors.HIGHLIGHT_BG)
+        hlbg = self.qcolor(Colors.TEXT_HIGHLIGHTED_BG)
         palette.setColor(
-            QPalette.ColorRole.HighlightedText, self.qcolor(colors.HIGHLIGHT_FG)
+            QPalette.ColorRole.HighlightedText, self.qcolor(Colors.TEXT_HIGHLIGHTED_FG)
         )
         palette.setColor(QPalette.ColorRole.Highlight, hlbg)
 
-        canvas = self.qcolor(colors.CANVAS)
+        canvas = self.qcolor(Colors.CANVAS)
         palette.setColor(QPalette.ColorRole.Window, canvas)
         palette.setColor(QPalette.ColorRole.AlternateBase, canvas)
 
         palette.setColor(QPalette.ColorRole.Button, canvas)
 
-        input_base = self.qcolor(colors.CANVAS_CODE)
+        input_base = self.qcolor(Colors.CANVAS_CODE)
         palette.setColor(QPalette.ColorRole.Base, input_base)
         palette.setColor(QPalette.ColorRole.ToolTipBase, input_base)
 
         palette.setColor(
-            QPalette.ColorRole.PlaceholderText, self.qcolor(colors.FG_SUBTLE)
+            QPalette.ColorRole.PlaceholderText, self.qcolor(Colors.FG_SUBTLE)
         )
 
-        disabled_color = self.qcolor(colors.FG_DISABLED)
+        disabled_color = self.qcolor(Colors.FG_DISABLED)
         palette.setColor(
             QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color
         )
@@ -310,7 +339,7 @@ class ThemeManager:
             disabled_color,
         )
 
-        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.FG_LINK))
+        palette.setColor(QPalette.ColorRole.Link, self.qcolor(Colors.LINK))
 
         palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
 
@@ -319,11 +348,11 @@ class ThemeManager:
     def _update_stat_colors(self) -> None:
         import anki.stats as s
 
-        s.colLearn = self.var(colors.STATE_NEW)
-        s.colRelearn = self.var(colors.STATE_LEARN)
-        s.colCram = self.var(colors.STATE_SUSPENDED)
-        s.colSusp = self.var(colors.STATE_SUSPENDED)
-        s.colMature = self.var(colors.STATE_REVIEW)
+        s.colLearn = self.color(Colors.CARD_NEW)
+        s.colRelearn = self.color(Colors.CARD_LEARN)
+        s.colCram = self.color(Colors.CARD_SUSPENDED)
+        s.colSusp = self.color(Colors.CARD_SUSPENDED)
+        s.colMature = self.color(Colors.CARD_REVIEW)
         s._legacy_nightmode = self._night_mode_preference
 
 

@@ -5,7 +5,6 @@ export const touchDeviceKey = Symbol("touchDevice");
 export const sectionKey = Symbol("section");
 export const buttonGroupKey = Symbol("buttonGroup");
 export const dropdownKey = Symbol("dropdown");
-export const modalsKey = Symbol("modals");
 export const floatingKey = Symbol("floating");
 export const overlayKey = Symbol("overlay");
 export const selectKey = Symbol("select");

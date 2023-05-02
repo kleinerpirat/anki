@@ -1,0 +1,46 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use "sass/colors";
+@use "sass/background";
+
+body {
+    margin: 20px;
+    overflow-wrap: break-word;
+    @include background.background;
+}
+
+// explicit nightMode definition required
+// to override default .card styling
+body.nightMode {
+    background-color: colors.$canvas;
+    color: colors.$fg;
+}
+
+img {
+    max-width: 100%;
+    max-height: 95vh;
+}
+
+li {
+    text-align: start;
+}
+
+
+button {
+    margin: 1em 0.5em;
+}
+
+
+.nightMode {
+    .latex {
+        filter: invert(100%);
+    }
+}
+
+.drawing {
+    zoom: 50%;
+}
+.nightMode img.drawing {
+    filter: unquote("invert(1) hue-rotate(180deg)");
+}

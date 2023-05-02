@@ -13,33 +13,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let value: number;
 
     let element: HTMLButtonElement;
-
-    function handleKey(e: KeyboardEvent) {
-        /* Arrow key navigation */
-        switch (e.code) {
-            case "ArrowUp": {
-                const prevSibling = element?.previousElementSibling as HTMLElement;
-                if (prevSibling) {
-                    prevSibling.focus();
-                } else {
-                    // close popover
-                    document.body.click();
-                }
-                break;
-            }
-            case "ArrowDown": {
-                const nextSibling = element?.nextElementSibling as HTMLElement;
-                if (nextSibling) {
-                    nextSibling.focus();
-                } else {
-                    // close popover
-                    document.body.click();
-                }
-                break;
-            }
-        }
-    }
-
     const selectContext: Writable<{ value: number; setValue: Function }> =
         getContext(selectKey);
     const setValue = $selectContext.setValue;
@@ -49,7 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {disabled}
     active={value == $selectContext.value}
     on:click={() => setValue(value)}
-    on:keydown={handleKey}
     bind:buttonRef={element}
     tabbable
 >

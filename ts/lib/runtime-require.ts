@@ -15,6 +15,7 @@
  * However cross-module type imports currently don't work.
  */
 type AnkiPackages =
+    | "anki/MainPage"
     | "anki/NoteEditor"
     | "anki/EditorField"
     | "anki/PlainTextInput"

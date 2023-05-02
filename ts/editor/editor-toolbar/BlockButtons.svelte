@@ -30,13 +30,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         justifyFullIcon,
         justifyLeftIcon,
         justifyRightIcon,
-        listOptionsIcon,
+        blockOptionsIcon,
         olIcon,
+        olIconRtl,
         outdentIcon,
         ulIcon,
     } from "./icons";
 
     export let api = {};
+
+    const rtl = window.getComputedStyle(document.body).direction == "rtl";
 
     const outdentKeyCombination = "Control+Shift+,";
     function outdentListItem() {
@@ -97,23 +100,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <CommandIconButton
                 key="insertOrderedList"
                 tooltip={tr.editingOrderedList()}
-                shortcut="Control+.">{@html olIcon}</CommandIconButton
+                shortcut="Control+.">{@html rtl ? olIconRtl : olIcon}</CommandIconButton
             >
         </ButtonGroupItem>
 
         <ButtonGroupItem>
-            <WithFloating
-                show={showFloating}
-                inline
-                on:close={() => (showFloating = false)}
-                let:asReference
-            >
-                <span class="block-buttons" use:asReference>
-                    <IconButton
-                        {disabled}
-                        on:click={() => (showFloating = !showFloating)}
-                    >
-                        {@html listOptionsIcon}
+            <WithFloating bind:show={showFloating} inline>
+                <span class="block-buttons" slot="reference">
+                    <IconButton {disabled}>
+                        {@html blockOptionsIcon}
                     </IconButton>
                 </span>
 

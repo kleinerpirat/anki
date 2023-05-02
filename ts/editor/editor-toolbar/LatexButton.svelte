@@ -81,12 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithFloating
-    show={showFloating}
-    closeOnInsideClick
-    inline
-    on:close={() => (showFloating = false)}
->
+<WithFloating bind:show={showFloating} closeOnInsideClick inline>
     <IconButton
         slot="reference"
         {disabled}

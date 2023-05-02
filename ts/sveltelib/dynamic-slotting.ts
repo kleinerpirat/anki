@@ -83,7 +83,7 @@ function dynamicSlotting<
      * A function which will create props which are passed to the dynamically
      * slotted component's host component, the slot host, e.g. `ButtonGroupItem`
      */
-    makeProps: () => T,
+    createProps: () => T,
     /**
      * This is called on *all* items whenever any item updates
      */
@@ -115,7 +115,7 @@ function dynamicSlotting<
     ): Promise<{ destroy: Callback }> {
         const [dynamicallySlottedMounted, resolveDynamicallySlotted] = promiseWithResolver();
         const access = await accessPromise;
-        const hostProps = makeProps();
+        const hostProps = createProps();
 
         function elementIsDynamicComponent(element: Element): boolean {
             return !component.id || element.id === component.id;
@@ -194,7 +194,7 @@ function dynamicSlotting<
     const slotsInterface = createInterface({ addComponent, updateProps });
 
     function getSlotHostProps(): T {
-        const props = makeProps();
+        const props = createProps();
 
         slotted.update((slotted: T[]): T[] => {
             slotted.push(props);

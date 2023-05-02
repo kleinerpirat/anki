@@ -27,13 +27,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: icon = collapsed ? plusIcon : minusIcon;
 </script>
 
-<div class="alert alert-warning" in:slide out:slide>
+<div class="alert" in:slide out:slide>
     {#if unused.length > maxItems}
-        <div class="clickable" on:click={() => (collapsed = !collapsed)}>
+        <div on:click={() => (collapsed = !collapsed)}>
             <Badge iconSize={80}>
                 {@html icon}
             </Badge>
-            {collapseMsg}
+            <span class="collapse-message">
+                {collapseMsg}
+            </span>
         </div>
     {/if}
     {unusedMsg}
@@ -54,8 +56,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    .clickable {
-        cursor: pointer;
-        font-weight: bold;
+    @use "sass/props";
+    @use "sass/feedback";
+
+    .alert {
+        position: relative;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: props.$border-radius;
+    }
+    .collapse-message {
+        @include feedback.clickable;
     }
 </style>

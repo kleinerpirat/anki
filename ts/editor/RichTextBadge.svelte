@@ -44,15 +44,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </span>
 
 <style lang="scss">
+    @use "sass/feedback";
+
     span {
         cursor: pointer;
         opacity: 0;
 
         &.visible {
-            opacity: 0.4;
-            &:hover {
-                opacity: 0.8;
-            }
+            @include feedback.clickable;
         }
         &.highlighted {
             opacity: 1;

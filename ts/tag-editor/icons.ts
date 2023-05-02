@@ -3,4 +3,4 @@
 
 /// <reference types="../lib/image-import" />
 
-export { default as deleteIcon } from "bootstrap-icons/icons/x.svg";
+export { default as deleteIcon } from "@mdi/svg/svg/close.svg";

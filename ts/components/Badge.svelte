@@ -37,12 +37,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </IconConstrain>
 </span>
 
-<style>
+<style lang="scss">
+    @use "sass/feedback";
+
     .badge {
         color: var(--badge-color, inherit);
-    }
-
-    .dropdown-toggle::after {
-        display: none;
+        @include feedback.clickable;
     }
 </style>

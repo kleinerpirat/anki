@@ -2,7 +2,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from anki.utils import is_win
-from aqt import colors, props
+from aqt.colors import Colors
+from aqt.props import Props
 from aqt.theme import ThemeManager
 
 
@@ -45,8 +46,8 @@ class CustomStyles:
     QListView,
     QTextEdit,
     QPlainTextEdit {{
-        border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-        border-radius: {tm.var(props.BORDER_RADIUS)};
+        border: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
+        border-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QLineEdit,
     QTextEdit,
@@ -55,7 +56,7 @@ class CustomStyles:
     QListWidget,
     QTreeWidget,
     QListView {{
-        background: {tm.var(colors.CANVAS_CODE)};
+        background: {tm.color(Colors.CANVAS_CODE)};
     }}
     QLineEdit,
     QTextEdit,
@@ -69,7 +70,7 @@ class CustomStyles:
     QTextEdit:editable:focus,
     QPlainTextEdit:editable:focus,
     QWidget:editable:focus {{
-        border-color: {tm.var(colors.BORDER_FOCUS)};
+        border-color: {tm.color(Colors.FOCUS)};
     }}
     QPushButton {{
         margin-top: 1px;
@@ -82,10 +83,10 @@ class CustomStyles:
     QGroupBox {{
         text-align: center;
         font-weight: bold;
-        border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+        border: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
         padding: 0.75em 0 0.75em 0;
-        background: {tm.var(colors.CANVAS_ELEVATED)};
-        border-radius: {tm.var(props.BORDER_RADIUS)};
+        background: {tm.color(Colors.CANVAS_SECONDARY)};
+        border-radius: {tm.prop(Props.BORDER_RADIUS)};
         margin-top: 10px;
     }}
     QGroupBox#preview_box,
@@ -105,26 +106,29 @@ class CustomStyles:
         left: 5px;
     }}
     QLabel:disabled {{
-        color: {tm.var(colors.FG_DISABLED)};
+        color: {tm.color(Colors.FG_DISABLED)};
+    }}
+    QGroupBox#themeBox {{
+        padding: 0;
     }}
         """
 
     def menu(self, tm: ThemeManager) -> str:
         return f"""
     QMenuBar {{
-        border-bottom: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+        border-bottom: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
     }}
     QMenuBar::item {{
         background-color: transparent;
         padding: 2px 4px;
-        border-radius: {tm.var(props.BORDER_RADIUS)};
+        border-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QMenuBar::item:selected {{
-        background-color: {tm.var(colors.CANVAS_ELEVATED)};
+        background-color: {tm.color(Colors.CANVAS_SECONDARY)};
     }}
     QMenu {{
-        background-color: {tm.var(colors.CANVAS_OVERLAY)};
-        border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+        background-color: {tm.color(Colors.CANVAS_SECONDARY)};
+        border: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
         padding: 4px;
     }}
     QMenu::item {{
@@ -133,16 +137,16 @@ class CustomStyles:
         margin-bottom: 4px;
     }}
     QMenu::item:selected {{
-        background-color: {tm.var(colors.HIGHLIGHT_BG)};
-        border-radius: {tm.var(props.BORDER_RADIUS)};
+        background-color: {tm.color(Colors.TEXT_HIGHLIGHTED_BG)};
+        border-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QMenu::separator {{
         height: 1px;
-        background: {tm.var(colors.BORDER_SUBTLE)};
+        background: {tm.color(Colors.BORDER_SUBTLE)};
         margin: 0 8px 4px 8px;
     }}
     QMenu::indicator {{
-        border: 1px solid {tm.var(colors.BORDER)};
+        border: 1px solid {tm.color(Colors.BORDER)};
         margin-{tm.left()}: 6px;
         margin-{tm.right()}: -6px;
     }}
@@ -157,14 +161,14 @@ class CustomStyles:
     QTabBar::tab:!selected,
     QComboBox:!editable,
     QComboBox::drop-down:editable {{
-        background: {tm.var(colors.BUTTON_BG)};
-        border-bottom: 1px solid {tm.var(colors.SHADOW)};
+        background: {tm.color(Colors.BUTTON)};
+        border-bottom: 1px solid {tm.color(Colors.SHADOW)};
     }}
     QPushButton:default {{
-        border: 1px solid {tm.var(colors.BORDER_FOCUS)};
+        border: 1px solid {tm.color(Colors.FOCUS)};
     }}
     QPushButton:focus {{
-        border: 2px solid {tm.var(colors.BORDER_FOCUS)};
+        border: 2px solid {tm.color(Colors.FOCUS)};
         outline: none;
     }}
     QPushButton:hover,
@@ -176,8 +180,8 @@ class CustomStyles:
     QDateTimeEdit::down-button:hover {{
         background: {
             button_gradient(
-                tm.var(colors.BUTTON_GRADIENT_START),
-                tm.var(colors.BUTTON_GRADIENT_END),
+                tm.color(Colors.BUTTON_GRADIENT_START),
+                tm.color(Colors.BUTTON_GRADIENT_END),
             )
         };
     }}
@@ -192,9 +196,9 @@ class CustomStyles:
     QDateTimeEdit::down-button:pressed {{
         background: {
             button_pressed_gradient(
-                tm.var(colors.BUTTON_GRADIENT_START),
-                tm.var(colors.BUTTON_GRADIENT_END),
-                tm.var(colors.SHADOW)
+                tm.color(Colors.BUTTON_GRADIENT_START),
+                tm.color(Colors.BUTTON_GRADIENT_END),
+                tm.color(Colors.SHADOW)
             )
         };
     }}
@@ -225,13 +229,13 @@ class CustomStyles:
         padding: {"1px 6px 2px 4px" if tm.rtl() else "1px 4px 2px 6px"};
     }}
     QComboBox:focus {{
-        border-color: {tm.var(colors.BORDER_FOCUS)};
+        border-color: {tm.color(Colors.FOCUS)};
     }}
     QComboBox:editable:on,
     QComboBox:editable:focus,
     QComboBox::drop-down:focus:editable,
     QComboBox::drop-down:pressed {{
-        border-color: {tm.var(colors.BORDER_FOCUS)};
+        border-color: {tm.color(Colors.FOCUS)};
     }}
     QComboBox:on {{
         border-bottom: none;
@@ -239,13 +243,13 @@ class CustomStyles:
         border-bottom-left-radius: 0;
     }}
     QComboBox::item {{
-        color: {tm.var(colors.FG)};
-        background: {tm.var(colors.CANVAS_ELEVATED)};
+        color: {tm.color(Colors.FG)};
+        background: {tm.color(Colors.CANVAS_SECONDARY)};
     }}
 
     QComboBox::item:selected {{
-        background: {tm.var(colors.HIGHLIGHT_BG)};
-        color: {tm.var(colors.HIGHLIGHT_FG)};
+        background: {tm.color(Colors.TEXT_HIGHLIGHTED_BG)};
+        color: {tm.color(Colors.TEXT_HIGHLIGHTED_FG)};
     }}
     QComboBox::item::icon:selected {{
         position: absolute;
@@ -257,9 +261,9 @@ class CustomStyles:
         padding-right: 4px;
         width: 16px;
         subcontrol-position: top right;
-        border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-        border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
-        border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
+        border: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
+        border-top-{tm.right()}-radius: {tm.prop(Props.BORDER_RADIUS)};
+        border-bottom-{tm.right()}-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QComboBox::drop-down:!editable {{
         background: none;
@@ -274,8 +278,8 @@ class CustomStyles:
     QComboBox::drop-down:hover:editable {{
         background: {
             button_gradient(
-                tm.var(colors.BUTTON_GRADIENT_START),
-                tm.var(colors.BUTTON_GRADIENT_END),
+                tm.color(Colors.BUTTON_GRADIENT_START),
+                tm.color(Colors.BUTTON_GRADIENT_END),
             )
         };
     }}
@@ -284,15 +288,15 @@ class CustomStyles:
     def tabwidget(self, tm: ThemeManager) -> str:
         return f"""
     QTabWidget {{
-        border-radius: {tm.var(props.BORDER_RADIUS)};
+        border-radius: {tm.prop(Props.BORDER_RADIUS)};
         background: none;
     }}
     QTabWidget::pane {{
         top: -15px;
         padding-top: 1em;
-        background: {tm.var(colors.CANVAS_ELEVATED)};
-        border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-        border-radius: {tm.var(props.BORDER_RADIUS)};
+        background: {tm.color(Colors.CANVAS_SECONDARY)};
+        border: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
+        border-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QTabWidget::tab-bar {{
         alignment: center;
@@ -303,29 +307,29 @@ class CustomStyles:
         min-width: 8ex;
     }}
     QTabBar::tab {{
-        border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-        border-bottom-color: {tm.var(colors.SHADOW)};
+        border: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
+        border-bottom-color: {tm.color(Colors.SHADOW)};
     }}
     QTabBar::tab:first {{
-        border-top-{tm.left()}-radius: {tm.var(props.BORDER_RADIUS)};
-        border-bottom-{tm.left()}-radius: {tm.var(props.BORDER_RADIUS)};
+        border-top-{tm.left()}-radius: {tm.prop(Props.BORDER_RADIUS)};
+        border-bottom-{tm.left()}-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QTabBar::tab:!first {{
         margin-{tm.left()}: -1px;
     }}
     QTabBar::tab:last {{
-        border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
-        border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
+        border-top-{tm.right()}-radius: {tm.prop(Props.BORDER_RADIUS)};
+        border-bottom-{tm.right()}-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QTabBar::tab:selected {{
         color: white;
-        background: {tm.var(colors.BUTTON_PRIMARY_BG)};
+        background: {tm.color(Colors.BUTTON_PRIMARY)};
     }}
     QTabBar::tab:selected:hover {{
         background: {
                 button_gradient(
-                tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
-                tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
+                tm.color(Colors.BUTTON_PRIMARY_GRADIENT_START),
+                tm.color(Colors.BUTTON_PRIMARY_GRADIENT_END),
             )
         };
     }}
@@ -334,36 +338,36 @@ class CustomStyles:
     }}
     QTabBar::tab:disabled,
     QTabBar::tab:disabled:hover {{
-        background: {tm.var(colors.BUTTON_DISABLED)};
-        color: {tm.var(colors.FG_DISABLED)};
+        background: {tm.color(Colors.BUTTON_DISABLED)};
+        color: {tm.color(Colors.FG_DISABLED)};
     }}
     QTabBar::tab:selected:disabled,
     QTabBar::tab:selected:hover:disabled {{
-        background: {tm.var(colors.BUTTON_PRIMARY_DISABLED)};
+        background: {tm.color(Colors.BUTTON_PRIMARY_DISABLED)};
     }}
         """
 
     def table(self, tm: ThemeManager) -> str:
         return f"""
     QTableView {{
-        border-radius: {tm.var(props.BORDER_RADIUS)};
-        border-{tm.left()}: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-        border-bottom: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+        border-radius: {tm.prop(Props.BORDER_RADIUS)};
+        border-{tm.left()}: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
+        border-bottom: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
-        gridline-color: {tm.var(colors.BORDER_SUBTLE)};
-        selection-background-color: {tm.var(colors.SELECTED_BG)};
-        selection-color: {tm.var(colors.SELECTED_FG)};
-        background: {tm.var(colors.CANVAS_CODE)};
+        gridline-color: {tm.color(Colors.BORDER_SUBTLE)};
+        selection-background-color: {tm.color(Colors.ITEM_SELECTED_BG)};
+        selection-color: {tm.color(Colors.ITEM_SELECTED_FG)};
+        background: {tm.color(Colors.CANVAS_CODE)};
     }}
     QHeaderView {{
-        background: {tm.var(colors.CANVAS)};
+        background: {tm.color(Colors.CANVAS)};
     }}
     QHeaderView::section {{
         padding-{tm.left()}: 0px;
         padding-{tm.right()}: 15px;
-        border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-        background: {tm.var(colors.BUTTON_BG)};
+        border: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
+        background: {tm.color(Colors.BUTTON)};
     }}
     QHeaderView::section:first {{
         margin-left: -1px;
@@ -372,36 +376,36 @@ class CustomStyles:
     QHeaderView::section:pressed:!first {{
         background: {
             button_pressed_gradient(
-                tm.var(colors.BUTTON_GRADIENT_START),
-                tm.var(colors.BUTTON_GRADIENT_END),
-                tm.var(colors.SHADOW)
+                tm.color(Colors.BUTTON_GRADIENT_START),
+                tm.color(Colors.BUTTON_GRADIENT_END),
+                tm.color(Colors.SHADOW)
             )
         }
     }}
     QHeaderView::section:hover {{
         background: {
             button_gradient(
-                tm.var(colors.BUTTON_GRADIENT_START),
-                tm.var(colors.BUTTON_GRADIENT_END),
+                tm.color(Colors.BUTTON_GRADIENT_START),
+                tm.color(Colors.BUTTON_GRADIENT_END),
             )
         };
     }}
     QHeaderView::section:first {{
-        border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
-        border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
+        border-left: 1px solid {tm.color(Colors.BORDER_SUBTLE)}; 
+        border-top-left-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QHeaderView::section:!first {{
         border-left: none;
     }}
     QHeaderView::section:last {{
-        border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
-        border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
+        border-right: 1px solid {tm.color(Colors.BORDER_SUBTLE)}; 
+        border-top-right-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QHeaderView::section:only-one {{
-        border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
-        border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-        border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
-        border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
+        border-left: 1px solid {tm.color(Colors.BORDER_SUBTLE)}; 
+        border-right: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
+        border-top-left-radius: {tm.prop(Props.BORDER_RADIUS)};
+        border-top-right-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QHeaderView::up-arrow,
     QHeaderView::down-arrow {{
@@ -431,13 +435,13 @@ class CustomStyles:
     QDateTimeEdit::up-button {{
         margin-bottom: -1px;
         subcontrol-position: top right;
-        border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
+        border-top-{tm.right()}-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QSpinBox::down-button,
     QDateTimeEdit::down-button {{
         margin-top: -1px;
         subcontrol-position: bottom right;
-        border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
+        border-bottom-{tm.right()}-radius: {tm.prop(Props.BORDER_RADIUS)};
     }}
     QSpinBox::up-arrow,
     QDateTimeEdit::up-arrow {{
@@ -489,9 +493,9 @@ class CustomStyles:
     QCheckBox::indicator,
     QRadioButton::indicator,
     QMenu::indicator {{
-        border: 1px solid {tm.var(colors.BORDER)};
-        border-radius: {tm.var(props.BORDER_RADIUS)};
-        background: {tm.var(colors.CANVAS_ELEVATED)};
+        border: 1px solid {tm.color(Colors.BORDER)};
+        border-radius: {tm.prop(Props.BORDER_RADIUS)};
+        background: {tm.color(Colors.CANVAS_SECONDARY)};
         width: 16px;
         height: 16px;
     }}
@@ -505,7 +509,7 @@ class CustomStyles:
     QRadioButton::indicator:focus:!disabled,
     QRadioButton::indicator:hover:!disabled,
     QRadioButton::indicator:checked::!disabled {{
-        border: 2px solid {tm.var(colors.BORDER_STRONG)};
+        border: 2px solid {tm.color(Colors.BORDER)};
         width: 14px;
         height: 14px;
     }}
@@ -522,13 +526,13 @@ class CustomStyles:
     }}
     QCheckBox:disabled,
     QRadioButton:disabled {{
-        color: {tm.var(colors.FG_DISABLED)};
+        color: {tm.color(Colors.FG_DISABLED)};
     }}
     QCheckBox::indicator:disabled,
     QRadioButton::indicator:disabled,
     QMenu:indicator:disabled {{
-        color: {tm.var(colors.FG_DISABLED)};
-        border-color: {tm.var(colors.FG_DISABLED)};
+        color: {tm.color(Colors.FG_DISABLED)};
+        border-color: {tm.color(Colors.FG_DISABLED)};
     }}
     QCheckBox::indicator:checked:disabled,
     QRadioButton::indicator:checked:disabled,
@@ -554,14 +558,14 @@ class CustomStyles:
         background-color: transparent;
     }}
     QScrollBar::handle {{
-        border-radius: {tm.var(props.BORDER_RADIUS)};
-        background-color: {tm.var(colors.SCROLLBAR_BG)};
+        border-radius: {tm.prop(Props.BORDER_RADIUS)};
+        background-color: {tm.color(Colors.SCROLLBAR)};
     }}
     QScrollBar::handle:hover {{
-        background-color: {tm.var(colors.SCROLLBAR_BG_HOVER)};
+        background-color: {tm.color(Colors.SCROLLBAR_HOVER)};
     }}
     QScrollBar::handle:pressed {{
-        background-color: {tm.var(colors.SCROLLBAR_BG_ACTIVE)};
+        background-color: {tm.color(Colors.SCROLLBAR_PRESSED)};
     }} 
     QScrollBar:horizontal {{
         height: 12px;
@@ -594,17 +598,17 @@ class CustomStyles:
         width: 20px;
     }}
     QSlider::groove {{
-        border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+        border: 1px solid {tm.color(Colors.BORDER_SUBTLE)};
         border-radius: 3px;
-        background: {tm.var(colors.CANVAS_ELEVATED)};
+        background: {tm.color(Colors.CANVAS_SECONDARY)};
     }}
     QSlider::sub-page {{
-        background: {tm.var(colors.BUTTON_PRIMARY_GRADIENT_START)};
+        background: {tm.color(Colors.BUTTON_PRIMARY_GRADIENT_START)};
         border-radius: 3px;
         margin: 1px;
     }}
     QSlider::sub-page:disabled {{
-        background: {tm.var(colors.BUTTON_DISABLED)};
+        background: {tm.color(Colors.BUTTON_DISABLED)};
     }}
     QSlider::add-page {{
         margin-{tm.right()}: 2px;
@@ -616,12 +620,12 @@ class CustomStyles:
         height: 6px;
     }}
     QSlider::handle {{
-        background: {tm.var(colors.BUTTON_BG)};
-        border: 1px solid {tm.var(colors.BORDER)};
+        background: {tm.color(Colors.BUTTON)};
+        border: 1px solid {tm.color(Colors.BORDER)};
         border-radius: 9px;
         width: 18px;
         height: 18px;
-        border-bottom-color: {tm.var(colors.SHADOW)};
+        border-bottom-color: {tm.color(Colors.SHADOW)};
     }}
     QSlider::handle:vertical {{
         margin: 0 -7px;
@@ -631,8 +635,8 @@ class CustomStyles:
     }}
     QSlider::handle:hover {{
         background: {button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
+            tm.color(Colors.BUTTON_GRADIENT_START),
+            tm.color(Colors.BUTTON_GRADIENT_END),
         )}
     }}
     """

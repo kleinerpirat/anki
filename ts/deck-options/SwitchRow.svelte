@@ -6,9 +6,8 @@
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
     import Switch from "../components/Switch.svelte";
-    import ConfigInput from "./ConfigInput.svelte";
+    import WithRevertButton from "../components/WithRevertButton.svelte";
     import Label from "./Label.svelte";
-    import RevertButton from "./RevertButton.svelte";
 
     export let value: boolean;
     export let defaultValue: boolean;
@@ -19,9 +18,8 @@
 <Row --cols={6}>
     <Col --col-size={4}><Label for={id} preventMouseClick><slot /></Label></Col>
     <Col --col-justify="flex-end">
-        <ConfigInput grow={false}>
+        <WithRevertButton class="flex-grow-1" bind:value {defaultValue}>
             <Switch {id} bind:value />
-            <RevertButton slot="revert" bind:value {defaultValue} />
-        </ConfigInput>
+        </WithRevertButton>
     </Col>
 </Row>

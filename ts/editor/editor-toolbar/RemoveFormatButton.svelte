@@ -117,7 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Shortcut {keyCombination} on:action={remove} />
 
-<WithFloating show={showFloating} inline on:close={() => (showFloating = false)}>
+<WithFloating bind:show={showFloating} inline>
     <IconButton
         slot="reference"
         class="remove-format-button"

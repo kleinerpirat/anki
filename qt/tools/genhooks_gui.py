@@ -52,15 +52,17 @@ hooks = [
             "overview: aqt.overview.Overview",
             "content: aqt.overview.OverviewContent",
         ],
-        doc="""Used to modify HTML content sections in the overview body
+        doc="""Used to append HTML content to predefined sections in the overview body
 
-        'content' contains the sections of HTML content the overview body
-        will be updated with.
+        'content' contains empty strings which can be modified to inject add-on content
+        at several predefined locations in the deck browser (see ts/main/overview/OverviewPage.svelte)
 
-        When modifying the content of a particular section, please make sure your
-        changes only perform the minimum required edits to make your add-on work.
-        You should avoid overwriting or interfering with existing data as much
-        as possible, instead opting to append your own changes, e.g.:
+        When the hook was first introduced, it exposed the HTML content of the page, meaning you could
+        theoretically alter Anki's native UI. This is no longer the case, because the deck overview
+        is created with Svelte components now. The hook is kept for legacy support, but ultimately a
+        JavaScript API will be offered to add-on developers.
+
+        Here's an example for how you can use the hook:
 
             def on_overview_will_render_content(overview, content):
                 content.table += "\n<div>my html</div>"
@@ -73,7 +75,7 @@ hooks = [
             "links: list[list[str]]",
         ],
         return_type="Callable[[str], bool]",
-        doc="""Allows adding buttons to the Overview bottom bar.
+        doc="""Allows adding buttons to the Overview UI.
 
         Append a list of strings to 'links' argument to add new buttons.
         - The first value is the shortcut to appear in the tooltip.
@@ -279,24 +281,26 @@ hooks = [
     ###################
     Hook(
         name="deck_browser_did_render",
-        args=["deck_browser: aqt.deckbrowser.DeckBrowser"],
+        args=["deck_browser: aqt.mainpage.DeckBrowser"],
         doc="""Allow to update the deck browser window. E.g. change its title.""",
     ),
     Hook(
         name="deck_browser_will_render_content",
         args=[
-            "deck_browser: aqt.deckbrowser.DeckBrowser",
-            "content: aqt.deckbrowser.DeckBrowserContent",
+            "deck_browser: aqt.mainpage.DeckBrowser",
+            "content: aqt.mainpage.DeckBrowserContent",
         ],
-        doc="""Used to modify HTML content sections in the deck browser body
+        doc="""Used to append HTML content to predefined areas of the deck browser body
 
-        'content' contains the sections of HTML content the deck browser body
-        will be updated with.
+        'content' contains several empty strings which can be modified to inject add-on content
+        in several predefined locations in the deck browser (see ts/main/deck-browser/DeckBrowserPage.svelte)
 
-        When modifying the content of a particular section, please make sure your
-        changes only perform the minimum required edits to make your add-on work.
-        You should avoid overwriting or interfering with existing data as much
-        as possible, instead opting to append your own changes, e.g.:
+        When the hook was first introduced, it exposed the HTML content of the page, meaning you could
+        theoretically alter Anki's native UI. This is no longer the case, because the deck browser
+        is created with Svelte components now. The hook is kept for legacy support, but ultimately a
+        JavaScript API will be offered to add-on developers.
+
+        Here's an example for how you can use the hook:
 
             def on_deck_browser_will_render_content(deck_browser, content):
                 content.stats += "\\n<div>my html</div>"
@@ -654,6 +658,10 @@ hooks = [
         name="body_classes_need_update",
         doc="Called when a setting involving a webview body class is toggled.",
     ),
+    Hook(
+        name="background_did_change",
+        doc="Called when a profile-wide background is set.",
+    ),
     # Webview
     ###################
     Hook(
@@ -821,55 +829,146 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         return_type="str",
         legacy_hook="setupStyle",
     ),
+    # Deprecated toolbar hooks (probably safe to delete in 2024)
+    ####################################################################
     Hook(
         name="top_toolbar_did_init_links",
         args=["links: list[str]", "top_toolbar: aqt.toolbar.Toolbar"],
-        doc="""Used to modify or add links in the top toolbar of Anki's main window
-
-        'links' is a list of HTML link elements. Add-ons can generate their own links
-        by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
-        appended to the link list, e.g.:
-
-            def on_top_toolbar_did_init_links(links, toolbar):
-                my_link = toolbar.create_link(...)
-                links.append(my_link)
-        """,
+        doc="Deprecated. Use toolbar_will_set_center_tray_content instead.",
     ),
     Hook(
         name="top_toolbar_will_set_left_tray_content",
         args=["content: list[str]", "top_toolbar: aqt.toolbar.Toolbar"],
-        doc="""Used to add custom add-on components to the *left* area of Anki's main
-        window toolbar
-
-        'content' is a list of HTML strings added by add-ons which you can append your
-        own components or elements to. To equip your components with logic and styling
-        please see `webview_will_set_content` and `webview_did_receive_js_message`.
+        doc="""Deprecated. The former top toolbar got renamed to toolbar.
         
-        Please note that Anki's main screen is due to undergo a significant refactor
-        in the future and, as a result, add-ons subscribing to this hook will likely
-        require changes to continue working.
+        Use toolbar_will_set_left_tray_content instead.
         """,
     ),
     Hook(
         name="top_toolbar_will_set_right_tray_content",
         args=["content: list[str]", "top_toolbar: aqt.toolbar.Toolbar"],
-        doc="""Used to add custom add-on components to the *right* area of Anki's main
-        window toolbar
+        doc="""Deprecated. The former top toolbar got renamed to toolbar.
 
-        'content' is a list of HTML strings added by add-ons which you can append your
-        own components or elements to. To equip your components with logic and styling
-        please see `webview_will_set_content` and `webview_did_receive_js_message`.
-        
-        Please note that Anki's main screen is due to undergo a significant refactor
-        in the future and, as a result, add-ons subscribing to this hook will likely
-        require changes to continue working.
+        Use toolbar_will_set_right_tray_content instead.
         """,
     ),
     Hook(
         name="top_toolbar_did_redraw",
         args=["top_toolbar: aqt.toolbar.Toolbar"],
-        doc="""Executed when the top toolbar is redrawn""",
+        doc="""Deprecated. The former top toolbar got renamed to toolbar.
+
+        Use toolbar_did_redraw instead.
+        """,
     ),
+    # Toolbar
+    ###################
+    Hook(
+        name="toolbar_will_set_center_tray_content",
+        args=["content: list[str]", "toolbar: aqt.toolbar.Toolbar"],
+        replaces="top_toolbar_did_init_links",
+        replaced_hook_args=["content: list[str]", "toolbar: aqt.toolbar.Toolbar"],
+        doc="""Used to add custom add-on components to the *center* area of the toolbar
+        located at the top of Anki's main window
+
+        'content' is a list of HTML strings added by add-ons which you can append your
+        own components or elements to. To equip your components with logic and styling
+        please see `webview_will_set_content` and `webview_did_receive_js_message`.
+
+        'toolbar' offers a function to generate links (aqt.toolbar.Bar.create_link).
+        Links created in that way can then be appended to the content list, e.g.:
+
+            def on_toolbar_will_set_center_tray_content(content, toolbar):
+                my_link = toolbar.create_link(...)
+                content.append(my_link)
+        """,
+    ),
+    Hook(
+        name="toolbar_will_set_left_tray_content",
+        args=["content: list[str]", "toolbar: aqt.toolbar.Toolbar"],
+        replaces="top_toolbar_will_set_left_tray_content",
+        replaced_hook_args=["content: list[str]", "toolbar: aqt.toolbar.Toolbar"],
+        doc="""Used to add custom add-on components to the *left* area of the toolbar
+        located at the top of Anki's main window
+
+        'content' is a list of HTML strings added by add-ons which you can append your
+        own components or elements to. To equip your components with logic and styling
+        please see `webview_will_set_content` and `webview_did_receive_js_message`.
+
+        'toolbar' offers a function to generate links (aqt.toolbar.Bar.create_link).
+        Links created in that way can then be appended to the content list, e.g.:
+
+            def on_toolbar_will_set_left_tray_content(content, toolbar):
+                my_link = toolbar.create_link(...)
+                content.append(my_link)
+        """,
+    ),
+    Hook(
+        name="toolbar_will_set_right_tray_content",
+        args=["content: list[str]", "toolbar: aqt.toolbar.Toolbar"],
+        replaces="top_toolbar_will_set_right_tray_content",
+        replaced_hook_args=["content: list[str]", "toolbar: aqt.toolbar.Toolbar"],
+        doc="""Used to add custom add-on components to the *right* area of the toolbar
+        located at the top of Anki's main window
+
+        'content' is a list of HTML strings added by add-ons which you can append your
+        own components or elements to. To equip your components with logic and styling
+        please see `webview_will_set_content` and `webview_did_receive_js_message`.
+
+        'toolbar' offers a function to generate links (aqt.toolbar.Bar.create_link).
+        Links created in that way can then be appended to the content list, e.g.:
+
+            def on_toolbar_will_set_right_tray_content(content, toolbar):
+                my_link = toolbar.create_link(...)
+                content.append(my_link)
+        """,
+    ),
+    Hook(
+        name="toolbar_did_redraw",
+        args=["toolbar: aqt.toolbar.Toolbar"],
+        replaces="top_toolbar_did_redraw",
+        replaced_hook_args=["toolbar: aqt.toolbar.Toolbar"],
+        doc="""Executed when the toolbar at the top of Anki's main window is redrawn""",
+    ),
+    # Status Bar
+    ###################
+    Hook(
+        name="status_bar_will_set_left_tray_content",
+        args=["content: list[str]", "status_bar: aqt.toolbar.StatusBar"],
+        doc="""Used to add custom add-on components to the *left* area of the status bar
+        at the bottom of Anki's main window
+
+        'content' is a list of HTML strings added by add-ons which you can append your
+        own components or elements to. To equip your components with logic and styling
+        please see `webview_will_set_content` and `webview_did_receive_js_message`.
+
+        'status_bar' offers a function to generate links (aqt.toolbar.Bar.create_link).
+        Links created in that way can then be appended to the content list, e.g.:
+
+            def on_status_bar_will_set_left_tray_content(content, status_bar):
+                my_link = status_bar.create_link(...)
+                content.append(my_link)
+        """,
+    ),
+    Hook(
+        name="status_bar_will_set_right_tray_content",
+        args=["content: list[str]", "status_bar: aqt.toolbar.StatusBar"],
+        doc="""Used to add custom add-on components to the *right* area of the status bar
+        at the bottom of Anki's main window
+
+        'content' is a list of HTML strings added by add-ons which you can append your
+        own components or elements to. To equip your components with logic and styling
+        please see `webview_will_set_content` and `webview_did_receive_js_message`.
+
+        'status_bar' offers a function to generate links (aqt.toolbar.Bar.create_link).
+        Links created in that way can then be appended to the content list, e.g.:
+
+            def on_status_bar_will_set_right_tray_content(content, status_bar):
+                my_link = status_bar.create_link(...)
+                content.append(my_link)
+        """,
+    ),
+    # Media
+    ###################
     Hook(
         name="media_sync_did_progress",
         args=["entry: aqt.mediasync.LogEntryWithTime"],

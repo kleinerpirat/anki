@@ -13,7 +13,7 @@ from anki.cards import CardId
 from anki.collection import BrowserColumns as Columns
 from anki.collection import BrowserRow
 from anki.notes import NoteId
-from aqt import colors
+from aqt.colors import Colors
 from aqt.qt import QColor
 from aqt.utils import tr
 
@@ -50,7 +50,7 @@ class CellRow:
     ) -> None:
         self.refreshed_at: float = time.time()
         self.cells: tuple[Cell, ...] = tuple(Cell(*cell) for cell in cells)
-        self.color: dict[str, str] | None = backend_color_to_aqt_color(color)
+        self.color: Colors | None = backend_color_to_aqt_color(color)
         self.font_name: str = font_name or "arial"
         self.font_size: int = font_size if font_size > 0 else 12
 
@@ -77,43 +77,33 @@ class CellRow:
         return row
 
 
-def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | None:
+def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> Colors | None:
+    from aqt.theme import theme_manager
+
     temp_color = None
 
     if color == BrowserRow.COLOR_MARKED:
-        temp_color = colors.STATE_MARKED
+        temp_color = Colors.CARD_MARKED
     if color == BrowserRow.COLOR_SUSPENDED:
-        temp_color = colors.STATE_SUSPENDED
+        temp_color = Colors.CARD_SUSPENDED
     if color == BrowserRow.COLOR_BURIED:
-        temp_color = colors.STATE_BURIED
+        temp_color = Colors.CARD_BURIED
     if color == BrowserRow.COLOR_FLAG_RED:
-        temp_color = colors.FLAG_1
+        temp_color = Colors.FLAG_1
     if color == BrowserRow.COLOR_FLAG_ORANGE:
-        temp_color = colors.FLAG_2
+        temp_color = Colors.FLAG_2
     if color == BrowserRow.COLOR_FLAG_GREEN:
-        temp_color = colors.FLAG_3
+        temp_color = Colors.FLAG_3
     if color == BrowserRow.COLOR_FLAG_BLUE:
-        temp_color = colors.FLAG_4
+        temp_color = Colors.FLAG_4
     if color == BrowserRow.COLOR_FLAG_PINK:
-        temp_color = colors.FLAG_5
+        temp_color = Colors.FLAG_5
     if color == BrowserRow.COLOR_FLAG_TURQUOISE:
-        temp_color = colors.FLAG_6
+        temp_color = Colors.FLAG_6
     if color == BrowserRow.COLOR_FLAG_PURPLE:
-        temp_color = colors.FLAG_7
+        temp_color = Colors.FLAG_7
 
-    return adjusted_bg_color(temp_color)
-
-
-def adjusted_bg_color(color: dict[str, str]) -> dict[str, str]:
-    if color:
-        adjusted_color = copy.copy(color)
-        light = QColor(color["light"]).lighter(150)
-        adjusted_color["light"] = light.name()
-        dark = QColor(color["dark"]).darker(150)
-        adjusted_color["dark"] = dark.name()
-        return adjusted_color
-    else:
-        return None
+    return temp_color
 
 
 from .model import DataModel

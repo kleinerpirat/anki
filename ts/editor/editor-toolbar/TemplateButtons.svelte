@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setFormat } from "../old-editor-adapter";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { micIcon, paperclipIcon } from "./icons";
+    import { microphoneIcon, paperclipIcon } from "./icons";
     import LatexButton from "./LatexButton.svelte";
 
     const { focusedInput } = context.get();
@@ -109,7 +109,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {disabled}
                 on:click={attachRecordingOnFocus}
             >
-                {@html micIcon}
+                {@html microphoneIcon}
             </IconButton>
             <Shortcut
                 keyCombination={recordCombination}

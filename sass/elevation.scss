@@ -2,6 +2,7 @@
 @use "sass:color";
 @use "sass:map";
 @use "sass:list";
+@use "sass:string";
 
 /**
  * The maps correspond to dp levels:
@@ -60,10 +61,20 @@ $umbra-opacity: 0.2;
 $penumbra-opacity: 0.14;
 $ambient-opacity: 0.12;
 
-@function box-shadow($level, $opacity-boost, $color) {
-    $umbra-z-value: map.get($umbra-map, $level);
-    $penumbra-z-value: map.get($penumbra-map, $level);
-    $ambient-z-value: map.get($ambient-map, $level);
+@function shadow($level, $opacity-boost, $color, $drop: false) {
+    $umbra-z-value: "";
+    $penumbra-z-value: "";
+    $ambient-z-value: "";
+
+    @if $drop {
+        $umbra-z-value: string.slice(map.get($umbra-map, $level), 0, -5);
+        $penumbra-z-value: string.slice(map.get($penumbra-map, $level), 0, -5);
+        $ambient-z-value: string.slice(map.get($ambient-map, $level), 0, -5);
+    } @else {
+        $umbra-z-value: map.get($umbra-map, $level);
+        $penumbra-z-value: map.get($penumbra-map, $level);
+        $ambient-z-value: map.get($ambient-map, $level);
+    }
 
     $umbra-color: color.adjust(rgba($color, $umbra-opacity), $alpha: $opacity-boost);
     $penumbra-color: color.adjust(
@@ -75,13 +86,25 @@ $ambient-opacity: 0.12;
         $alpha: $opacity-boost
     );
 
-    @return (
-        #{$umbra-z-value} $umbra-color,
-        #{$penumbra-z-value} $penumbra-color,
-        #{$ambient-z-value} $ambient-color
-    );
+    @if $drop {
+        @return (
+            drop-shadow(#{$umbra-z-value} $umbra-color)
+                drop-shadow(#{$penumbra-z-value} $penumbra-color)
+                drop-shadow(#{$ambient-z-value} $ambient-color)
+        );
+    } @else {
+        @return (
+            #{$umbra-z-value} $umbra-color,
+            #{$penumbra-z-value} $penumbra-color,
+            #{$ambient-z-value} $ambient-color
+        );
+    }
 }
 
-@mixin elevation($level, $opacity-boost: 0, $color: #141414) {
-    box-shadow: box-shadow($level, $opacity-boost, $color);
+@mixin elevation($level, $opacity-boost: 0, $color: #141414, $drop-shadow: false) {
+    @if $drop-shadow {
+        filter: shadow($level, $opacity-boost, $color, $drop: true);
+    } @else {
+        box-shadow: shadow($level, $opacity-boost, $color);
+    }
 }

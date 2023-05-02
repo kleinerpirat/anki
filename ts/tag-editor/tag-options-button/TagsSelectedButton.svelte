@@ -16,20 +16,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    let show = false;
-
     const { selectAllShortcut, copyShortcut, removeShortcut } =
         getContext<Record<string, string>>(tagActionsShortcutsKey);
 </script>
 
-<WithFloating
-    {show}
-    preferredPlacement="top"
-    portalTarget={document.body}
-    shift={0}
-    let:asReference
->
-    <div class="tags-selected-button" use:asReference on:click={() => (show = !show)}>
+<WithFloating preferredPlacement="top" portalTarget={document.body} shift={0}>
+    <div class="tags-selected-button" slot="reference">
         <IconConstrain>{@html dotsIcon}</IconConstrain>
     </div>
 

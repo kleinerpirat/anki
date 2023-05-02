@@ -1,8 +1,8 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "sass/root-vars";
-@use "sass/vars" as *;
+@use "sass/colors";
+@use "sass/props";
 @use "sass/elevation" as *;
 @use "sass/button-mixins" as button;
 
@@ -12,7 +12,7 @@
     align-items: start;
     align-content: space-between;
     body:not(.fancy) & {
-        border-bottom: 1px solid var(--border-subtle);
+        border-bottom: 1px solid colors.$border-subtle;
     }
 }
 
@@ -35,13 +35,13 @@
 .toolbar {
     justify-self: center;
     white-space: nowrap;
-    transition: all var(--transition) ease-in-out;
+    transition: all props.$transition ease-in-out;
 }
 
 .hitem {
     font-weight: bold;
     padding: 5px 12px;
-    color: color(fg);
+    color: colors.$fg;
     display: inline-block;
     &:hover {
         text-decoration: underline;
@@ -57,7 +57,7 @@ body {
     &:not(.fancy).hidden {
         opacity: 0;
     }
-    transition: opacity var(--transition) ease-in-out;
+    transition: opacity props.$transition ease-in-out;
 
     &.fancy {
         margin-bottom: 5px;
@@ -65,22 +65,22 @@ body {
         &.hidden {
             transform: translateY(-100vh);
         }
-        transition: transform var(--transition) ease-in-out;
+        transition: transform props.$transition ease-in-out;
 
         .toolbar {
             overflow: hidden;
-            border-bottom-left-radius: prop(border-radius-medium);
-            border-bottom-right-radius: prop(border-radius-medium);
+            border-bottom-left-radius: props.$border-radius-medium;
+            border-bottom-right-radius: props.$border-radius-medium;
             @include elevation(1, $opacity-boost: -0.1);
 
             // glass effect
-            background: var(--canvas-glass);
-            backdrop-filter: blur(var(--blur));
+            background: colors.$glass;
+            backdrop-filter: blur(props.$blur);
         }
 
         // elevated state (deck browser, overview)
         &:not(.flat) .toolbar {
-            background: var(--canvas-elevated);
+            background: colors.$canvas-secondary;
             @include elevation(1);
             &:hover {
                 @include elevation(2);
@@ -89,7 +89,7 @@ body {
 
         &:not(.flat) .hitem {
             @include button.base($border: false, $with-hover: false);
-            background: var(--canvas-glass);
+            background: colors.$glass;
             border: 1px solid transparent;
         }
         .hitem {
@@ -97,10 +97,10 @@ body {
             border: 1px solid transparent;
 
             &:hover {
-                border: 1px solid var(--border-subtle);
+                border: 1px solid colors.$border-subtle;
             }
             &:active {
-                background: var(--canvas-inset);
+                background: colors.$glass;
             }
             &:first-child {
                 padding-left: 18px;
@@ -137,7 +137,7 @@ body {
     display: inline-block;
     visibility: visible !important;
     animation-timing-function: linear;
-    transition: all var(--transition) ease-in;
+    transition: all props.$transition ease-in;
 }
 
 #sync-spinner {
@@ -148,9 +148,9 @@ body {
 }
 
 .normal-sync {
-    color: color(state-new) !important;
+    color: colors.$card-new !important;
 }
 
 .full-sync {
-    color: color(state-learn) !important;
+    color: colors.$card-learn !important;
 }

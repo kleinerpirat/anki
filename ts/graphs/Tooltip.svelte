@@ -29,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: {
         // move tooltip away from edge as user approaches right side
         adjustedX = x + 40 - shiftLeftAmount;
-        adjustedY = y + 40;
+        adjustedY = y - 100;
     }
 </script>
 
@@ -42,17 +42,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
+    @use "sass/elevation" as *;
+
     .tooltip {
         position: absolute;
         white-space: nowrap;
         padding: 15px;
-        border-radius: 5px;
+        border-radius: props.$border-radius;
         font-size: 15px;
         opacity: 0;
         pointer-events: none;
-        transition: opacity var(--transition);
-        color: var(--fg);
-        background: var(--canvas-overlay);
+        transition: opacity props.$transition;
+        color: colors.$fg;
+        background: colors.$canvas-secondary;
+        @include elevation(4);
+
 
         :global(table) {
             border-spacing: 1em 0;
