@@ -6,8 +6,7 @@
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
     import SpinBox from "../components/SpinBox.svelte";
-    import ConfigInput from "./ConfigInput.svelte";
-    import RevertButton from "./RevertButton.svelte";
+    import WithRevertButton from "../components/WithRevertButton.svelte";
 
     export let value: number;
     export let defaultValue: number;
@@ -20,9 +19,8 @@
         <slot />
     </Col>
     <Col --col-size={6} breakpoint="xs">
-        <ConfigInput>
+        <WithRevertButton class="flex-grow-1" bind:value {defaultValue}>
             <SpinBox bind:value {min} {max} step={0.01} />
-            <RevertButton slot="revert" bind:value {defaultValue} />
-        </ConfigInput>
+        </WithRevertButton>
     </Col>
 </Row>

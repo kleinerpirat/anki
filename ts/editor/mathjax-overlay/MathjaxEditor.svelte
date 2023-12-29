@@ -109,6 +109,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <slot editor={codeMirror} />
 
 <style lang="scss">
+    @use "sass/colors";
+
     .mathjax-editor {
         margin: 0 1px;
         overflow: hidden;
@@ -122,14 +124,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &.light-theme :global(.CodeMirror) {
             border-width: 1px 0;
             border-style: solid;
-            border-color: var(--border);
+            border-color: colors.$border;
         }
 
         :global(.CodeMirror-placeholder) {
             font-family: sans-serif;
             font-size: 55%;
             text-align: center;
-            color: var(--fg-subtle);
+            color: colors.$fg-subtle;
         }
     }
 </style>

@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 </script>
 
-<TopToolbar {canvas} {instance} {iconSize} />
+<Toolbar {canvas} {instance} {iconSize} />
 
 <div class="tool-bar-container">
     {#each tools as tool}
@@ -62,17 +62,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/each}
 </div>
 
-<style>
+<style lang="scss">
+    @use "sass/colors";
+
     .tool-bar-container {
         position: fixed;
         top: 42px;
         left: 2px;
         height: 100%;
-        border-right: 1px solid var(--border);
+        border-right: 1px solid colors.$border;
         overflow-y: auto;
         width: 32px;
         z-index: 99;
-        background: var(--canvas-elevated);
+        background: colors.$canvas-secondary;
         padding-bottom: 100px;
     }
 

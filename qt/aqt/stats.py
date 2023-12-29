@@ -27,7 +27,7 @@ from aqt.webview import AnkiWebViewKind
 
 
 class NewDeckStats(QDialog):
-    """New deck stats."""
+    """Deck stats screen."""
 
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         QDialog.__init__(self, mw, Qt.WindowType.Window)
@@ -48,14 +48,6 @@ class NewDeckStats(QDialog):
             f.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         restoreGeom(self, self.name, default_size=(800, 800))
 
-        from aqt.deckchooser import DeckChooser
-
-        self.deck_chooser = DeckChooser(
-            self.mw,
-            f.deckArea,
-            on_deck_changed=self.on_deck_changed,
-        )
-
         b = f.buttonBox.addButton(
             tr.statistics_save_pdf(), QDialogButtonBox.ButtonRole.ActionRole
         )
@@ -74,7 +66,6 @@ class NewDeckStats(QDialog):
         self.activateWindow()
 
     def reject(self) -> None:
-        self.deck_chooser.cleanup()
         self.form.web.cleanup()
         self.form.web = None
         saveGeom(self, self.name)
@@ -135,6 +126,7 @@ class NewDeckStats(QDialog):
 
     def refresh(self) -> None:
         self.form.web.load_ts_page("graphs")
+        self.form.web.eval("anki.setupGraphsPage(); ")
 
 
 class DeckStats(QDialog):

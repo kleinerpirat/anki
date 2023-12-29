@@ -18,12 +18,13 @@ export async function setupGraphs(
         days = 365,
         controller = null as typeof SvelteComponentDev | null,
     } = {},
+    target: HTMLElement,
 ): Promise<GraphsPage> {
     checkNightMode();
     await i18n;
 
     return new GraphsPage({
-        target: document.body,
+        target,
         props: {
             initialSearch: search,
             initialDays: days,
@@ -46,23 +47,26 @@ import RangeBox from "./RangeBox.svelte";
 import ReviewsGraph from "./ReviewsGraph.svelte";
 import TodayStats from "./TodayStats.svelte";
 
-setupGraphs(
-    [
-        TodayStats,
-        FutureDue,
-        CalendarGraph,
-        ReviewsGraph,
-        CardCounts,
-        IntervalsGraph,
-        EaseGraph,
-        HourGraph,
-        ButtonsGraph,
-        AddedGraph,
-    ],
-    {
-        controller: RangeBox,
-    },
-);
+export function setupGraphsPage(target: HTMLElement = document.body): void {
+    setupGraphs(
+        [
+            TodayStats,
+            FutureDue,
+            CalendarGraph,
+            ReviewsGraph,
+            CardCounts,
+            IntervalsGraph,
+            EaseGraph,
+            HourGraph,
+            ButtonsGraph,
+            AddedGraph,
+        ],
+        {
+            controller: RangeBox,
+        },
+        target,
+    );
+}
 
 export const graphComponents = {
     TodayStats,

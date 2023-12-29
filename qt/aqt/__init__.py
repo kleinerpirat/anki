@@ -42,7 +42,7 @@ from anki._backend import RustBackend
 from anki.buildinfo import version as _version
 from anki.collection import Collection
 from anki.consts import HELP_SITE
-from anki.utils import checksum, is_lin, is_mac
+from anki.utils import checksum, is_lin, is_mac, mw_next
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, tr
@@ -675,10 +675,16 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
             )
             sys.exit(1)
 
-    # load the main window
-    import aqt.main
+    # load unified main window if env var "MW_NEXT" is set
+    if mw_next:
+        import aqt.main_next
+        from aqt.main_next import AnkiQtNext
+        mw = AnkiQtNext(app, pm, backend, opts, args)
+    else:
+        import aqt.main
+        from aqt.main import AnkiQt
+        mw = AnkiQt(app, pm, backend, opts, args)
 
-    mw = aqt.main.AnkiQt(app, pm, backend, opts, args)
     if exec:
         print("Starting main loop...")
         app.exec()

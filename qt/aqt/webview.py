@@ -15,10 +15,19 @@ import anki.lang
 from anki._legacy import deprecated
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
-from aqt import colors, gui_hooks
+from aqt import gui_hooks
+from aqt.colors import Colors
 from aqt.qt import *
 from aqt.theme import theme_manager
-from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
+from aqt.utils import (
+    askUser,
+    css_var_from_backend,
+    is_gesture_or_zoom_event,
+    lowercase_var,
+    openLink,
+    showInfo,
+    tr,
+)
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -234,8 +243,8 @@ class AnkiWebViewKind(Enum):
     """
 
     MAIN = "main webview"
-    TOP_TOOLBAR = "top toolbar"
-    BOTTOM_TOOLBAR = "bottom toolbar"
+    TOP_TOOLBAR = "main webview"
+    BOTTOM_TOOLBAR = "main webview"
     DECK_OPTIONS = "deck options"
     EDITOR = "editor"
     LEGACY_DECK_STATS = "legacy deck stats"
@@ -248,6 +257,7 @@ class AnkiWebViewKind(Enum):
     EMPTY_CARDS = "empty cards"
     FIND_DUPLICATES = "find duplicates"
     FIELDS = "fields"
+    PREFERENCES = "preferences"
 
 
 class AnkiWebView(QWebEngineView):
@@ -259,6 +269,7 @@ class AnkiWebView(QWebEngineView):
         parent: QWidget | None = None,
         title: str = "default",
         kind: AnkiWebViewKind | None = None,
+        background_allowed=False,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
         if kind:
@@ -266,8 +277,9 @@ class AnkiWebView(QWebEngineView):
         else:
             self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
+        self.background_allowed = background_allowed
         # reduce flicker
-        self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
+        self._page.setBackgroundColor(theme_manager.qcolor(Colors.CANVAS))
 
         # in new code, use .set_bridge_command() instead of setting this directly
         self.onBridgeCmd: Callable[[str], Any] = self.defaultOnBridgeCmd
@@ -281,6 +293,7 @@ class AnkiWebView(QWebEngineView):
         self.resetHandlers()
         self._filterSet = False
         gui_hooks.theme_did_change.append(self.on_theme_did_change)
+        gui_hooks.background_did_change.append(self.set_background)
         gui_hooks.body_classes_need_update.append(self.on_body_classes_need_update)
 
         qconnect(self.loadFinished, self._on_load_finished)
@@ -383,6 +396,7 @@ class AnkiWebView(QWebEngineView):
         self._queueAction("setHtml", html)
         self.set_open_links_externally(True)
         self.allow_drops = False
+        self.set_background()
         self.show()
 
     def _setHtml(self, html: str) -> None:
@@ -453,7 +467,9 @@ class AnkiWebView(QWebEngineView):
             return 3
 
     def standard_css(self) -> str:
-        color_hl = theme_manager.var(colors.BORDER_FOCUS)
+        from aqt import mw
+
+        color_hl = theme_manager.color(Colors.FOCUS)
 
         if is_win:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
@@ -467,7 +483,6 @@ button {{ font-family: {family}; }}
             font = f'font-family:"{family}";'
             button_style = """
 button {
-    --canvas: #fff;
     -webkit-appearance: none;
     background: var(--canvas);
     border-radius: var(--border-radius);
@@ -498,12 +513,33 @@ div[contenteditable="true"]:focus {{
 
         zoom = self.app_zoom_factor()
 
+        newline = "\n"
+
+        # colors
+        root_style = f"""
+:root, .fakeroot {{
+{newline.join([css_var_from_backend(k, v) for k, v in theme_manager.palette.items()])}
+}}
+        """
+
+        # props
+        root_style += f"""
+:root, .fakeroot {{
+{newline.join([f"--{lowercase_var(k)}: {v['value']}{v.get('unit', '')};" for k, v in theme_manager.props.items()])}
+}}
+        """
+
         return f"""
-body {{ zoom: {zoom}; background-color: var(--canvas); }}
-html {{ {font} }}
+{root_style}
+body {{
+    zoom: {zoom};
+    background-color: var(--canvas);
+    color: var(--fg);
+}}
+html {{
+    {font}
+}}
 {button_style}
-:root {{ --canvas: {colors.CANVAS["light"]} }}
-:root[class*=night-mode] {{ --canvas: {colors.CANVAS["dark"]} }}
 """
 
     def stdHtml(
@@ -534,7 +570,7 @@ html {{ {font} }}
             # they can override us if necessary
             web_content.css.remove("css/webview.css")
             csstxt = self.bundledCSS("css/webview.css")
-            csstxt += f"<style>{self.standard_css()}</style>"
+            csstxt += f"""<style id="stdCSS">{self.standard_css()}</style>"""
 
         csstxt += "\n".join(self.bundledCSS(fname) for fname in web_content.css)
         jstxt = "\n".join(self.bundledScript(fname) for fname in web_content.js)
@@ -669,6 +705,7 @@ html {{ {font} }}
         self.onBridgeCmd = self.defaultOnBridgeCmd
         self._bridge_context = None
 
+    # legacy
     def adjustHeightToFit(self) -> None:
         self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
 
@@ -685,7 +722,7 @@ html {{ {font} }}
         """Set a handler for pycmd() messages received from Javascript.
 
         Context is the object calling this routine, eg an instance of
-        aqt.reviewer.Reviewer or aqt.deckbrowser.DeckBrowser."""
+        aqt.reviewer.Reviewer or aqt.mainpage.DeckBrowser."""
         self.onBridgeCmd = func
         self._bridge_context = context
 
@@ -703,21 +740,23 @@ html {{ {font} }}
 
         def after_injection(arg: Any) -> None:
             gui_hooks.webview_did_inject_style_into_page(self)
+            self.set_background()
             self.show()
 
-        if theme_manager.night_mode:
-            night_mode = 'document.documentElement.classList.add("night-mode");'
-        else:
-            night_mode = ""
         self.evalWithCallback(
             f"""
 (function(){{
+    // reset
+    document.body.className = "";
+    document.getElementById("stdCSS")?.remove();
+
     document.title = `{self.title}`;
     const style = document.createElement('style');
-    style.innerHTML = `{css}`;
+    style.id = "stdCSS";
+    style.innerText = `{css}`;
     document.head.appendChild(style);
     document.body.classList.add({", ".join([f'"{c}"' for c in body_classes])});
-    {night_mode}
+    document.documentElement.classList.toggle("night-mode", {json.dumps(theme_manager.night_mode)});
 }})();
 """,
             after_injection,
@@ -750,29 +789,25 @@ html {{ {font} }}
 
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
+        gui_hooks.background_did_change.remove(self.set_background)
         mw.mediaServer.clear_page_html(id(self))
         self._page.deleteLater()
 
     def on_theme_did_change(self) -> None:
         # avoid flashes if page reloaded
-        self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
+        self._page.setBackgroundColor(theme_manager.qcolor(Colors.CANVAS))
+        self.add_dynamic_styling_and_props_then_show()
         # update night-mode class, and legacy nightMode/night-mode body classes
+        is_dark = json.dumps(theme_manager.night_mode)
         self.eval(
             f"""
 (function() {{
     const doc = document.documentElement.classList;
     const body = document.body.classList;
-    if ({1 if theme_manager.night_mode else 0}) {{
-        doc.add("night-mode");
-        body.add("night_mode");
-        body.add("nightMode");
-        {"body.add('macos-dark-mode');" if theme_manager.macos_dark_mode() else ""}
-    }} else {{
-        doc.remove("night-mode");
-        body.remove("night_mode");
-        body.remove("nightMode");
-        body.remove("macos-dark-mode");
-    }}
+    doc.toggle("night-mode", {is_dark});
+    body.toggle("night_mode", {is_dark});
+    body.toggle("nightMode", {is_dark});
+    body.toggle("macos-dark-mode", {json.dumps(theme_manager.macos_dark_mode())});
 }})();
 """
         )
@@ -789,4 +824,43 @@ html {{ {font} }}
 
     @deprecated(info="use theme_manager.qcolor() instead")
     def get_window_bg_color(self, night_mode: Optional[bool] = None) -> QColor:
-        return theme_manager.qcolor(colors.CANVAS)
+        return theme_manager.qcolor(Colors.CANVAS)
+
+    def set_background(self) -> None:
+        from aqt import mw
+
+        if mw.state in ["startup", "profileManager"] or not self.background_allowed:
+            return
+
+        self.eval(
+            f"""
+var bgStyle = document.getElementById("bgStyle");
+if (!bgStyle) {{
+    bgStyle = document.createElement("style");
+    bgStyle.id = "bgStyle";
+    document.head.appendChild(bgStyle);
+}}
+bgStyle.innerHTML = `
+    body::after {{
+        {mw.pm.get_background().toCSS().replace("url(", "url(../../")}
+    }}
+`;
+            """
+        )
+
+        self.set_background_properties()
+
+    def set_background_properties(self) -> None:
+        from aqt import mw
+
+        self.eval(
+            f"""
+                document.documentElement.style.setProperty("--bg-crop", "{mw.pm.get_background().blur}px");
+            """
+        )
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+
+        if self.background_allowed:
+            self.set_background_properties()

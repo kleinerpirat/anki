@@ -1,0 +1,20 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use "props";
+
+@mixin clickable($primary: false) {
+    cursor: pointer;
+
+    @if $primary {
+        opacity: props.$opacity-hover;
+        &:hover {
+            opacity: 1;
+        }
+    } @else {
+        opacity: props.$opacity-idle;
+        &:hover {
+            opacity: props.$opacity-hover;
+        }
+    }
+}

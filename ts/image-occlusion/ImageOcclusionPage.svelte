@@ -55,6 +55,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </Container>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .tab-buttons {
         display: flex;
         position: absolute;
@@ -62,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         left: 2px;
     }
     .tab-buttons .active {
-        background: var(--button-primary-bg);
+        background: colors.$button-primary;
         color: white;
     }
 

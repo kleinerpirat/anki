@@ -33,4 +33,14 @@ export const HelpPage = {
     Studying: {
         siblingsAndBurying: "https://docs.ankiweb.net/studying.html#siblings-and-burying",
     },
+    FilteredDecks: {
+        customStudy: "https://docs.ankiweb.net/filtered-decks.html#custom-study",
+        // TODO: Make these headings in the manual
+        increaseNewLimit: "https://docs.ankiweb.net/filtered-decks.html#increase-new-limit",
+        increaseReviewLimit: "https://docs.ankiweb.net/filtered-decks.html#increase-review-limit",
+        reviewForgottenCards: "https://docs.ankiweb.net/filtered-decks.html#review-forgotten-cards",
+        reviewAhead: "https://docs.ankiweb.net/filtered-decks.html#review-ahead",
+        previewNewCards: "https://docs.ankiweb.net/filtered-decks.html#preview-new-cards",
+        studyByCardStateOrTag: "https://docs.ankiweb.net/filtered-decks.html#study-by-card-state-or-tag",
+    },
 };

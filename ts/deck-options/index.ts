@@ -12,7 +12,7 @@ import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 import { deckConfig, Decks } from "@tslib/proto";
 
-import { modalsKey, touchDeviceKey } from "../components/context-keys";
+import { touchDeviceKey } from "../components/context-keys";
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
 import { DeckOptionsState } from "./lib";
 
@@ -26,7 +26,10 @@ const i18n = setupI18n({
     ],
 });
 
-export async function setupDeckOptions(did: number): Promise<DeckOptionsPage> {
+export async function setupDeckOptions(
+    did: number,
+    target: HTMLElement = document.body,
+): Promise<DeckOptionsPage> {
     const [info] = await Promise.all([
         deckConfig.getDeckConfigsForUpdate(Decks.DeckId.create({ did })),
         i18n,
@@ -35,18 +38,17 @@ export async function setupDeckOptions(did: number): Promise<DeckOptionsPage> {
     checkNightMode();
 
     const context = new Map();
-    context.set(modalsKey, new Map());
     context.set(touchDeviceKey, "ontouchstart" in document.documentElement);
 
     const state = new DeckOptionsState(did, info);
     return new DeckOptionsPage({
-        target: document.body,
+        target,
         props: { state },
         context,
     });
 }
 
-import TitledContainer from "../components/TitledContainer.svelte";
+import TitledContainer from "components/TitledContainer.svelte";
 import EnumSelectorRow from "./EnumSelectorRow.svelte";
 import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
 import SpinBoxRow from "./SpinBoxRow.svelte";

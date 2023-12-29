@@ -1,0 +1,10 @@
+{
+    "extends": "../tsconfig.json",
+    "include": ["*"],
+    "references": [
+        { "path": "../lib" }
+    ],
+    "compilerOptions": {
+        "types": ["node"]
+    }
+}

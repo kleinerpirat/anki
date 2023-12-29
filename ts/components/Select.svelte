@@ -32,10 +32,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let tooltip: string | undefined = undefined;
 
-    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
+    const rtl = window.getComputedStyle(document.body).direction == "rtl";
     let hover = false;
 
     let showFloating = false;
+
+    export function show(): void {
+        showFloating = true;
+    }
     let clientWidth: number;
 
     async function handleKey(e: KeyboardEvent) {
@@ -51,22 +55,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithFloating
-    show={showFloating}
+    bind:show={showFloating}
     offset={0}
     shift={0}
     hideArrow
     inline
+    showOnClick
     closeOnInsideClick
     keepOnKeyup
-    on:close={() => (showFloating = false)}
-    let:asReference
 >
     <div
         {id}
         class="{className} select-container"
+        slot="reference"
         class:rtl
         class:hover
-        {disabled}
+        class:disabled
         title={tooltip}
         tabindex="0"
         on:keypress={handleKey}
@@ -74,7 +78,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:mouseleave={() => (hover = false)}
         on:click={() => (showFloating = !showFloating)}
         bind:this={element}
-        use:asReference
         bind:clientWidth
     >
         <div class="inner">
@@ -92,6 +95,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </WithFloating>
 
 <style lang="scss">
+    @use "sass/colors";
+    @use "sass/props";
     @use "sass/button-mixins" as button;
 
     $padding-inline: 0.5rem;
@@ -119,18 +124,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 text-overflow: ellipsis;
             }
         }
+
+        &.disabled {
+            opacity: props.$opacity-disabled;
+        }
     }
 
     .chevron {
         height: 100%;
         align-self: flex-end;
-        border-left: 1px solid var(--border-subtle);
+        border-left: 1px solid colors.$border-subtle;
     }
 
     :global([dir="rtl"]) {
         .chevron {
             border-left: none;
-            border-right: 1px solid var(--border-subtle);
+            border-right: 1px solid colors.$border-subtle;
         }
     }
 </style>

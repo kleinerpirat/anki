@@ -9,6 +9,7 @@ import aqt
 import aqt.operations
 from anki.collection import OpChanges
 from anki.scheduler import UnburyDeck
+from anki.utils import mw_next
 from aqt import gui_hooks
 from aqt.deckdescription import DeckDescriptionDialog
 from aqt.deckoptions import display_options_for_deck
@@ -51,7 +52,8 @@ class Overview:
     def __init__(self, mw: aqt.AnkiQt) -> None:
         self.mw = mw
         self.web = mw.web
-        self.bottom = BottomBar(mw, mw.bottomWeb)
+        if not mw_next:
+            self.bottom = BottomBar(mw, mw.bottomWeb)
         self._refresh_needed = False
 
     def show(self) -> None:

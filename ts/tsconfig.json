@@ -3,7 +3,7 @@
     "exclude": [],
     "references": [
         { "path": "components" },
-        { "path": "congrats" },
+        { "path": "main" },
         { "path": "deck-options" },
         { "path": "editable" },
         { "path": "editor" },
@@ -14,7 +14,8 @@
         { "path": "mathjax" },
         { "path": "domlib" },
         { "path": "sveltelib" },
-        { "path": "icons" }
+        { "path": "icons" },
+        { "path": "preferences" }
     ],
     "compilerOptions": {
         "declaration": true,
@@ -35,10 +36,7 @@
         ],
         "outDir": "../out",
         "rootDir": "..",
-        "rootDirs": [
-            "..",
-            "../out"
-        ],
+        "rootDirs": ["..", "../out"],
         "baseUrl": ".",
         "paths": {
             "@tslib/*": ["lib/*", "../out/ts/lib/*"]

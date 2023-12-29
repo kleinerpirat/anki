@@ -3,14 +3,15 @@
 @use "sass:list";
 @use "sass:map";
 
-$bps: ("xs", "sm", "md", "lg", "xl", "xxl");
+$bps: ("xxs", "xs", "sm", "md", "lg", "xl", "xxl");
 
 $breakpoints: (
-    list.nth($bps, 2): 576px,
-    list.nth($bps, 3): 768px,
-    list.nth($bps, 4): 992px,
-    list.nth($bps, 5): 1200px,
-    list.nth($bps, 6): 1400px,
+    list.nth(list, 1): 320px,
+    list.nth($bps, 2): 480px,
+    list.nth($bps, 3): 600px,
+    list.nth($bps, 4): 768px,
+    list.nth($bps, 5): 992px,
+    list.nth($bps, 6): 1200px,
 );
 
 @mixin with-breakpoint($bp) {

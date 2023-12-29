@@ -14,13 +14,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let active = false;
     export let disabled = false;
 
-    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
+    const rtl = window.getComputedStyle(document.body).direction == "rtl";
 
     $: if (buttonRef && active) {
         buttonRef!.scrollIntoView({
             behavior: "smooth",
             block: "nearest",
         });
+    }
+
+    function arrowNavigation(e: KeyboardEvent) {
+        const el = e.target as HTMLButtonElement;
+        /* Arrow key navigation */
+        switch (e.code) {
+            case "ArrowUp": {
+                const prevSibling = el.previousElementSibling as HTMLElement;
+                if (prevSibling) {
+                    prevSibling.focus();
+                } else {
+                    // close popover
+                    document.body.click();
+                }
+                break;
+            }
+            case "ArrowDown": {
+                const nextSibling = el.nextElementSibling as HTMLElement;
+                if (nextSibling) {
+                    nextSibling.focus();
+                } else {
+                    // close popover
+                    document.body.click();
+                }
+                break;
+            }
+        }
     }
 
     export let tabbable = false;
@@ -37,14 +64,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {disabled}
     on:mouseenter
     on:focus
-    on:keydown
     on:click
     on:mousedown|preventDefault
+    on:keydown={arrowNavigation}
 >
     <slot />
 </button>
 
 <style lang="scss">
+    @use "sass/colors";
+
     button {
         display: flex;
         justify-content: start;
@@ -57,16 +86,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         box-shadow: none !important;
         border: none;
         border-radius: 0;
-        color: var(--fg);
+        color: colors.$fg;
 
         &:hover:not([disabled]) {
-            background: var(--highlight-bg);
-            color: var(--highlight-fg);
+            background: colors.$text-highlighted-bg;
+            color: colors.$text-highlighted-fg;
         }
 
         &[disabled] {
             cursor: default;
-            color: var(--fg-disabled);
+            color: colors.$fg-disabled;
         }
 
         /* selection highlight */
@@ -78,10 +107,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         &.active {
             &:not(.rtl) {
-                border-left-color: var(--border-focus);
+                border-left-color: colors.$focus;
             }
             &.rtl {
-                border-right-color: var(--border-focus);
+                border-right-color: colors.$focus;
             }
         }
     }

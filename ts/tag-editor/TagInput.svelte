@@ -288,9 +288,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <style lang="scss">
+    @use "sass/colors";
+
     .tag-input {
         width: 100%;
-        color: var(--fg);
+        color: colors.$fg;
         background: none;
         resize: none;
         appearance: none;

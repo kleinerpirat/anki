@@ -1,0 +1,51 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use "colors";
+@use "props";
+
+// Default user background settings
+@mixin background($pos: top) {
+    background-size: cover !important;
+    background-position-x: center;
+    background-position-y: calc((var(--bg-crop)) * -2) !important;
+    background-repeat: no-repeat !important;
+    transition: background-image background-color var(--transition-slow) linear;
+}
+
+/**
+* Returns approximate offset required to cut off edge blur
+* ("approximate" because the standard deviation used by the browser may differ)
+*/
+@function blur-offset($blur-radius) {
+    // The amount of pixels affected by the CSS blur
+    // filter is larger than the given blur radius.
+    $sigma: calc($blur-radius * 1.5 / 3);
+    @return calc($sigma * -4);
+}
+
+// Pseudo element to show background between document and body
+@mixin pseudo($pos: top) {
+    content: "";
+    position: fixed !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+
+    top: blur-offset(var(--bg-crop));
+    bottom: blur-offset(var(--bg-crop));
+    left: blur-offset(var(--bg-crop));
+    right: blur-offset(var(--bg-crop));
+
+    @include background($pos);
+}
+
+// Milk glass background used for various containers
+@mixin glass($color: colors.$glass) {
+    background-color: $color;
+    backdrop-filter: blur(props.$blur);
+}
+
+// Used to dim the window behind modals
+@mixin dim {
+    backdrop-filter: blur(props.$blur);
+}

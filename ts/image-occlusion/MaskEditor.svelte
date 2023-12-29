@@ -48,13 +48,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/colors";
+
     .editor-main {
         position: absolute;
         top: 42px;
         left: 36px;
         bottom: 2px;
         right: 2px;
-        border: 1px solid var(--border);
+        border: 1px solid colors.$border-subtle;
         overflow: auto;
         padding-bottom: 100px;
     }
@@ -70,8 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     :global(.upper-canvas) {
-        border: 0.5px solid var(--border-strong);
-        border-width: thin;
+        border: thin solid colors.$border;
     }
 
     :global(.canvas-container) {

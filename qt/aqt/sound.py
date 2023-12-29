@@ -23,7 +23,7 @@ import aqt.mpv
 import aqt.qt
 from anki import hooks
 from anki.cards import Card
-from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
+from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import is_lin, is_mac, is_win, namedtmp
 from aqt import gui_hooks
 from aqt._macos_helper import macos_helper
@@ -803,24 +803,6 @@ for k, v in _exports:
 
 # Tag handling
 ##########################################################################
-
-
-def av_refs_to_play_icons(text: str) -> str:
-    """Add play icons into the HTML.
-
-    When clicked, the icon will call eg pycmd('play:q:1').
-    """
-
-    def repl(match: re.Match) -> str:
-        return f"""
-<a class="replay-button soundLink" href=# onclick="pycmd('{match.group(1)}'); return false;">
-    <svg class="playImage" viewBox="0 0 64 64" version="1.1">
-        <circle cx="32" cy="32" r="29" />
-        <path d="M56.502,32.301l-37.502,20.101l0.329,-40.804l37.173,20.703Z" />
-    </svg>
-</a>"""
-
-    return AV_REF_RE.sub(repl, text)
 
 
 def play_clicked_audio(pycmd: str, card: Card) -> None:

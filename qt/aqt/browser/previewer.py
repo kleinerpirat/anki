@@ -126,18 +126,8 @@ class Previewer(QDialog):
         self._web = None
 
     def _setup_web_view(self) -> None:
-        self._web.stdHtml(
-            self.mw.reviewer.revHtml(),
-            css=["css/reviewer.css"],
-            js=[
-                "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml.js",
-                "js/reviewer.js",
-            ],
-            context=self,
-        )
+        self._web.load_ts_page("previewer")
         self._web.allow_drops = True
-        self._web.eval("_blockDefaultDragDropBehavior();")
         self._web.set_bridge_command(self._on_bridge_cmd, self)
 
     def _on_bridge_cmd(self, cmd: str) -> Any:

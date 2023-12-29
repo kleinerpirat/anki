@@ -5,14 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@tslib/ftl";
     import { noop } from "@tslib/functional";
-    import type Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext } from "svelte";
 
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
-    import { modalsKey } from "../components/context-keys";
     import Select from "../components/Select.svelte";
     import SelectOption from "../components/SelectOption.svelte";
-    import StickyContainer from "../components/StickyContainer.svelte";
     import type { ConfigListEntry, DeckOptionsState } from "./lib";
     import SaveButton from "./SaveButton.svelte";
     import TextInputModal from "./TextInputModal.svelte";
@@ -35,64 +32,62 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dispatchPresetChange();
     }
 
-    function onAddConfig(text: string): void {
-        const trimmed = text.trim();
+    function onAddConfig(e: CustomEvent): void {
+        const trimmed = e.detail.text.trim();
         if (trimmed.length) {
             state.addConfig(trimmed);
             dispatchPresetChange();
         }
     }
 
-    function onCloneConfig(text: string): void {
-        const trimmed = text.trim();
+    function onCloneConfig(e: CustomEvent): void {
+        const trimmed = e.detail.text.trim();
         if (trimmed.length) {
             state.cloneConfig(trimmed);
             dispatchPresetChange();
         }
     }
 
-    function onRenameConfig(text: string): void {
-        state.setCurrentName(text);
+    function onRenameConfig(e: CustomEvent): void {
+        state.setCurrentName(e.detail.text);
     }
 
-    const modals = getContext<Map<string, Modal>>(modalsKey);
-
-    let modalKey: string;
     let modalStartingValue = "";
     let modalTitle = "";
-    let modalSuccess: (text: string) => void = noop;
+    let modalSuccess: (e: CustomEvent) => any = noop;
 
     function promptToAdd() {
         modalTitle = tr.deckConfigAddGroup();
         modalSuccess = onAddConfig;
         modalStartingValue = "";
-        modals.get(modalKey)!.show();
+        showModal = true;
     }
 
     function promptToClone() {
         modalTitle = tr.deckConfigCloneGroup();
         modalSuccess = onCloneConfig;
         modalStartingValue = state.getCurrentName();
-        modals.get(modalKey)!.show();
+        showModal = true;
     }
 
     function promptToRename() {
         modalTitle = tr.deckConfigRenameGroup();
         modalSuccess = onRenameConfig;
-        modalStartingValue = state.getCurrentName();
-        modals.get(modalKey)!.show();
+        showModal = true;
     }
+
+    let showModal = false;
 </script>
 
 <TextInputModal
     title={modalTitle}
     prompt={tr.deckConfigNamePrompt()}
     value={modalStartingValue}
-    onOk={modalSuccess}
-    bind:modalKey
+    on:accept={modalSuccess}
+    show={showModal}
 />
 
-<StickyContainer --gutter-block="0.5rem" --sticky-borders="0 0 1px" breakpoint="sm">
+<div class="config-selector">
     <ButtonToolbar class="justify-content-between flex-grow-1" wrap={false}>
         <Select class="flex-grow-1" bind:value {label} on:change={blur}>
             {#each $configList as entry}
@@ -108,4 +103,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:remove={dispatchPresetChange}
         />
     </ButtonToolbar>
-</StickyContainer>
+</div>

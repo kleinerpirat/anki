@@ -159,9 +159,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/props";
+
     .overlay {
         position: absolute;
-        border-radius: var(--border-radius);
+        border-radius: props.$border-radius;
 
         z-index: 40;
     }

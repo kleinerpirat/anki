@@ -44,9 +44,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let hideIfReferenceHidden = false;
 
     /** This may be passed in for more fine-grained control */
-    export let show = true;
+    export let show = false;
+    export let showOnClick = true;
 
     const dispatch = createEventDispatcher();
+
+    function hide(event: EventPredicateResult): void {
+        show = false;
+        dispatch("close", event);
+    }
 
     let arrow: HTMLElement;
 
@@ -58,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         arrow,
         hideIfEscaped,
         hideIfReferenceHidden,
-        hideCallback: (reason: string) => dispatch("close", { reason }),
+        hideCallback: (reason: string) => hide({ reason } as EventPredicateResult),
     });
 
     let autoAction: ActionReturn = {};
@@ -143,7 +149,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const subscribers = [
             subscribeToUpdates(closingClick, (event: EventPredicateResult) =>
-                dispatch("close", event),
+                hide(event),
             ),
         ];
 
@@ -155,7 +161,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             subscribers.push(
                 subscribeToUpdates(closingKeyup, (event: EventPredicateResult) =>
-                    dispatch("close", event),
+                    hide(event),
                 ),
             );
         }
@@ -171,15 +177,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <slot {position} {asReference} />
 
 {#if $$slots.reference}
-    {#if inline}
-        <span class="floating-reference" use:asReference>
-            <slot name="reference" />
-        </span>
-    {:else}
-        <div class="floating-reference" use:asReference>
-            <slot name="reference" />
-        </div>
-    {/if}
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <div
+        class="floating-reference"
+        class:inline
+        use:asReference
+        on:click={() => {
+            if (showOnClick) {
+                show = true;
+            }
+        }}
+    >
+        <slot name="reference" />
+    </div>
 {/if}
 
 <div bind:this={floating} class="floating" class:show use:portal={portalTarget}>
@@ -195,8 +205,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    span.floating-reference {
-        line-height: 1;
+    .floating-reference {
+        &.inline {
+            display: inline;
+            line-height: 1;
+        }
     }
     .floating {
         position: absolute;

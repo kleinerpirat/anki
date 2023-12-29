@@ -258,6 +258,28 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
         Ok(())
     };
     build_page(
+        "main",
+        true,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":ts:sveltelib",
+            ":sass",
+        ],
+    )?;
+    build_page(
+        "reviewer-iframe",
+        true,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":ts:sveltelib",
+            ":sass",
+        ],
+    )?;
+    build_page(
         "congrats",
         true,
         inputs![
@@ -346,6 +368,16 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":sass"
         ],
     )?;
+    build_page(
+        "preferences",
+        true,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":sass",
+        ],
+    )?;
 
     Ok(())
 }
@@ -393,6 +425,7 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
     Ok(())
 }
 
+// Legacy reviewer
 fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
     let reviewer_deps = inputs![":ts:lib", glob!("ts/reviewer/**")];
     build.add(
@@ -577,16 +610,5 @@ pub fn copy_mathjax() -> impl BuildAction {
 
 fn build_sass(build: &mut Build) -> Result<()> {
     build.add_inputs_to_group("sass", inputs![glob!("sass/**")]);
-
-    build.add(
-        "css:_root-vars",
-        CompileSass {
-            input: inputs!["sass/_root-vars.scss"],
-            output: "sass/_root-vars.css",
-            deps: inputs![glob!["sass/*"]],
-            load_paths: vec![],
-        },
-    )?;
-
     Ok(())
 }

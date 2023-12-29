@@ -1,11 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "sass/vars";
-
-hr {
-    background-color: vars.palette(darkgray, 0);
-}
+@use "sass/colors";
 
 body {
     margin: 20px;
@@ -20,8 +16,8 @@ body {
 // explicit nightMode definition required
 // to override default .card styling
 body.nightMode {
-    background-color: var(--canvas);
-    color: var(--fg);
+    background-color: colors.$canvas;
+    color: colors.$fg;
 }
 
 img {

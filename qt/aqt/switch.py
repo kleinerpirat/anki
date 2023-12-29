@@ -2,7 +2,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from typing import cast
 
-from aqt import colors, props
+from aqt.colors import Colors
+from aqt.props import Props
 from aqt.qt import *
 from aqt.theme import theme_manager
 
@@ -19,8 +20,8 @@ class Switch(QAbstractButton):
         radius: int = 10,
         left_label: str = "",
         right_label: str = "",
-        left_color: dict[str, str] = colors.ACCENT_CARD | {},
-        right_color: dict[str, str] = colors.ACCENT_NOTE | {},
+        left_color: Colors = Colors.ACCENT_PRIMARY,
+        right_color: Colors = Colors.ACCENT_SECONDARY,
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)
@@ -143,13 +144,13 @@ class Switch(QAbstractButton):
         )
 
     def _paint_knob(self, painter: QPainter) -> None:
-        color = theme_manager.qcolor(colors.BUTTON_GRADIENT_START)
+        color = theme_manager.qcolor(Colors.BUTTON_GRADIENT_START)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QBrush(color))
         painter.drawEllipse(self._current_knob_rectangle())
 
     def _paint_label(self, painter: QPainter) -> None:
-        painter.setPen(theme_manager.qcolor(colors.CANVAS))
+        painter.setPen(theme_manager.qcolor(Colors.CANVAS))
         font = painter.font()
         font.setPixelSize(int(self._knob_radius))
         font.setWeight(QFont.Weight.Bold)
@@ -173,7 +174,7 @@ class Switch(QAbstractButton):
 
     def _animate_toggle(self) -> None:
         animation = QPropertyAnimation(self, cast(QByteArray, b"position"), self)
-        animation.setDuration(int(theme_manager.var(props.TRANSITION)))
+        animation.setDuration(int(theme_manager.prop(Props.TRANSITION)))
         animation.setStartValue(self.start_position)
         animation.setEndValue(self.end_position)
         # hide label during animation

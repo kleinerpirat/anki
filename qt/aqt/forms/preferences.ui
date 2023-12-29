@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>604</width>
-    <height>638</height>
+    <width>648</width>
+    <height>837</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="0">
-           <widget class="QLabel" name="label_9">
+           <widget class="QLabel" name="lang_label">
             <property name="text">
              <string>preferences_language</string>
             </property>
@@ -80,16 +80,47 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="themeBox">
+         <property name="title">
+          <string>preferences_theme</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <layout class="QVBoxLayout" name="themeLayout"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="uiGroup">
          <property name="title">
           <string>preferences_user_interface</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="1">
-           <widget class="QComboBox" name="theme"/>
+          <property name="horizontalSpacing">
+           <number>12</number>
+          </property>
+          <item row="0" column="2">
+           <widget class="QComboBox" name="styleComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="currentText">
+             <string/>
+            </property>
+           </widget>
           </item>
-          <item row="2" column="1">
+          <item row="1" column="2">
            <widget class="QSpinBox" name="uiScale">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="suffix">
              <string notr="true">%</string>
             </property>
@@ -104,24 +135,29 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="styleComboBox">
-            <property name="currentText">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
+          <item row="0" column="1">
            <widget class="QLabel" name="styleLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>preferences_style</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="themeLabel">
+          <item row="1" column="1">
+           <widget class="QLabel" name="uiSizeLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
-             <string>preferences_theme</string>
+             <string>preferences_size</string>
             </property>
            </widget>
           </item>
@@ -147,8 +183,8 @@
          <property name="title">
           <string>preferences_distractions</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="3" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
            <widget class="QCheckBox" name="reduce_motion">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -164,43 +200,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="hide_bottom_bar">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_hide_bottom_bar_during_review</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QComboBox" name="bottomBarComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="hide_top_bar">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_hide_top_bar_during_review</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
+          <item>
            <widget class="QCheckBox" name="minimalist_mode">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -210,16 +210,6 @@
             </property>
             <property name="text">
              <string>preferences_minimalist_mode</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="topBarComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
             </property>
            </widget>
           </item>
@@ -399,9 +389,64 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>preferences_toolbar</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="hide_top_bar">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_hide_top_bar_during_review</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="topBarComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="hide_bottom_bar">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_hide_bottom_bar_during_review</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="bottomBarComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="reviewerGroup">
          <property name="title">
-          <string>preferences_review</string>
+          <string>preferences_reviewer</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_16">
           <item>
@@ -1105,7 +1150,6 @@
  <tabstops>
   <tabstop>lang</tabstop>
   <tabstop>video_driver</tabstop>
-  <tabstop>theme</tabstop>
   <tabstop>styleComboBox</tabstop>
   <tabstop>uiScale</tabstop>
   <tabstop>hide_top_bar</tabstop>

@@ -1,0 +1,48 @@
+
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+@use "sass/colors";
+@use "sass/props";
+
+.hitem {
+    font-weight: bold;
+    padding: 5px 12px;
+    color: colors.$fg;
+    display: inline-block;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+
+.hitem,
+button {
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    border-radius: props.$border-radius;
+
+    &:hover {
+        border-color: colors.$glass;
+        backdrop-filter: blur(props.$blur);
+    }
+    &:active {
+        background: colors.$glass-thick;
+    }
+}
+button {
+    margin: 0.25rem 0.5rem;
+    border-radius: props.$border-radius-large;
+    background-color: colors.$glass;
+    border-color: colors.$glass;
+    backdrop-filter: blur(props.$blur);
+    &:hover {
+        color: colors.$link;
+        background: colors.$glass-thick;
+    }
+}
+
+.hitem:focus {
+    outline: 0;
+}

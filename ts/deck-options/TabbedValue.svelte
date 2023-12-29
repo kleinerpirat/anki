@@ -51,6 +51,8 @@
 </ul>
 
 <style lang="scss">
+    @use "sass/colors";
+
     ul {
         width: 100%;
         display: flex;
@@ -65,15 +67,15 @@
         display: block;
         white-space: nowrap;
         cursor: pointer;
-        color: var(--fg-subtle);
+        color: colors.$fg-subtle;
     }
 
     li.active > span {
-        color: var(--fg);
-        border-bottom: 4px solid var(--border-focus);
+        color: colors.$fg;
+        border-bottom: 4px solid colors.$focus;
         margin-bottom: -2px;
     }
     span:hover {
-        color: var(--fg);
+        color: colors.$fg;
     }
 </style>

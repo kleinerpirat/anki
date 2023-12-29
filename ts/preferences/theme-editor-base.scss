@@ -1,0 +1,49 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use "sass/colors";
+@use "sass/props";
+
+body {
+    height: 160px;
+    background-color: colors.$canvas-secondary !important;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    background: transparent;
+    width: 0;
+    height: 0;
+}
+
+input[type="range"]:focus {
+    outline: none;
+}
+
+input[type="range"]::-ms-track {
+    &:not(.vertical) {
+        width: 100%;
+    }
+    &.vertical {
+        height: 100%;
+    }
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: 1px solid colors.$border-subtle;
+    height: 36px;
+    width: 16px;
+    margin-top: -14px; /* need to specify a margin in Chrome */
+    &.vertical {
+        width: 16px;
+        height: 36px;
+        margin-right: -14px;
+    }
+    background: colors.$fg;
+    cursor: pointer;
+}

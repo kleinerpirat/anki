@@ -1,17 +1,8 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "sass/root-vars";
-@use "sass/vars" as *;
+@use "sass/colors";
 @use "sass/card-counts";
-
-:root {
-    --focus-color: #{palette-of(border-focus)};
-
-    .isMac {
-        --focus-color: rgba(0 103 244 / 0.247);
-    }
-}
 
 body {
     margin: 0;
@@ -48,7 +39,7 @@ button {
 }
 
 :focus {
-    border-color: color(border-focus);
+    border-color: colors.$focus;
 }
 
 .nobold,
@@ -72,13 +63,13 @@ button {
 }
 
 #outer {
-    border-top: 1px solid color(border);
+    border-top: 1px solid colors.$border;
     /* Better compatibility with graphics pad/touchscreen */
     -webkit-user-select: none;
 }
 
 .nightMode {
     #outer {
-        border-top-color: color(border-subtle);
+        border-top-color: colors.$border-subtle;
     }
 }

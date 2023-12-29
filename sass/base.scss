@@ -1,38 +1,11 @@
-@use "vars" as *;
-@use "root-vars";
+@use "colors";
+@use "props";
+@use "buttons";
 @use "button-mixins" as button;
-@use "sass/scrollbar";
+@use "scrollbar";
+@use "background";
 
-$body-color: color(fg);
-$body-bg: color(canvas);
-
-$link-hover-color: color(fg-link);
-$link-hover-decoration: none;
-
-$utilities: (
-    "opacity": (
-        property: opacity,
-        values: (
-            0: 0,
-            25: 0.25,
-            50: 0.5,
-            75: 0.75,
-            100: 1,
-        ),
-    ),
-);
-
-@import "bootstrap/scss/bootstrap-reboot";
-@import "bootstrap/scss/bootstrap-utilities";
-
-/* Bootstrap "extensions" */
-.flex-basis-100 {
-    flex-basis: 100%;
-}
-
-.flex-basis-75 {
-    flex-basis: 75%;
-}
+@import "normalize.css/normalize.css";
 
 html,
 body {
@@ -49,25 +22,32 @@ body {
     &:not(.isMac) * {
         @include scrollbar.custom;
     }
+
     &.reduce-motion,
     &.reduce-motion *:not(.no-reduce-motion) {
         transition: none !important;
         animation: none !important;
     }
+
     &.no-blur * {
         backdrop-filter: none !important;
     }
+
     &:not(.fancy),
     &:not(.fancy) * {
         box-shadow: none !important;
         backdrop-filter: none !important;
     }
+
+    &:not(.user-bg)::after {
+        @include background.pseudo;
+    }
 }
 
 button {
     /* override transition for instant hover response */
-    transition: color var(--transition) ease-in-out, box-shadow var(--transition) ease-in-out !important;
-    border-radius: prop(border-radius);
+    transition: color props.$transition ease-in-out, box-shadow props.$transition ease-in-out !important;
+    border-radius: props.$border-radius;
     @include button.base;
 }
 
@@ -88,11 +68,24 @@ input[type="radio"],
 input[type="checkbox"] {
     cursor: pointer;
 }
+
 input[type="text"] {
-    border-radius: prop(border-radius);
+    border-radius: props.$border-radius;
     outline: none;
-    border: 1px solid color(border);
+    border: 1px solid colors.$border;
+
     &:focus {
-        border-color: color(border-focus);
+        border-color: colors.$focus;
+    }
+}
+
+html {
+    font-size: props.$font-size;
+    body {
+        overscroll-behavior: none;
+        &:not(.isMac),
+        &:not(.isMac) * {
+            @include scrollbar.custom;
+        }
     }
 }
